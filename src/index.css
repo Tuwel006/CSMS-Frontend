@@ -1,0 +1,19 @@
+@import "tailwindcss";
+body {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Theme Variables */
+body.light {
+  --bg: #f8f9fa;
+  --text: #1f2937;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+}
+
+body.dark {
+  --bg: #111827;
+  --text: #f9fafb;
+  --card-bg: #1f2937;
+  --card-border: #374151;
+}
