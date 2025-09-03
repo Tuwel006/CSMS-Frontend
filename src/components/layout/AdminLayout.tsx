@@ -18,7 +18,7 @@ const Content = ({ children }: { children: ReactNode }) => {
   );
 };
 
-const Layout = ({ children }: { children: ReactNode }) => (
+const AdminLayout = ({ children }: { children: ReactNode }) => (
   <LayoutProvider>
     <Header />
     <Sidebar />
@@ -26,4 +26,4 @@ const Layout = ({ children }: { children: ReactNode }) => (
   </LayoutProvider>
 );
 
-export default Layout;
+export default AdminLayout;

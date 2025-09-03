@@ -5,21 +5,22 @@ import { useTheme } from "../../context/ThemeContext";
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const {theme} = useTheme();
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <Sidebar />
-      <main
-        key={theme} // ✅ force re-render when theme changes
-        className="ml-16 mt-16 p-6 transition-all duration-300"
-        style={{
-          backgroundColor: "var(--bg)",
-          color: "var(--text)",
-          minHeight: "calc(100vh - 4rem)",
-        }}
-      >
-        {children}
-      </main>
-    </>
+      <div className="flex flex-1 relative">
+        <Sidebar />
+        <main
+          key={theme}
+          className="flex-1 transition-all duration-300"
+          style={{
+            backgroundColor: "var(--bg)",
+            color: "var(--text)",
+          }}
+        >
+          {children}
+        </main>
+      </div>
+    </div>
   );
 };
 

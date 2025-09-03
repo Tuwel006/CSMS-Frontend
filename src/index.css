@@ -7,6 +7,7 @@ body {
 body.light {
   --bg: #f8f9fa;
   --text: #1f2937;
+  --text-secondary: #6b7280;
   --card-bg: #ffffff;
   --card-border: #e5e7eb;
 }
@@ -14,6 +15,7 @@ body.light {
 body.dark {
   --bg: #111827;
   --text: #f9fafb;
+  --text-secondary: #9ca3af;
   --card-bg: #1f2937;
   --card-border: #374151;
 }
