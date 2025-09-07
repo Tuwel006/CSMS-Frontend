@@ -7,7 +7,7 @@ const Sidebar = () => {
   const location = useLocation();
 
   const links = [
-    { to: "/", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
+    { to: "/dashboard", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
     { to: "/match-setup", icon: <Edit size={20} />, label: "Match Setup" },
     { to: "/team-management", icon: <Users size={20} />, label: "Team Management" },
     { to: "/player-management", icon: <UserPlus size={20} />, label: "Player Management" },
@@ -18,8 +18,8 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`lg:relative top-16 lg:top-0 left-0 h-[calc(100vh-4rem)] transition-all duration-300 z-50
-        ${open ? "w-52 fixed" : "w-16"} bg-[var(--card-bg)] border-r border-[var(--card-border)]`}
+      className={`fixed lg:relative top-16 lg:top-0 left-0 h-[calc(100vh-4rem)] transition-all duration-300 z-50
+        ${open ? "w-52" : "w-16"} bg-[var(--card-bg)] border-r border-[var(--card-border)]`}
     >
       <button
         className="w-full flex items-center justify-center px-4 py-4 text-[var(--text)] hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-[var(--card-border)]"
