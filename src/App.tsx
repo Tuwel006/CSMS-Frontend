@@ -1,10 +1,13 @@
 import { MatchProvider } from "./context/MatchContext";
 import AppRoutes from "./AppRoutes";
+import { CurrentMatchProvider } from "./context/CurrentMatchContext";
 
 function App() {
   return (
     <MatchProvider>
-      <AppRoutes />
+      <CurrentMatchProvider>
+        <AppRoutes />
+      </CurrentMatchProvider>
     </MatchProvider>
   );
 }

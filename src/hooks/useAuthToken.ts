@@ -1,74 +1,67 @@
-import { useState, useEffect } from 'react';
+import type { UserRole, TokenPayload } from '@/types/auth';
+import { useState, useEffect, useMemo } from 'react';
 
-interface TokenPayload {
-  userId: string;
-  email: string;
-  roles: string[];
-  exp: number;
-  iat: number;
-}
+const decodeToken = (token: string): TokenPayload | null => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Invalid token:', error);
+    return null;
+  }
+};
 
-interface AuthTokenHook {
-  token: string | null;
-  payload: TokenPayload | null;
-  isAuth: boolean;
-  roles: string[];
-  clearToken: () => void;
-  setToken: (token: string) => void;
-}
+const useAuthToken = () => {
+  const [token, setTokenState] = useState<string | null>(
+    localStorage.getItem('authToken')
+  );
 
-const useAuthToken = (): AuthTokenHook => {
-  const [token, setTokenState] = useState<string | null>(null);
-  const [payload, setPayload] = useState<TokenPayload | null>(null);
+  const decodedPayload = useMemo(() => {
+    if (!token) return null;
+    return decodeToken(token);
+  }, [token]);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('authToken');
-    if (storedToken) {
-      setTokenState(storedToken);
-      decodeToken(storedToken);
-    }
+    const handleStorageChange = () => {
+      setTokenState(localStorage.getItem('authToken'));
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
-
-  const decodeToken = (token: string) => {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      const decoded = JSON.parse(jsonPayload);
-      setPayload(decoded);
-    } catch (error) {
-      console.error('Invalid token:', error);
-      setPayload(null);
-    }
-  };
 
   const setToken = (newToken: string) => {
     localStorage.setItem('authToken', newToken);
     setTokenState(newToken);
-    decodeToken(newToken);
   };
 
   const clearToken = () => {
     localStorage.removeItem('authToken');
     setTokenState(null);
-    setPayload(null);
   };
 
-  const isAuth = !!(token && payload && payload.exp > Date.now() / 1000);
-  const roles = payload?.roles || [];
+  const isAuth = !!(
+    decodedPayload && decodedPayload.exp > Date.now() / 1000
+  );
+  const role: UserRole | 'guest' =
+    isAuth && decodedPayload ? decodedPayload.role : 'guest';
+  const user = decodedPayload;
 
   return {
     token,
-    payload,
-    isAuth,
-    roles,
+    user,
+    role,
     clearToken,
-    setToken
+    setToken,
+    isAuth
   };
 };
 

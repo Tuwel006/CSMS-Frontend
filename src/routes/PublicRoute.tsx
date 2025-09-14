@@ -1,12 +1,19 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+import useAuthToken from '../hooks/useAuthToken';
 
-const PublicRoute: React.FC = (): React.JSX.Element => {
-  const token = localStorage.getItem('access_token');
-  if (token && token !== '') {
-    return <Navigate to="/" replace />;
+interface PublicRouteProps {
+  children: React.ReactNode;
+}
+
+const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
+  const { isAuth } = useAuthToken();
+
+  if (isAuth) {
+    return <Navigate to="/dashboard" replace />;
   }
-  return <Outlet/>;
+
+  return <>{children}</>;
 };
 
 export default PublicRoute;

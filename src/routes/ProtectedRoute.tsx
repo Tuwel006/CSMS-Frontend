@@ -1,28 +1,29 @@
-import { jwtDecode } from 'jwt-decode';
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+import useAuthToken from '../hooks/useAuthToken';
+
 interface ProtectedRouteProps {
   allowedRoles: string[];
+  children: React.ReactNode;
 }
 
-interface UserPayload {
-  sub: string,
-  email: string,
-  role: string
-}
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  allowedRoles,
+  children
+}) => {
+  const { role, isAuth } = useAuthToken();
 
-
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-  const token = localStorage.getItem('access_token');
-  if (!token || token === '') {
+  if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
-  const role = jwtDecode<UserPayload>(token).role;
-  if(allowedRoles && !allowedRoles.includes(role)) {
+
+  const hasRequiredRole = allowedRoles.includes(role);
+
+  if (allowedRoles.length > 0 && !hasRequiredRole) {
     return <Navigate to="/" replace />;
   }
-  return <Outlet/>;
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
