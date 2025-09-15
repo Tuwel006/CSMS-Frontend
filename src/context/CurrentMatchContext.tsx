@@ -48,8 +48,8 @@ interface MatchContextType {
 
 const CurrentMatchContext = createContext<MatchContextType | undefined>(undefined);
 
-const API_KEY = '74f14599-16d3-49d8-b32b-be5008bf741a';
-const API_URL = 'https://api.cricapi.com/v1/currentMatches';
+const API_KEY = import.meta.env.VITE_CRICKET_API_KEY;
+const API_URL = import.meta.env.VITE_CRICKET_API_URL;
 
 export const CurrentMatchProvider = ({ children }: { children: ReactNode }) => {
   const [matches, setMatches] = useState<Match[]>([]);
