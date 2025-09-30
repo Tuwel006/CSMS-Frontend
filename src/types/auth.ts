@@ -1,12 +1,12 @@
 export type UserRole = 'user' | 'guest' | 'admin' | 'subscriber' | 'superadmin';
 
 export interface TokenPayload {
-  userId: string;
+  id: string;
+  username: string;
   email: string;
-  role: UserRole;
-  isSubscribed: boolean;
-  exp: number;
-  iat: number;
+  isGlobalAdmin: boolean;
+  tenantId: string;
+  exp?: number;
 }
 
 export interface AuthTokenHook {

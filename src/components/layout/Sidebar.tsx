@@ -1,20 +1,14 @@
-import { useState } from "react";
-import { LayoutDashboard, Home, Edit, Settings, Users, UserPlus, BarChart3, TrendingUp, ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, type JSX } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-const Sidebar = () => {
+const Sidebar = ({ links }: { links: { to: string; icon: JSX.Element; label: string }[] }) => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const pathnames = location.pathname?.split('/');
+  const path = `/${pathnames[1]}`;
 
-  const links = [
-    { to: "/dashboard", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
-    { to: "/match-setup", icon: <Edit size={20} />, label: "Match Setup" },
-    { to: "/team-management", icon: <Users size={20} />, label: "Team Management" },
-    { to: "/player-management", icon: <UserPlus size={20} />, label: "Player Management" },
-    { to: "/score-updates", icon: <TrendingUp size={20} />, label: "Score Updates" },
-    { to: "/statistics", icon: <BarChart3 size={20} />, label: "Statistics" },
-    { to: "/settings", icon: <Settings size={20} />, label: "Settings" },
-  ];
+
 
   return (
     <aside
@@ -31,7 +25,7 @@ const Sidebar = () => {
         {links.map((link) => (
           <Link
             key={link.to}
-            to={link.to}
+            to={path+link.to}
             className={`flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-[var(--text)]
               ${location.pathname === link.to ? "bg-gray-100 dark:bg-gray-700" : ""}`}
           >

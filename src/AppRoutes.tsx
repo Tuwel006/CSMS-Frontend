@@ -1,10 +1,10 @@
-import AppRoutes from "./routes";
+import AppRoute from "./routes";
 import { AuthProvider } from "./context/AuthContext";
 
-const App = () => {
+const AppRoutes = () => {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <AppRoute />
     </AuthProvider>
   );
 };

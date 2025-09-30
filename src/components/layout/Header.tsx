@@ -1,18 +1,36 @@
-import { useTheme } from "../../context/ThemeContext";
-import { useSearch } from "../../context/SearchContext";
-import { Sun, Moon } from "lucide-react";
-import SearchBar from "../ui/SearchBar";
-import SearchResults from "../ui/SearchResults";
+import { useState } from 'react';
+import { useTheme } from '../../context/ThemeContext';
+import { useSearch } from '../../context/SearchContext';
+import { Sun, Moon, ChevronDown } from 'lucide-react';
+import SearchBar from '../ui/SearchBar';
+import SearchResults from '../ui/SearchResults';
+import ProfileDropdown from './ProfileDropdown';
+import useAuth from '../../hooks/useAuth';
+import { useAuthContexxt } from '../../context/AuthContext';
 
 const Header = () => {
   const { theme, toggleTheme } = useTheme();
-  const { isSearchOpen, searchValue, toggleSearch, setSearchValue, performSearch } = useSearch();
+  const {
+    isSearchOpen,
+    searchValue,
+    toggleSearch,
+    setSearchValue,
+    performSearch,
+  } = useSearch();
+  const [isProfileOpen, setProfileOpen] = useState(false);
+  const { logout } = useAuth();
+  const { user } = useAuthContexxt();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <header className="h-16 bg-[var(--card-bg)] border-b border-[var(--card-border)] flex items-center justify-between px-6 sticky top-0 z-40">
-      <h1 className="text-xl font-bold text-[var(--text)]">Cricket Live Score</h1>
+      <h1 className="text-xl font-bold text-[var(--text)]">
+        Cricket Live Score
+      </h1>
       <div className="flex items-center gap-4 relative">
-        
         <div className="relative">
           <SearchBar
             isOpen={isSearchOpen}
@@ -29,10 +47,31 @@ const Header = () => {
           className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
           aria-label="Toggle Theme"
         >
-          {theme === "dark" ? <Sun className="text-[var(--text)]" /> : <Moon className="text-[var(--text)]" />}
+          {theme === 'dark' ? (
+            <Sun className="text-[var(--text)]" />
+          ) : (
+            <Moon className="text-[var(--text)]" />
+          )}
         </button>
-        <span className="text-sm text-[var(--text)]">Admin</span>
-        <button className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Logout</button>
+        <div className="relative">
+          <button
+            onClick={() => setProfileOpen(!isProfileOpen)}
+            className="flex items-center gap-2"
+          >
+            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center font-bold text-white">
+              {user?.email?.charAt(0).toUpperCase()}
+            </div>
+            <ChevronDown
+              className={`text-[var(--text)] transition-transform ${
+                isProfileOpen ? 'rotate-180' : ''
+              }`}
+              size={16}
+            />
+          </button>
+          {isProfileOpen && user && (
+            <ProfileDropdown user={user} onLogout={handleLogout} />
+          )}
+        </div>
       </div>
     </header>
   );

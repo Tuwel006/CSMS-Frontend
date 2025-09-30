@@ -1,24 +1,25 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Gamepad2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
 import useAuthToken from '../hooks/useAuthToken';
-import SocialAuth from '../components/auth/SocialAuth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const { login, signup, loading, error } = useAuth();
   const { isAuth } = useAuthToken();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  useEffect(() => {
-    if (isAuth) {
-      navigate('/');
-    }
-  }, [isAuth, navigate]);
+  // useEffect(() => {
+  //   if (isAuth) {
+  //     navigate('/home');
+  //   }
+  // }, [isAuth, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,9 +27,14 @@ const Login = () => {
       if (isLogin) {
         await login({ email, password });
       } else {
-        await signup({ email, password });
+        await signup({ username, email, password });
+        navigate('/login');
+        return;
       }
-      navigate('/');
+      setTimeout(() => {navigate('/');}, 1000);
+      
+      const pathname = location.pathname;
+      window.open(`${pathname}`, '_blank');
     } catch (err) {
       console.error('Auth error:', err);
     }
@@ -59,6 +65,17 @@ const Login = () => {
               <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                {
+                  !isLogin && (
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full mb-3 pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
+                      placeholder="Username"
+                      required
+                    />
+                  )}
                 <input
                   type="email"
                   value={email}
@@ -129,8 +146,6 @@ const Login = () => {
               </button>
             </p>
           </div>
-
-          <SocialAuth />
         </div>
       </div>
     </div>

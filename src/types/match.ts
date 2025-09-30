@@ -27,7 +27,7 @@ export interface Match {
 
 export interface BallData {
   runs: number;
-  ballType: 'normal' | 'wide' | 'noBall' | 'legBye' | 'bye' | 'wicket';
+  ballType: 'normal' | 'wide' | 'noBall' | 'legBye' | 'bye' | 'wicket' | 'penalty';
   extraRuns?: number;
   wicketType?: string;
   fielder?: string;

@@ -7,7 +7,7 @@ import MatchCardSkeleton from '../card/MatchCardSkelton';
 const MatchSlider = React.lazy(() => import('./MatchSlider'));
 
 const MatchSliderWrapper: React.FC = () => {
-  const { loading, error, matches } = useCurrentMatchContext();
+  const { error, matches } = useCurrentMatchContext();
 
   if (error) return <div className="p-5 text-red-500">Error: {error}</div>;
 
@@ -15,21 +15,13 @@ const MatchSliderWrapper: React.FC = () => {
     <Suspense
       fallback={
         <div className="flex space-x-4 overflow-x-auto p-5">
-          {Array.from({ length: 3 }).map((_, idx) => (
+          {matches.map((_, idx) => (
             <MatchCardSkeleton key={idx} />
           ))}
         </div>
       }
     >
-      {loading ? (
-        <div className="flex space-x-4 overflow-x-auto p-5">
-          {Array.from({ length: 3 }).map((_, idx) => (
-            <MatchCardSkeleton key={idx} />
-          ))}
-        </div>
-      ) : (
-        <MatchSlider />
-      )}
+        <MatchSlider matches={matches} />
     </Suspense>
   );
 };

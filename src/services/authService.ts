@@ -12,23 +12,29 @@ interface SignupData {
 }
 
 interface AuthResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    name?: string;
-  };
+  status: number;
+  code: string;
+  message: string;
+  data: {
+    token: string;
+    user: {
+      id: string;
+      username: string;
+      email: string;
+      name?: string;
+    }
+  }
 }
 
 export class AuthService {
   private static readonly REDIRECT_URI = import.meta.env.VITE_OAUTH_REDIRECT_URI || 'http://localhost:5173/auth/callback';
 
   static async login(data: LoginData): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('/auth/login', data);
+    return apiClient.post<AuthResponse>('user/auth/login', data);
   }
 
   static async signup(data: SignupData): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('/auth/signup', data);
+    return apiClient.post<AuthResponse>('user/auth/signup', data);
   }
 
   static initiateGoogleAuth(): void {

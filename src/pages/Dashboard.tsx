@@ -169,8 +169,8 @@ const Dashboard = () => {
     await createMatch(dummyMatch);
   };
 
-  const handleBallUpdate = async (outcome: BallOutcomeData) => {
-    await addBall({
+  const handleBallUpdate = (outcome: BallOutcomeData) => {
+    addBall({
       runs: outcome.runs,
       ballType: outcome.ballType,
       extraRuns: outcome.additionalRuns,

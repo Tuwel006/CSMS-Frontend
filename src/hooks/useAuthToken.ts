@@ -49,10 +49,10 @@ const useAuthToken = () => {
   };
 
   const isAuth = !!(
-    decodedPayload && decodedPayload.exp > Date.now() / 1000
+    decodedPayload 
   );
   const role: UserRole | 'guest' =
-    isAuth && decodedPayload ? decodedPayload.role : 'guest';
+    isAuth && decodedPayload.isGlobalAdmin ? "admin" : isAuth ? 'user' : 'guest';
   const user = decodedPayload;
 
   return {

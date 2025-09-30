@@ -7,18 +7,19 @@ import React, {
   type ReactNode
 } from 'react';
 import axios from 'axios';
+import DefaultMatches from '@/utils/DefaultMatchesData.json';
 
-interface TeamInfo {
+export interface TeamInfo {
   name: string;
   shortname: string;
   img: string;
 }
 
-interface Score {
-  r: number;
-  w: number;
-  o: number;
-  inning: string;
+export interface Score {
+  r: string | number;  // Runs
+  w: string | number;  // Wickets
+  o: string | number;  // Overs
+  inning?: string;     // Optional, for compatibility
 }
 
 export interface Match {
@@ -31,7 +32,7 @@ export interface Match {
   dateTimeGMT: string;
   teams: string[];
   teamInfo: TeamInfo[];
-  score: Score[];
+  score: Score[]; // Now supports both string and number types
   series_id: string;
   fantasyEnabled: boolean;
   bbbEnabled: boolean;
@@ -39,6 +40,7 @@ export interface Match {
   matchStarted: boolean;
   matchEnded: boolean;
 }
+
 
 interface MatchContextType {
   matches: Match[];
@@ -62,9 +64,23 @@ export const CurrentMatchProvider = ({ children }: { children: ReactNode }) => {
       const res = await axios.get<{ data: Match[] }>(API_URL, {
         params: { apikey: API_KEY },
       });
-      setMatches(res.data.data);
-      setError(null);
+      const apiMatches = res?.data?.data;
+      if (Array.isArray(apiMatches) && apiMatches.length > 0) {
+        setMatches(apiMatches);
+        setError(null);
+      } else if (Array.isArray(DefaultMatches) && DefaultMatches.length > 0) {
+        setMatches(DefaultMatches as Match[]);
+        setError(null);
+      } else {
+        setMatches([]);
+        setError('No matches available');
+      }
     } catch (err) {
+      if (Array.isArray(DefaultMatches) && DefaultMatches.length > 0) {
+        setMatches(DefaultMatches as Match[]);
+      } else {
+        setMatches([]);
+      }
       console.error('Failed to fetch matches:', err);
       setError('Failed to load live matches');
     } finally {
@@ -83,6 +99,8 @@ export const CurrentMatchProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </CurrentMatchContext.Provider>
   );
+
+
 };
 
 export const useCurrentMatchContext = (): MatchContextType => {

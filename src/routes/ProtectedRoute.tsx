@@ -1,29 +1,30 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import useAuthToken from '../hooks/useAuthToken';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuthContexxt } from '@/context/AuthContext';
 
 interface ProtectedRouteProps {
   allowedRoles: string[];
-  children: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles,
-  children
 }) => {
-  const { role, isAuth } = useAuthToken();
+  const { role, isAuth } = useAuthContexxt();
 
   if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
-
   const hasRequiredRole = allowedRoles.includes(role);
 
+  if(isAuth && (allowedRoles.length === 0 && !hasRequiredRole)){
+    return <Navigate to="/home" replace />;
+  }  
+
   if (allowedRoles.length > 0 && !hasRequiredRole) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
-  return <>{children}</>;
+  return <Outlet/>;
 };
 
 export default ProtectedRoute;

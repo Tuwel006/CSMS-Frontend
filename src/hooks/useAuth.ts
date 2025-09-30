@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AuthService } from '../services/authService';
-import useAuthToken from './useAuthToken';
+import { useAuthContexxt } from '../context/AuthContext';
 
 interface LoginData {
   email: string;
@@ -8,9 +8,9 @@ interface LoginData {
 }
 
 interface SignupData {
+  username: string;
   email: string;
   password: string;
-  name?: string;
 }
 
 interface UseAuthReturn {
@@ -24,14 +24,17 @@ interface UseAuthReturn {
 const useAuth = (): UseAuthReturn => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { setToken, clearToken } = useAuthToken();
+  const { login: setAuth } = useAuthContexxt();
 
   const login = async (data: LoginData) => {
     try {
       setLoading(true);
       setError(null);
       const response = await AuthService.login(data);
-      setToken(response.token);
+      if (response?.data?.token) {
+        setAuth(response.data.token);
+      }
+      localStorage.setItem('user', JSON.stringify(response.data.user));
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');
       throw err;
@@ -45,7 +48,6 @@ const useAuth = (): UseAuthReturn => {
       setLoading(true);
       setError(null);
       const response = await AuthService.signup(data);
-      setToken(response.token);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Signup failed');
       throw err;
@@ -54,8 +56,9 @@ const useAuth = (): UseAuthReturn => {
     }
   };
 
+  const { logout: clearAuth } = useAuthContexxt();
   const logout = () => {
-    clearToken();
+    clearAuth();
     setError(null);
   };
 
@@ -64,7 +67,7 @@ const useAuth = (): UseAuthReturn => {
     error,
     login,
     signup,
-    logout
+    logout,
   };
 };
 

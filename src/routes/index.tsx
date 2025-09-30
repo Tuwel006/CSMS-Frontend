@@ -1,81 +1,52 @@
-import { Routes, Route } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';
-import PublicRoute from './PublicRoute';
-import Login from '../pages/Login';
-import AuthCallback from '../pages/AuthCallback';
-import Dashboard from '../pages/Dashboard';
-import MatchSetup from '../pages/MatchSetup';
-import TeamManagement from '../pages/TeamManagement';
-import ScoreEditor from '../pages/ScoreEditor';
-import Home from '../pages/Home';
-import PublicLayout from '../components/layout/PublicLayout';
-import Layout from '../components/layout/Layout';
-import LandingPage from '@/pages/LandingPage';
+// AppRoutes.tsx
+import { Routes, Route } from "react-router-dom";
+import Layout from "@/components/layout/Layout";
+import LandingPage from "@/pages/LandingPage";
+import Login from "@/pages/Login";
+import ProtectedRoute from "./ProtectedRoute";
+import Home from "@/pages/Home";
+import Dashboard from "@/pages/Dashboard";
+import PublicRoute from "./PublicRoute";
+import NotFound from "@/pages/NotFound";
+import PublicLayout from "@/components/layout/PublicLayout";
+import { useAuthContexxt } from "@/context/AuthContext";
+import MatchDetail from "@/pages/MatchDetails";
+import MatchSetup from "@/pages/MatchSetup";
+import TeamManagement from "@/pages/TeamManagement";
+import ScoreEditor from "@/pages/ScoreEditor";
 
-const AppRoutes = () => {
+
+export default function AppRoute() {
+  const {isAuth, role} = useAuthContexxt();
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <PublicRoute>
-            <PublicLayout>
-              <LandingPage />
-            </PublicLayout>
-          </PublicRoute>
-        }
-      />
-      <Route
-        path="/login"
-        element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        }
-      />
-      <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <Layout>
-              <Dashboard />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/match-setup"
-        element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <Layout>
-              <MatchSetup />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/team-management"
-        element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <Layout>
-              <TeamManagement />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/scoreeditor"
-        element={
-          <ProtectedRoute allowedRoles={['admin', 'subscriber']}>
-            <Layout>
-              <ScoreEditor />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
+      {/* Public routes */}
+      <Route element={<PublicRoute isAuth={isAuth} role={role} />}>
+        <Route path="login" element={<Login />} />
+      </Route>
+      <Route element={<PublicLayout />}>
+        <Route path="/home" element={<Home />} />
+        <Route index element={<LandingPage />} />
+      </Route>
+      {/* Protected ROutes */}
+      <Route element={<Layout />}>
+        <Route element={<ProtectedRoute allowedRoles={['admin']}/>}>
+           <Route path="admin">
+              <Route index element={<MatchDetail />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="match-setup" element={<MatchSetup/>} />
+              <Route path="team-management" element={<TeamManagement/>} />
+              <Route path="player-management" element={<div>Player Management Page</div>} />
+              <Route path="score-updates" element={<ScoreEditor />} />
+              <Route path="statistics" element={<div>Statistics Page</div>} />
+              <Route path="settings" element={<div>Settings Page</div>} />
+              {/* Add more admin routes here */}
+           </Route>
+        </Route>
+      </Route>
+      
+      {/* 404 Catch All */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
-};
-
-export default AppRoutes;
+}

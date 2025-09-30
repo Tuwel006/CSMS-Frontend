@@ -1,19 +1,17 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import useAuthToken from '../hooks/useAuthToken';
+import { Navigate, Outlet } from 'react-router-dom';
 
-interface PublicRouteProps {
-  children: React.ReactNode;
-}
-
-const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-  const { isAuth } = useAuthToken();
-
+const PublicRoute = ({ isAuth, role }: { isAuth: boolean; role: string }) => {
+  // If authenticated, redirect to appropriate dashboard immediately
+  
   if (isAuth) {
-    return <Navigate to="/dashboard" replace />;
+    if (role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
+    return <Navigate to="/home" replace />;
   }
 
-  return <>{children}</>;
+  // If not authenticated, allow access to public routes (like /login)
+  return <Outlet />;
 };
 
 export default PublicRoute;

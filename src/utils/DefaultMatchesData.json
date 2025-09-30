@@ -1,0 +1,919 @@
+[
+    {
+      "id": "81ac72e6-ad36-4d38-8122-a2a6556e2101",
+      "name": "Zimbabwe vs Namibia, 2nd T20I",
+      "matchType": "t20",
+      "status": "Match not started",
+      "venue": "Queens Sports Club, Bulawayo",
+      "date": "2025-09-16",
+      "dateTimeGMT": "2025-09-16T11:30:00",
+      "teams": [
+        "Zimbabwe",
+        "Namibia"
+      ],
+      "teamInfo": [
+        {
+          "name": "Namibia",
+          "shortname": "NAM",
+          "img": "https://g.cricapi.com/iapi/53-637877082656229722.webp?w=48"
+        },
+        {
+          "name": "Zimbabwe",
+          "shortname": "ZIM",
+          "img": "https://g.cricapi.com/iapi/575-637877079629985215.webp?w=48"
+        }
+      ],
+      "score": [],
+      "series_id": "3df66d82-3d4d-43d9-ac3c-c7740ab39959",
+      "fantasyEnabled": false,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": false,
+      "matchEnded": false
+    },
+    {
+      "id": "6df452e2-37ac-4174-b465-433d412b37e8",
+      "name": "Zimbabwe vs Namibia, 1st T20I",
+      "matchType": "t20",
+      "status": "Zimbabwe won by 33 runs",
+      "venue": "Queens Sports Club, Bulawayo",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T07:30:00",
+      "teams": [
+        "Zimbabwe",
+        "Namibia"
+      ],
+      "teamInfo": [
+        {
+          "name": "Namibia",
+          "shortname": "NAM",
+          "img": "https://g.cricapi.com/iapi/53-637877082656229722.webp?w=48"
+        },
+        {
+          "name": "Zimbabwe",
+          "shortname": "ZIM",
+          "img": "https://g.cricapi.com/iapi/575-637877079629985215.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 211,
+          "w": 3,
+          "o": 20,
+          "inning": "Zimbabwe Inning 1"
+        },
+        {
+          "r": 178,
+          "w": 7,
+          "o": 20,
+          "inning": "Namibia Inning 1"
+        }
+      ],
+      "series_id": "3df66d82-3d4d-43d9-ac3c-c7740ab39959",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": true
+    },
+    {
+      "id": "dd9615e2-d2ec-47e3-a3cc-321bd99aeb15",
+      "name": "Pakistan Women vs South Africa Women, 1st ODI",
+      "matchType": "odi",
+      "status": "Pakistan Women opt to bat",
+      "venue": "Gaddafi Stadium, Lahore",
+      "date": "2025-09-16",
+      "dateTimeGMT": "2025-09-16T10:30:00",
+      "teams": [
+        "Pakistan Women",
+        "South Africa Women"
+      ],
+      "teamInfo": [
+        {
+          "name": "Pakistan Women",
+          "shortname": "PAKW",
+          "img": "https://g.cricapi.com/iapi/67-637877074931980375.webp?w=48"
+        },
+        {
+          "name": "South Africa Women",
+          "shortname": "RSAW",
+          "img": "https://g.cricapi.com/iapi/83-637877067733114809.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 48,
+          "w": 1,
+          "o": 13,
+          "inning": "Pakistan Women Inning 1"
+        }
+      ],
+      "series_id": "9b1a8532-eb37-470a-982a-cb676c48b8ed",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "f22333f2-313e-4c0d-a35d-53824156f587",
+      "name": "New South Wales vs Tasmania, 1st Match",
+      "matchType": "odi",
+      "status": "Tasmania won by 2 wkts",
+      "venue": "Cricket Central, Sydney",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T23:30:00",
+      "teams": [
+        "New South Wales",
+        "Tasmania"
+      ],
+      "teamInfo": [
+        {
+          "name": "New South Wales",
+          "shortname": "NSW",
+          "img": "https://g.cricapi.com/iapi/56-637991992698313262.webp?w=48"
+        },
+        {
+          "name": "Tasmania",
+          "shortname": "TAS",
+          "img": "https://g.cricapi.com/iapi/88-637987559070396403.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 224,
+          "w": 10,
+          "o": 49.4,
+          "inning": "New South Wales Inning 1"
+        },
+        {
+          "r": 225,
+          "w": 8,
+          "o": 49.2,
+          "inning": "Tasmania Inning 1"
+        }
+      ],
+      "series_id": "6936514f-3840-49cc-98f7-bf47813182f8",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": true
+    },
+    {
+      "id": "c6bdaad8-1e93-4aa8-9e95-ee4d139caf0f",
+      "name": "South Africa A vs New Zealand A, 2nd Unofficial Test",
+      "matchType": "test",
+      "status": "Day 3: 2nd Session - South Africa A trail by 205 runs",
+      "venue": "LC de Villiers Oval, Pretoria",
+      "date": "2025-09-14",
+      "dateTimeGMT": "2025-09-14T08:00:00",
+      "teams": [
+        "South Africa A",
+        "New Zealand A"
+      ],
+      "teamInfo": [
+        {
+          "name": "New Zealand A",
+          "shortname": "NZA",
+          "img": "https://g.cricapi.com/iapi/2180-637982269820638615.webp?w=48"
+        },
+        {
+          "name": "South Africa A",
+          "shortname": "SA-A",
+          "img": "https://g.cricapi.com/iapi/1132-637877069157056525.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 482,
+          "w": 10,
+          "o": 132,
+          "inning": "New Zealand A Inning 1"
+        },
+        {
+          "r": 277,
+          "w": 6,
+          "o": 74,
+          "inning": "South Africa A Inning 1"
+        }
+      ],
+      "series_id": "4030ad04-213a-47c9-82c1-d4aa25fb790a",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "156043b1-e373-4ec4-9833-0e54518cd350",
+      "name": "India A vs Australia A, 1st Unofficial Test",
+      "matchType": "test",
+      "status": "Day 1: 3rd Session - Australia A opt to bat",
+      "venue": "Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium, Lucknow",
+      "date": "2025-09-16",
+      "dateTimeGMT": "2025-09-16T04:00:00",
+      "teams": [
+        "India A",
+        "Australia A"
+      ],
+      "teamInfo": [
+        {
+          "name": "Australia A",
+          "shortname": "AUSA",
+          "img": "https://g.cricapi.com/iapi/1429-637926307133296133.webp?w=48"
+        },
+        {
+          "name": "India A",
+          "shortname": "INA",
+          "img": "https://g.cricapi.com/iapi/2206-637976248888288069.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 281,
+          "w": 4,
+          "o": 60,
+          "inning": "Australia A Inning 1"
+        }
+      ],
+      "series_id": "37852114-cc5d-4db2-86cc-2e8552022ee4",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "e9f9fd83-ea86-4e85-899a-bf53293544a2",
+      "name": "Sri Lanka vs Hong Kong, 8th Match, Group B",
+      "matchType": "t20",
+      "status": "Sri Lanka won by 4 wkts",
+      "venue": "Dubai International Cricket Stadium, Dubai",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T14:30:00",
+      "teams": [
+        "Sri Lanka",
+        "Hong Kong"
+      ],
+      "teamInfo": [
+        {
+          "name": "Hong Kong",
+          "shortname": "HKG",
+          "img": "https://g.cricapi.com/iapi/611-637877089158155520.webp?w=48"
+        },
+        {
+          "name": "Sri Lanka",
+          "shortname": "SL",
+          "img": "https://g.cricapi.com/iapi/4191-638101639309122979.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 149,
+          "w": 4,
+          "o": 20,
+          "inning": "Hong Kong Inning 1"
+        },
+        {
+          "r": 153,
+          "w": 6,
+          "o": 18.5,
+          "inning": "Sri Lanka Inning 1"
+        }
+      ],
+      "series_id": "065533e1-290d-4781-b88b-40df404aae5f",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": true
+    },
+    {
+      "id": "409d7be4-3ad9-4bbf-90b9-feab0cade2e0",
+      "name": "United Arab Emirates vs Oman, 7th Match, Group A",
+      "matchType": "t20",
+      "status": "United Arab Emirates won by 42 runs",
+      "venue": "Sheikh Zayed Stadium, Abu Dhabi",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T12:00:00",
+      "teams": [
+        "United Arab Emirates",
+        "Oman"
+      ],
+      "teamInfo": [
+        {
+          "name": "Oman",
+          "shortname": "OMAN",
+          "img": "https://g.cricapi.com/iapi/64-637877083212505394.webp?w=48"
+        },
+        {
+          "name": "United Arab Emirates",
+          "shortname": "UAE",
+          "img": "https://g.cricapi.com/iapi/92-637877081068315608.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 172,
+          "w": 5,
+          "o": 20,
+          "inning": "United Arab Emirates Inning 1"
+        },
+        {
+          "r": 130,
+          "w": 10,
+          "o": 18.4,
+          "inning": "Oman Inning 1"
+        }
+      ],
+      "series_id": "065533e1-290d-4781-b88b-40df404aae5f",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": true
+    },
+    {
+      "id": "ffcfcd17-b8b4-4567-b755-036bf2bcbb1d",
+      "name": "Indonesia Women vs Japan Women, 3rd place play-off",
+      "matchType": "t20",
+      "status": "Indonesia Women won by 8 wkts",
+      "venue": "Albert Park 2, Suva",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T01:30:00",
+      "teams": [
+        "Indonesia Women",
+        "Japan Women"
+      ],
+      "teamInfo": [
+        {
+          "name": "Indonesia Women",
+          "shortname": "INA-W",
+          "img": "https://g.cricapi.com/iapi/2874-638040163945402807.webp?w=48"
+        },
+        {
+          "name": "Japan Women",
+          "shortname": "JPW",
+          "img": "https://g.cricapi.com/iapi/2769-638040164317933999.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 125,
+          "w": 7,
+          "o": 20,
+          "inning": "Japan Women Inning 1"
+        },
+        {
+          "r": 128,
+          "w": 2,
+          "o": 16.4,
+          "inning": "Indonesia Women Inning 1"
+        }
+      ],
+      "series_id": "364ba7a9-886c-4ed4-bc93-98769a9827d7",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": true
+    },
+    {
+      "id": "b131696e-1e3e-4387-90e7-892e90b90dd1",
+      "name": "Papua New Guinea Women vs Vanuatu Women, Final",
+      "matchType": "t20",
+      "status": "Papua New Guinea Women won by 9 wkts",
+      "venue": "Albert Park 1, Suva",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T01:30:00",
+      "teams": [
+        "Papua New Guinea Women",
+        "Vanuatu Women"
+      ],
+      "teamInfo": [
+        {
+          "name": "Papua New Guinea Women",
+          "shortname": "PN -W",
+          "img": "https://g.cricapi.com/iapi/2425-637991983542500362.webp?w=48"
+        },
+        {
+          "name": "Vanuatu Women",
+          "shortname": "VAN-W",
+          "img": "https://g.cricapi.com/iapi/2551-638004821092331389.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 113,
+          "w": 9,
+          "o": 20,
+          "inning": "Vanuatu Women Inning 1"
+        },
+        {
+          "r": 114,
+          "w": 1,
+          "o": 15.1,
+          "inning": "Papua New Guinea Women Inning 1"
+        }
+      ],
+      "series_id": "364ba7a9-886c-4ed4-bc93-98769a9827d7",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": true
+    },
+    {
+      "id": "f534f115-4c1c-4d2f-8468-80f75ec8950d",
+      "name": "Cook Islands Women vs Philippines Women, 7th Place Play-off",
+      "matchType": "t20",
+      "status": "Philippines Women won by 4 wkts",
+      "venue": "Albert Park 2, Suva",
+      "date": "2025-09-14",
+      "dateTimeGMT": "2025-09-14T21:30:00",
+      "teams": [
+        "Cook Islands Women",
+        "Philippines Women"
+      ],
+      "teamInfo": [
+        {
+          "name": "Cook Islands Women",
+          "shortname": "CIW",
+          "img": "https://g.cricapi.com/iapi/2342-637987698055825091.webp?w=48"
+        },
+        {
+          "name": "Philippines Women",
+          "shortname": "PHW",
+          "img": "https://g.cricapi.com/iapi/70-637869112270788027.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 115,
+          "w": 6,
+          "o": 20,
+          "inning": "Cook Islands Women Inning 1"
+        },
+        {
+          "r": 116,
+          "w": 6,
+          "o": 19.4,
+          "inning": "Philippines Women Inning 1"
+        }
+      ],
+      "series_id": "364ba7a9-886c-4ed4-bc93-98769a9827d7",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": true
+    },
+    {
+      "id": "70b589d4-60e6-4a0b-a594-782fd447cab7",
+      "name": "Fiji Women vs Samoa Women, 5th Place Play-off",
+      "matchType": "t20",
+      "status": "Fiji Women won by 5 wkts",
+      "venue": "Albert Park 1, Suva",
+      "date": "2025-09-14",
+      "dateTimeGMT": "2025-09-14T21:30:00",
+      "teams": [
+        "Fiji Women",
+        "Samoa Women"
+      ],
+      "teamInfo": [
+        {
+          "name": "Fiji Women",
+          "shortname": "FJI-W",
+          "img": "https://g.cricapi.com/iapi/2549-638004817276161035.png?w=48"
+        },
+        {
+          "name": "Samoa Women",
+          "shortname": "SAMWN",
+          "img": "https://g.cricapi.com/iapi/2550-638004821886874966.png?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 74,
+          "w": 10,
+          "o": 12.3,
+          "inning": "Samoa Women Inning 1"
+        },
+        {
+          "r": 75,
+          "w": 5,
+          "o": 13.5,
+          "inning": "Fiji Women Inning 1"
+        }
+      ],
+      "series_id": "364ba7a9-886c-4ed4-bc93-98769a9827d7",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": true
+    },
+    {
+      "id": "330270c6-3906-49cf-a0de-dcbf586367db",
+      "name": "Guyana Amazon Warriors vs Barbados Royals, 30th Match",
+      "matchType": "t20",
+      "status": "Guyana Amazon Warriors won by 64 runs",
+      "venue": "Providence Stadium, Guyana",
+      "date": "2025-09-14",
+      "dateTimeGMT": "2025-09-14T23:00:00",
+      "teams": [
+        "Guyana Amazon Warriors",
+        "Barbados Royals"
+      ],
+      "teamInfo": [
+        {
+          "name": "Barbados Royals",
+          "shortname": "BR",
+          "img": "https://g.cricapi.com/iapi/114-637959253434216362.webp?w=48"
+        },
+        {
+          "name": "Guyana Amazon Warriors",
+          "shortname": "GAW",
+          "img": "https://g.cricapi.com/iapi/174-637945408285271060.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 189,
+          "w": 6,
+          "o": 20,
+          "inning": "Guyana Amazon Warriors Inning 1"
+        },
+        {
+          "r": 125,
+          "w": 10,
+          "o": 18.2,
+          "inning": "Barbados Royals Inning 1"
+        }
+      ],
+      "series_id": "d83eabfc-d381-4ea2-aa1d-9765506bdd9d",
+      "fantasyEnabled": true,
+      "bbbEnabled": true,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": true
+    },
+    {
+      "id": "6a63e927-b897-41fc-886e-30cd2559ba31",
+      "name": "Surrey vs Nottinghamshire, 64th Match",
+      "matchType": "test",
+      "status": "Day 2: 1st Session - Surrey trail by 100 runs",
+      "venue": "Kennington Oval, London",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T10:00:00",
+      "teams": [
+        "Surrey",
+        "Nottinghamshire"
+      ],
+      "teamInfo": [
+        {
+          "name": "Nottinghamshire",
+          "shortname": "NOT",
+          "img": "https://g.cricapi.com/iapi/1130-637889092060873937.webp?w=48"
+        },
+        {
+          "name": "Surrey",
+          "shortname": "SUR",
+          "img": "https://g.cricapi.com/iapi/1133-637885552361099530.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 231,
+          "w": 10,
+          "o": 77.4,
+          "inning": "Nottinghamshire Inning 1"
+        },
+        {
+          "r": 131,
+          "w": 6,
+          "o": 42,
+          "inning": "Surrey Inning 1"
+        }
+      ],
+      "series_id": "9362b075-d007-478c-b4a9-e08b9306caef",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "4cb964ec-f70c-4212-b789-d56c4154ae57",
+      "name": "Warwickshire vs Essex, 61st Match",
+      "matchType": "test",
+      "status": "Day 2: 1st Session - Warwickshire opt to bowl",
+      "venue": "Edgbaston, Birmingham",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T10:00:00",
+      "teams": [
+        "Warwickshire",
+        "Essex"
+      ],
+      "teamInfo": [
+        {
+          "name": "Essex",
+          "shortname": "ESX",
+          "img": "https://g.cricapi.com/iapi/1119-637885549753088458.webp?w=48"
+        },
+        {
+          "name": "Warwickshire",
+          "shortname": "WRKS",
+          "img": "https://g.cricapi.com/iapi/1137-637885552592685258.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 74,
+          "w": 1,
+          "o": 27.2,
+          "inning": "Essex Inning 1"
+        }
+      ],
+      "series_id": "9362b075-d007-478c-b4a9-e08b9306caef",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "c18cbba7-eda1-4b8a-ad88-27c93f70ab77",
+      "name": "Durham vs Worcestershire, 62nd Match",
+      "matchType": "test",
+      "status": "Day 2: 1st Session - Durham opt to bowl",
+      "venue": "Riverside Ground, Chester-le-Street",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T10:00:00",
+      "teams": [
+        "Durham",
+        "Worcestershire"
+      ],
+      "teamInfo": [
+        {
+          "name": "Durham",
+          "shortname": "DURH",
+          "img": "https://g.cricapi.com/iapi/1118-637889090599643548.webp?w=48"
+        },
+        {
+          "name": "Worcestershire",
+          "shortname": "WRCS",
+          "img": "https://g.cricapi.com/iapi/1138-637889091123850841.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 75,
+          "w": 2,
+          "o": 23,
+          "inning": "Worcestershire Inning 1"
+        }
+      ],
+      "series_id": "9362b075-d007-478c-b4a9-e08b9306caef",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "12dbdb84-ed5a-4405-89d2-69fa77516844",
+      "name": "Sussex vs Yorkshire, 63rd Match",
+      "matchType": "test",
+      "status": "Day 2: 1st Session - Yorkshire opt to bat",
+      "venue": "County Ground, Hove",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T10:00:00",
+      "teams": [
+        "Sussex",
+        "Yorkshire"
+      ],
+      "teamInfo": [
+        {
+          "name": "Sussex",
+          "shortname": "SUSS",
+          "img": "https://g.cricapi.com/iapi/1134-637889091814592518.webp?w=48"
+        },
+        {
+          "name": "Yorkshire",
+          "shortname": "YRK",
+          "img": "https://g.cricapi.com/iapi/1139-637885552795894277.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 81,
+          "w": 1,
+          "o": 27.1,
+          "inning": "Yorkshire Inning 1"
+        }
+      ],
+      "series_id": "9362b075-d007-478c-b4a9-e08b9306caef",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "b56138a6-6b83-47a0-b020-33dc13910046",
+      "name": "Somerset vs Hampshire, 65th Match",
+      "matchType": "test",
+      "status": "Day 2: 1st Session - Somerset opt to bat",
+      "venue": "The Cooper Associates County Ground, Taunton",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T10:00:00",
+      "teams": [
+        "Somerset",
+        "Hampshire"
+      ],
+      "teamInfo": [
+        {
+          "name": "Hampshire",
+          "shortname": "HAM",
+          "img": "https://g.cricapi.com/iapi/1122-637885550993657486.webp?w=48"
+        },
+        {
+          "name": "Somerset",
+          "shortname": "SOM",
+          "img": "https://g.cricapi.com/iapi/1131-637885552070524344.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 69,
+          "w": 3,
+          "o": 17.3,
+          "inning": "Somerset Inning 1"
+        }
+      ],
+      "series_id": "9362b075-d007-478c-b4a9-e08b9306caef",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "6084d2f9-1e82-4b94-873c-81ea1ab0373e",
+      "name": "Leicestershire vs Kent, 49th Match",
+      "matchType": "test",
+      "status": "Day 2: 1st Session - Kent opt to bowl",
+      "venue": "Grace Road, Leicester",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T10:00:00",
+      "teams": [
+        "Leicestershire",
+        "Kent"
+      ],
+      "teamInfo": [
+        {
+          "name": "Kent",
+          "shortname": "KENT",
+          "img": "https://g.cricapi.com/iapi/1124-637885551212175895.webp?w=48"
+        },
+        {
+          "name": "Leicestershire",
+          "shortname": "LECS",
+          "img": "https://g.cricapi.com/iapi/1126-637889090878436462.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 115,
+          "w": 2,
+          "o": 23,
+          "inning": "Leicestershire Inning 1"
+        }
+      ],
+      "series_id": "4cdcd4af-0d19-439d-afc3-c2e75d8a8e53",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "504d15e4-41fa-473a-9449-b26fcd13791c",
+      "name": "Derbyshire vs Glamorgan, 52nd Match",
+      "matchType": "test",
+      "status": "Day 2: 1st Session - Derbyshire opt to bowl",
+      "venue": "County Ground, Derby",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T10:00:00",
+      "teams": [
+        "Derbyshire",
+        "Glamorgan"
+      ],
+      "teamInfo": [
+        {
+          "name": "Derbyshire",
+          "shortname": "DERB",
+          "img": "https://g.cricapi.com/iapi/1117-637889091569915358.webp?w=48"
+        },
+        {
+          "name": "Glamorgan",
+          "shortname": "GLAM",
+          "img": "https://g.cricapi.com/iapi/1120-637889090390357869.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 47,
+          "w": 2,
+          "o": 19,
+          "inning": "Glamorgan Inning 1"
+        }
+      ],
+      "series_id": "4cdcd4af-0d19-439d-afc3-c2e75d8a8e53",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "d75fbb4d-63ed-48ec-9a0f-2c1c4a180f1d",
+      "name": "Lancashire vs Middlesex, 50th Match",
+      "matchType": "test",
+      "status": "Day 1: Rain stop play - Lancashire opt to bowl",
+      "venue": "Emirates Old Trafford, Manchester",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T10:00:00",
+      "teams": [
+        "Lancashire",
+        "Middlesex"
+      ],
+      "teamInfo": [
+        {
+          "name": "Lancashire",
+          "shortname": "LNCS",
+          "img": "https://g.cricapi.com/iapi/1125-637885551497331567.webp?w=48"
+        },
+        {
+          "name": "Middlesex",
+          "shortname": "MDX",
+          "img": "https://g.cricapi.com/iapi/1127-637889091340507643.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 13,
+          "w": 2,
+          "o": 5,
+          "inning": "Middlesex Inning 1"
+        }
+      ],
+      "series_id": "4cdcd4af-0d19-439d-afc3-c2e75d8a8e53",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    },
+    {
+      "id": "30324d38-47ba-4051-a08d-29f01aba7ae3",
+      "name": "Gloucestershire vs Northamptonshire, 51st Match",
+      "matchType": "test",
+      "status": "Day 2: 1st Session - Gloucestershire opt to bowl",
+      "venue": "County Ground, Bristol",
+      "date": "2025-09-15",
+      "dateTimeGMT": "2025-09-15T10:00:00",
+      "teams": [
+        "Gloucestershire",
+        "Northamptonshire"
+      ],
+      "teamInfo": [
+        {
+          "name": "Gloucestershire",
+          "shortname": "GLOU",
+          "img": "https://g.cricapi.com/iapi/1121-637885550747990018.webp?w=48"
+        },
+        {
+          "name": "Northamptonshire",
+          "shortname": "NOR",
+          "img": "https://g.cricapi.com/iapi/1129-637885551856435418.webp?w=48"
+        }
+      ],
+      "score": [
+        {
+          "r": 82,
+          "w": 3,
+          "o": 25,
+          "inning": "Northamptonshire Inning 1"
+        }
+      ],
+      "series_id": "4cdcd4af-0d19-439d-afc3-c2e75d8a8e53",
+      "fantasyEnabled": true,
+      "bbbEnabled": false,
+      "hasSquad": true,
+      "matchStarted": true,
+      "matchEnded": false
+    }
+  ]
