@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Gamepad2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
 import useAuthToken from '../hooks/useAuthToken';
+import Input from '../components/ui/Input';
+import Form from '../components/ui/Form';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -60,79 +62,73 @@ const Login = () => {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                {
-                  !isLogin && (
-                    <input
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="w-full mb-3 pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                      placeholder="Username"
-                      required
-                    />
-                  )}
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-                  placeholder="Enter your password"
-                  required
-                />
+          <Form 
+            onSubmit={handleSubmit}
+            variant="minimal"
+            spacing="lg"
+            loading={loading}
+            error={error}
+            footerSlot={
+              <div className="space-y-4">
+                {isLogin && (
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center">
+                      <input type="checkbox" className="w-4 h-4 text-green-400 bg-slate-700 border-slate-600 rounded focus:ring-green-400" />
+                      <span className="ml-2 text-sm text-gray-300">Remember me</span>
+                    </label>
+                    <a href="#" className="text-sm text-green-400 hover:text-green-300">Forgot password?</a>
+                  </div>
+                )}
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-green-400 text-black py-3 px-4 rounded-lg font-semibold hover:bg-green-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
                 </button>
               </div>
-            </div>
-
-            {isLogin && (
-              <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input type="checkbox" className="w-4 h-4 text-green-400 bg-slate-700 border-slate-600 rounded focus:ring-green-400" />
-                  <span className="ml-2 text-sm text-gray-300">Remember me</span>
-                </label>
-                <a href="#" className="text-sm text-green-400 hover:text-green-300">Forgot password?</a>
-              </div>
+            }
+          >
+            {!isLogin && (
+              <Input
+                type="text"
+                label="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                leftIcon={<Mail size={20} />}
+                required
+              />
             )}
+            
+            <Input
+              type="email"
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              leftIcon={<Mail size={20} />}
+              required
+            />
 
-            {error && (
-              <div className="text-red-400 text-sm text-center">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-400 text-black py-3 px-4 rounded-lg font-semibold hover:bg-green-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              leftIcon={<Lock size={20} />}
+              required
             >
-              {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
-            </button>
-          </form>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </Input>
+          </Form>
 
           {/* Toggle */}
           <div className="mt-6 text-center">

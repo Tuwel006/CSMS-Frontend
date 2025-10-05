@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 interface CardProps {
@@ -10,6 +10,20 @@ interface CardProps {
   onClick?: () => void;
 }
 
+const sizeClasses = {
+  sm: 'p-4',
+  md: 'p-6',
+  lg: 'p-8',
+  xl: 'p-10'
+};
+
+const variantClasses = {
+  default: 'bg-white border border-gray-200',
+  outlined: 'bg-transparent border-2 border-gray-300',
+  elevated: 'bg-white shadow-lg border-0',
+  gradient: 'bg-gradient-to-br from-white to-gray-50 border border-gray-100'
+};
+
 const Card = ({ 
   children, 
   className, 
@@ -18,20 +32,6 @@ const Card = ({
   hover = false,
   onClick 
 }: CardProps) => {
-  const sizeClasses = {
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
-    xl: 'p-10'
-  };
-
-  const variantClasses = {
-    default: 'bg-white border border-gray-200',
-    outlined: 'bg-transparent border-2 border-gray-300',
-    elevated: 'bg-white shadow-lg border-0',
-    gradient: 'bg-gradient-to-br from-white to-gray-50 border border-gray-100'
-  };
-
   const hoverClasses = hover ? 'hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer' : '';
 
   return (

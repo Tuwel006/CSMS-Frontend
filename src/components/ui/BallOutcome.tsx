@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ScoreButton from './ScoreButton';
 import Dropdown from './Dropdown';
+import Input from './Input';
 
 interface BallOutcomeProps {
   onBallUpdate: (outcome: BallOutcomeData) => void;
@@ -159,13 +160,13 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
             </div>
             <div>
               <label className="block text-xs text-[var(--text)] mb-1">Additional Runs:</label>
-              <input
+              <Input
                 type="number"
                 value={additionalRuns}
                 onChange={(e) => setAdditionalRuns(e.target.value)}
-                className="w-full px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text)] focus:outline-none focus:border-blue-500"
                 placeholder="0"
                 min="0"
+                size="sm"
               />
             </div>
           </div>
@@ -188,12 +189,12 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
             </div>
             <div>
               <label className="block text-xs text-[var(--text)] mb-1">Fielder:</label>
-              <input
+              <Input
                 type="text"
                 value={fielder}
                 onChange={(e) => setFielder(e.target.value)}
-                className="w-full px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text)] focus:outline-none focus:border-blue-500"
                 placeholder="Select fielder"
+                size="sm"
               />
             </div>
           </div>
@@ -206,12 +207,12 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
           <h4 className="text-sm font-medium text-[var(--text)] mb-2">New Batsman</h4>
           <div>
             <label className="block text-xs text-[var(--text)] mb-1">Select Batsman:</label>
-            <input
+            <Input
               type="text"
               value={newBatsman}
               onChange={(e) => setNewBatsman(e.target.value)}
-              className="w-full px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text)] focus:outline-none focus:border-blue-500"
               placeholder="Select Player"
+              size="sm"
             />
             <button
               onClick={handleConfirm}

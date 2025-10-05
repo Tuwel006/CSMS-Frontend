@@ -50,7 +50,7 @@ interface MatchContextType {
 
 const CurrentMatchContext = createContext<MatchContextType | undefined>(undefined);
 
-const API_KEY = '74f14599-16d3-49d8-b32b-be5008bf741a';
+const getApiKey = () => process.env.REACT_APP_CRICKET_API_KEY;
 const API_URL = 'https://api.cricapi.com/v1/currentMatches';
 
 export const CurrentMatchProvider = ({ children }: { children: ReactNode }) => {
@@ -61,8 +61,12 @@ export const CurrentMatchProvider = ({ children }: { children: ReactNode }) => {
   const fetchMatches = async () => {
     try {
       setLoading(true);
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        throw new Error('API key not configured');
+      }
       const res = await axios.get<{ data: Match[] }>(API_URL, {
-        params: { apikey: API_KEY },
+        params: { apikey: apiKey },
       });
       const apiMatches = res?.data?.data;
       if (Array.isArray(apiMatches) && apiMatches.length > 0) {

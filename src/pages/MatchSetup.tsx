@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useMatch } from '../context/MatchContext';
 import { type Team } from '../types/match';
 import { Users, Play } from 'lucide-react';
+import Input from '../components/ui/Input';
 
 // Stateless components
 const TeamSelector = ({ 
@@ -186,13 +187,12 @@ const MatchSetup = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-[var(--text)] mb-2">Overs</label>
-            <input
+            <Input
               type="number"
-              value={overs}
+              value={overs.toString()}
               onChange={(e) => setOvers(Number(e.target.value))}
               min="1"
               max="50"
-              className="w-full px-3 py-2 border border-[var(--card-border)] rounded-lg bg-[var(--card-bg)] text-[var(--text)]"
             />
           </div>
 

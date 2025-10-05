@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Users, Save } from 'lucide-react';
 import { type Team, type Player } from '../types/match';
+import Input from '../components/ui/Input';
+import Form from '../components/ui/Form';
 
 // Stateless components
 const PlayerForm = ({ 
@@ -16,32 +18,35 @@ const PlayerForm = ({
   playerRole: Player['role'];
   setPlayerRole: (role: Player['role']) => void;
 }) => (
-  <form onSubmit={onAddPlayer} className="flex gap-2 mb-4">
-    <input
-      type="text"
-      value={playerName}
-      onChange={(e) => setPlayerName(e.target.value)}
-      placeholder="Player name"
-      className="flex-1 px-3 py-2 border border-[var(--card-border)] rounded-lg bg-[var(--card-bg)] text-[var(--text)]"
-    />
-    <select
-      value={playerRole}
-      onChange={(e) => setPlayerRole(e.target.value as Player['role'])}
-      className="px-3 py-2 border border-[var(--card-border)] rounded-lg bg-[var(--card-bg)] text-[var(--text)]"
-    >
-      <option value="batsman">Batsman</option>
-      <option value="bowler">Bowler</option>
-      <option value="allrounder">All-rounder</option>
-      <option value="wicketkeeper">Wicket Keeper</option>
-    </select>
-    <button
-      type="submit"
-      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-    >
-      <Plus size={16} />
-      Add
-    </button>
-  </form>
+  <Form onSubmit={onAddPlayer} variant="minimal" layout="single" containerClassName="mb-4">
+    <div className="flex gap-2">
+      <Input
+        type="text"
+        value={playerName}
+        onChange={(e) => setPlayerName(e.target.value)}
+        placeholder="Player name"
+        className="flex-1"
+        size="sm"
+      />
+      <select
+        value={playerRole}
+        onChange={(e) => setPlayerRole(e.target.value as Player['role'])}
+        className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+      >
+        <option value="batsman">Batsman</option>
+        <option value="bowler">Bowler</option>
+        <option value="allrounder">All-rounder</option>
+        <option value="wicketkeeper">Wicket Keeper</option>
+      </select>
+      <button
+        type="submit"
+        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+      >
+        <Plus size={16} />
+        Add
+      </button>
+    </div>
+  </Form>
 );
 
 const TeamCard = ({ 
@@ -60,12 +65,12 @@ const TeamCard = ({
   <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
     <h3 className="text-lg font-semibold text-[var(--text)] mb-4">{team.name || 'New Team'}</h3>
     
-    <input
+    <Input
       type="text"
       value={team.name}
       onChange={(e) => onNameChange(e.target.value)}
       placeholder="Team name"
-      className="w-full px-3 py-2 mb-4 border border-[var(--card-border)] rounded-lg bg-[var(--card-bg)] text-[var(--text)]"
+      containerClassName="mb-4"
     />
 
     {playerForm}

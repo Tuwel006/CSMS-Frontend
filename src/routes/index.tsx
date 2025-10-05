@@ -2,6 +2,7 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import LandingPage from "@/pages/LandingPage";
+import TestCricketGround from "@/pages/TestCricketGround";
 import Login from "@/pages/Login";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "@/pages/Home";
@@ -14,6 +15,7 @@ import MatchDetail from "@/pages/MatchDetails";
 import MatchSetup from "@/pages/MatchSetup";
 import TeamManagement from "@/pages/TeamManagement";
 import ScoreEditor from "@/pages/ScoreEditor";
+import Game from "@/pages/Game";
 
 
 export default function AppRoute() {
@@ -26,6 +28,8 @@ export default function AppRoute() {
       </Route>
       <Route element={<PublicLayout />}>
         <Route path="/home" element={<Home />} />
+        <Route path="/test" element={<TestCricketGround />} />
+        <Route path="/game" element={<Game />} />
         <Route index element={<LandingPage />} />
       </Route>
       {/* Protected ROutes */}

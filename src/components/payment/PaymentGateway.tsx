@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { CreditCard, Lock, CheckCircle } from 'lucide-react';
+import Input from '../ui/Input';
+import Form from '../ui/Form';
 
 interface PaymentData {
   amount: number;
@@ -88,90 +90,84 @@ const PaymentGateway = ({ paymentData, onSuccess, onError, onCancel }: PaymentGa
           <p className="text-sm text-gray-500">{paymentData.description}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
-            <div className="relative">
-              <input
-                type="text"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                placeholder="1234 5678 9012 3456"
-                maxLength={19}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-12"
-                required
-              />
-              <CreditCard className="absolute left-3 top-3.5 text-gray-400" size={20} />
+        <Form 
+          onSubmit={handleSubmit}
+          variant="minimal"
+          layout="single"
+          spacing="md"
+          loading={isProcessing}
+          containerClassName="p-6"
+          footerSlot={
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                disabled={isProcessing}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isProcessing}
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isProcessing ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Lock size={16} />
+                    Pay Now
+                  </>
+                )}
+              </button>
             </div>
-          </div>
+          }
+        >
+          <Input
+            type="text"
+            label="Card Number"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+            placeholder="1234 5678 9012 3456"
+            maxLength={19}
+            leftIcon={<CreditCard size={20} />}
+            required
+          />
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
-              <input
-                type="text"
-                value={expiryDate}
-                onChange={(e) => setExpiryDate(formatExpiryDate(e.target.value))}
-                placeholder="MM/YY"
-                maxLength={5}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">CVV</label>
-              <input
-                type="text"
-                value={cvv}
-                onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').substring(0, 4))}
-                placeholder="123"
-                maxLength={4}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Cardholder Name</label>
-            <input
+            <Input
               type="text"
-              value={cardName}
-              onChange={(e) => setCardName(e.target.value)}
-              placeholder="John Doe"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              label="Expiry Date"
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(formatExpiryDate(e.target.value))}
+              placeholder="MM/YY"
+              maxLength={5}
+              required
+            />
+            <Input
+              type="text"
+              label="CVV"
+              value={cvv}
+              onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').substring(0, 4))}
+              placeholder="123"
+              maxLength={4}
               required
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              disabled={isProcessing}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isProcessing}
-              className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isProcessing ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Lock size={16} />
-                  Pay Now
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+          <Input
+            type="text"
+            label="Cardholder Name"
+            value={cardName}
+            onChange={(e) => setCardName(e.target.value)}
+            placeholder="John Doe"
+            required
+          />
+        </Form>
 
         <div className="px-6 pb-6">
           <div className="flex items-center gap-2 text-xs text-gray-500">
