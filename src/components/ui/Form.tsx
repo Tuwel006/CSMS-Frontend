@@ -1,134 +1,69 @@
-import { ReactNode, FormHTMLAttributes } from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import { ReactNode } from 'react';
+import Input from './Input';
 import { cn } from '../../lib/utils';
 
-interface FormProps extends FormHTMLAttributes<HTMLFormElement> {
-  children: ReactNode;
-  title?: string;
-  subtitle?: string;
-  layout?: 'single' | 'double' | 'triple' | 'auto';
-  spacing?: 'sm' | 'md' | 'lg';
-  variant?: 'default' | 'card' | 'minimal';
-  containerClassName?: string;
-  headerClassName?: string;
-  contentClassName?: string;
-  footerSlot?: ReactNode;
-  loading?: boolean;
-  error?: string;
+interface InputConfig {
+  type?: string;
+  placeholder?: string;
+  label?: string;
+  required?: boolean;
+  value?: any;
+  onChange?: (value: any) => void;
+  options?: { value: any; label: string }[];
+  className?: string;
+  render?: () => ReactNode;
+  [key: string]: any;
 }
 
-const Form = ({
-  children,
-  title,
-  subtitle,
-  layout = 'single',
-  spacing = 'md',
-  variant = 'default',
-  containerClassName,
-  headerClassName,
-  contentClassName,
-  footerSlot,
-  loading,
-  error,
-  className,
-  ...props
-}: FormProps) => {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
+interface FormProps {
+  inputs: InputConfig[];
+  title?: string;
+  description?: string;
+  className?: string;
+  onSubmit?: (e: React.FormEvent) => void;
+  children?: ReactNode;
+  submitText?: string;
+}
 
-  const layoutClasses = {
-    single: 'grid-cols-1',
-    double: 'grid-cols-1 md:grid-cols-2',
-    triple: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-    auto: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-  };
+const Form = ({ inputs, title, description, className, onSubmit, children, submitText = 'Submit' }: FormProps) => {
+  const renderInput = (input: InputConfig, index: number) => {
+    if (input.render) {
+      return <div key={index}>{input.render()}</div>;
+    }
 
-  const spacingClasses = {
-    sm: 'gap-3',
-    md: 'gap-4',
-    lg: 'gap-6'
-  };
-
-  const variantClasses = {
-    default: isDark 
-      ? 'bg-gray-800 border border-gray-700 rounded-xl p-6' 
-      : 'bg-white border border-gray-200 rounded-xl p-6 shadow-sm',
-    card: isDark
-      ? 'bg-gray-800 border border-gray-700 rounded-2xl p-8 shadow-xl'
-      : 'bg-white border border-gray-200 rounded-2xl p-8 shadow-lg',
-    minimal: 'bg-transparent border-0 p-0'
+    const { render, ...inputProps } = input;
+    
+    return (
+      <Input
+        key={index}
+        {...inputProps}
+      />
+    );
   };
 
   return (
-    <div className={cn('w-full', containerClassName)}>
-      <form 
-        className={cn(
-          'relative',
-          variantClasses[variant],
-          loading && 'pointer-events-none opacity-75',
-          className
-        )}
-        {...props}
-      >
-        {/* Header */}
-        {(title || subtitle) && (
-          <div className={cn('mb-6', headerClassName)}>
-            {title && (
-              <h2 className={cn(
-                'text-2xl font-bold mb-2',
-                isDark ? 'text-white' : 'text-gray-900'
-              )}>
-                {title}
-              </h2>
-            )}
-            {subtitle && (
-              <p className={cn(
-                'text-sm',
-                isDark ? 'text-gray-400' : 'text-gray-600'
-              )}>
-                {subtitle}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        {/* Content */}
-        <div className={cn(
-          'grid',
-          layoutClasses[layout],
-          spacingClasses[spacing],
-          contentClassName
-        )}>
-          {children}
+    <div className={cn('space-y-4', className)}>
+      {title && (
+        <div>
+          <h3 className="text-lg font-semibold text-[var(--text)]">{title}</h3>
+          {description && (
+            <p className="text-sm text-[var(--text-secondary)] mt-1">{description}</p>
+          )}
         </div>
-
-        {/* Footer Slot */}
-        {footerSlot && (
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            {footerSlot}
-          </div>
-        )}
-
-        {/* Loading Overlay */}
-        {loading && (
-          <div className="absolute inset-0 bg-black/10 rounded-xl flex items-center justify-center">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className={cn('text-sm font-medium', isDark ? 'text-white' : 'text-gray-900')}>
-                  Processing...
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
+      )}
+      
+      <form onSubmit={onSubmit} className="space-y-4">
+        {inputs?.map((input, index) => renderInput(input, index))}
+        
+        <div className="flex justify-end gap-2 pt-2">
+          {children}
+          <button
+            type="submit"
+            className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+          >
+            {submitText}
+          </button>
+        </div>
       </form>
     </div>
   );
