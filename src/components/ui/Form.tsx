@@ -16,16 +16,22 @@ interface InputConfig {
 }
 
 interface FormProps {
-  inputs: InputConfig[];
+  inputs?: InputConfig[];
   title?: string;
   description?: string;
   className?: string;
   onSubmit?: (e: React.FormEvent) => void;
   children?: ReactNode;
   submitText?: string;
+  variant?: string;
+  spacing?: string;
+  loading?: boolean;
+  error?: string | null;
+  footerSlot?: ReactNode;
+  layout?: string;
 }
 
-const Form = ({ inputs, title, description, className, onSubmit, children, submitText = 'Submit' }: FormProps) => {
+const Form = ({ inputs, title, description, className, onSubmit, children, submitText = 'Submit', variant, spacing, loading, error, footerSlot, layout }: FormProps) => {
   const renderInput = (input: InputConfig, index: number) => {
     if (input.render) {
       return <div key={index}>{input.render()}</div>;
@@ -52,18 +58,33 @@ const Form = ({ inputs, title, description, className, onSubmit, children, submi
         </div>
       )}
       
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+      
       <form onSubmit={onSubmit} className="space-y-4">
         {inputs?.map((input, index) => renderInput(input, index))}
+        {children}
         
-        <div className="flex justify-end gap-2 pt-2">
-          {children}
-          <button
-            type="submit"
-            className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-          >
-            {submitText}
-          </button>
-        </div>
+        {footerSlot && (
+          <div className="pt-2">
+            {footerSlot}
+          </div>
+        )}
+        
+        {!footerSlot && (
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Loading...' : submitText}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

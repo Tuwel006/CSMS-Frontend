@@ -4,6 +4,7 @@ import Layout from "@/components/layout/Layout";
 import LandingPage from "@/pages/LandingPage";
 import TestCricketGround from "@/pages/TestCricketGround";
 import Login from "@/pages/Login";
+import Auth from "@/pages/Auth";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
@@ -24,7 +25,7 @@ export default function AppRoute() {
     <Routes>
       {/* Public routes */}
       <Route element={<PublicRoute isAuth={isAuth} role={role} />}>
-        <Route path="login" element={<Login />} />
+        <Route path="login" element={<Auth />} />
       </Route>
       <Route element={<PublicLayout />}>
         <Route path="/home" element={<Home />} />
