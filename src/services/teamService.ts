@@ -1,4 +1,6 @@
 import apiClient from '../utils/api';
+import { ApiResponse } from '../types/api';
+import { PaginatedData } from '../types/pagination';
 
 export interface TeamData {
   name: string;
@@ -12,26 +14,6 @@ export interface Team extends TeamData {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface ApiResponse<T> {
-  status: number;
-  message: string;
-  code: string;
-  data?: T;
-  error?: string;
-}
-
-export interface PaginatedData<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
-
-export interface TeamsResponse extends PaginatedData<Team> {}
 
 export interface TeamSearchParams {
   page?: number;
@@ -50,31 +32,31 @@ export interface TeamSearchQuery {
 export const TeamService = {
   // Create team
   create: async (data: TeamData) => {
-    return apiClient.post<ApiResponse<Team>>('teams', data);
+    return apiClient.post<Team>('teams', data);
   },
 
   // Get all teams with pagination and filters
-  getAll: async (params: TeamSearchParams = {}) => {
-    return apiClient.get<ApiResponse<TeamsResponse>>('teams', params);
+  getAll: async (params: TeamSearchParams = {}): Promise<ApiResponse<PaginatedData<Team>>> => {
+    return apiClient.get<PaginatedData<Team>>('teams', params);
   },
 
   // Search teams
-  search: async (query: TeamSearchQuery) => {
-    return apiClient.get<ApiResponse<Team[]>>('teams/search', query);
+  search: async (query: TeamSearchQuery): Promise<ApiResponse<PaginatedData<Team>>> => {
+    return apiClient.get<PaginatedData<Team>>('teams/search', query);
   },
 
   // Get team by ID
   getById: async (id: number) => {
-    return apiClient.get<ApiResponse<Team>>(`teams/${id}`);
+    return apiClient.get<Team>(`teams/${id}`);
   },
 
   // Update team
   update: async (id: number, data: Partial<TeamData>) => {
-    return apiClient.put<ApiResponse<Team>>(`teams/${id}`, data);
+    return apiClient.put<Team>(`teams/${id}`, data);
   },
 
   // Delete team
   delete: async (id: number) => {
-    return apiClient.delete<ApiResponse<void>>(`teams/${id}`);
+    return apiClient.delete<void>(`teams/${id}`);
   }
 };

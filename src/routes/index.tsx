@@ -17,6 +17,7 @@ import MatchSetup from "@/pages/MatchSetup";
 import TeamManagement from "@/pages/TeamManagement";
 import ScoreEditor from "@/pages/ScoreEditor";
 import Game from "@/pages/Game";
+import SearchableFormExample from "@/components/ui/SearchableFormExample";
 
 
 export default function AppRoute() {
@@ -24,6 +25,7 @@ export default function AppRoute() {
   return (
     <Routes>
       {/* Public routes */}
+      <Route path="search-form" element={<SearchableFormExample />} />
       <Route element={<PublicRoute isAuth={isAuth} role={role} />}>
         <Route path="login" element={<Auth />} />
       </Route>
