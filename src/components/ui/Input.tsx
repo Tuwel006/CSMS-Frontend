@@ -51,14 +51,14 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElem
   const isDark = theme === 'dark';
 
   const sizeClasses = {
-    sm: 'px-2.5 py-1.5 text-xs',
-    md: 'px-3 py-2 text-sm',
-    lg: 'px-3.5 py-2.5 text-base'
+    sm: 'px-2.5 py-1 text-xs',
+    md: 'px-3 py-1.5 text-sm',
+    lg: 'px-3.5 py-2 text-base'
   };
 
   const variantClasses = {
-    default: isDark 
-      ? 'bg-gray-800/50 border border-gray-600/50 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30 focus:bg-gray-800' 
+    default: isDark
+      ? 'bg-gray-800/50 border border-gray-600/50 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30 focus:bg-gray-800'
       : 'bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20 shadow-sm',
     outlined: isDark
       ? 'bg-transparent border border-gray-600/50 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30'
@@ -68,7 +68,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElem
       : 'bg-gray-50 border-0 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-1 focus:ring-blue-400/20 shadow-sm'
   };
 
-  const baseClasses = 'w-full rounded-md transition-all duration-200 focus:outline-none font-medium';
+  const baseClasses = 'w-full rounded transition-all duration-200 focus:outline-none font-medium';
   const errorClasses = error ? 'border-red-400 focus:border-red-400 focus:ring-1 focus:ring-red-400/30' : '';
 
   const inputClasses = cn(
@@ -220,33 +220,33 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElem
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
-      
+
       <div className="relative">
         {leftIcon && !['select', 'textarea'].includes(type) && (
           <div className={cn('absolute left-2.5 top-1/2 transform -translate-y-1/2 z-10', isDark ? 'text-gray-400' : 'text-gray-500')}>
             {leftIcon}
           </div>
         )}
-        
+
         {renderInput()}
-        
+
         {rightIcon && !['select', 'textarea'].includes(type) && (
           <div className={cn('absolute right-2.5 top-1/2 transform -translate-y-1/2 z-10', isDark ? 'text-gray-400' : 'text-gray-500')}>
             {rightIcon}
           </div>
         )}
-        
+
         {children && (
           <div className="absolute right-2.5 top-1/2 transform -translate-y-1/2">
             {children}
           </div>
         )}
       </div>
-      
+
       {error && (
         <p className="text-sm text-red-500">{error}</p>
       )}
-      
+
       {helperText && !error && (
         <p className={cn('text-sm', isDark ? 'text-gray-400' : 'text-gray-600')}>{helperText}</p>
       )}

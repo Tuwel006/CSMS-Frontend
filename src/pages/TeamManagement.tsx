@@ -1,82 +1,79 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Form from '../components/ui/Form';
-import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
+import MultiFieldSearch from '../components/ui/MultiFieldSearch';
 import { TeamService } from '../services/teamService';
 import { Team } from '../services/teamService';
 import { PlayerService } from '../services/playerService';
+import { RootState } from '../store';
+import {
+  setTeam1,
+  setTeam2,
+  resetTeam1,
+  resetTeam2,
+} from '../store/slices/teamManagementSlice';
 
 const TeamManagement = () => {
-  // Load initial state from localStorage
-  const loadFormData = () => {
-    const saved = localStorage.getItem('teamManagementForm');
-    return saved ? JSON.parse(saved) : {};
-  };
+  const dispatch = useDispatch();
+  const { team1, team2 } = useSelector((state: RootState) => state.teamManagement);
 
-  const savedData = loadFormData();
+  // Remove old localStorage item
+  useEffect(() => {
+    localStorage.removeItem('teamManagementForm');
+  }, []);
 
   // Team 1 state
-  const [team1Name, setTeam1Name] = useState(savedData.team1Name || '');
-  const [team1Location, setTeam1Location] = useState(savedData.team1Location || '');
-  const [team1Id, setTeam1Id] = useState(savedData.team1Id || '');
-  const [team1PlayerName, setTeam1PlayerName] = useState(savedData.team1PlayerName || '');
-  const [team1PlayerId, setTeam1PlayerId] = useState(savedData.team1PlayerId || '');
-  const [team1PlayerRole, setTeam1PlayerRole] = useState(savedData.team1PlayerRole || '');
   const [team1Suggestions, setTeam1Suggestions] = useState<Team[] | []>([]);
   const [showTeam1Dropdown, setShowTeam1Dropdown] = useState(false);
   const [team1PlayerSuggestions, setTeam1PlayerSuggestions] = useState<any[]>([]);
   const [showTeam1PlayerDropdown, setShowTeam1PlayerDropdown] = useState(false);
-  
+
   // Team 2 state
-  const [team2Name, setTeam2Name] = useState(savedData.team2Name || '');
-  const [team2Location, setTeam2Location] = useState(savedData.team2Location || '');
-  const [team2Id, setTeam2Id] = useState(savedData.team2Id || '');
-  const [team2PlayerName, setTeam2PlayerName] = useState(savedData.team2PlayerName || '');
-  const [team2PlayerId, setTeam2PlayerId] = useState(savedData.team2PlayerId || '');
-  const [team2PlayerRole, setTeam2PlayerRole] = useState(savedData.team2PlayerRole || '');
   const [team2Suggestions, setTeam2Suggestions] = useState<Team[] | []>([]);
   const [showTeam2Dropdown, setShowTeam2Dropdown] = useState(false);
   const [team2PlayerSuggestions, setTeam2PlayerSuggestions] = useState<any[]>([]);
   const [showTeam2PlayerDropdown, setShowTeam2PlayerDropdown] = useState(false);
 
-  // Save form data to localStorage whenever state changes
-  useEffect(() => {
-    const formData = {
-      team1Name, team1Location, team1Id, team1PlayerName, team1PlayerId, team1PlayerRole,
-      team2Name, team2Location, team2Id, team2PlayerName, team2PlayerId, team2PlayerRole
-    };
-    localStorage.setItem('teamManagementForm', JSON.stringify(formData));
-  }, [team1Name, team1Location, team1Id, team1PlayerName, team1PlayerId, team1PlayerRole, team2Name, team2Location, team2Id, team2PlayerName, team2PlayerId, team2PlayerRole]);
+  // Local state for player inputs (since they are added to a list)
+  const [team1PlayerName, setTeam1PlayerName] = useState('');
+  const [team1PlayerId, setTeam1PlayerId] = useState('');
+  const [team1PlayerRole, setTeam1PlayerRole] = useState('');
+
+  const [team2PlayerName, setTeam2PlayerName] = useState('');
+  const [team2PlayerId, setTeam2PlayerId] = useState('');
+  const [team2PlayerRole, setTeam2PlayerRole] = useState('');
 
   const handleTeam1NameChange = (value: string) => {
-    setTeam1Name(value);
-    debouncedSearchTeam1(value, team1Location, team1Id);
+    dispatch(setTeam1({ name: value, id: null })); // Clear ID on manual change
+    debouncedSearchTeam1(value, team1.location, '');
   };
 
   const handleTeam1LocationChange = (value: string) => {
-    setTeam1Location(value);
-    debouncedSearchTeam1(team1Name, value, team1Id);
+    dispatch(setTeam1({ location: value }));
+    debouncedSearchTeam1(team1.name, value, team1.id || '');
   };
 
   const handleTeam1IdChange = (value: string) => {
-    setTeam1Id(value);
-    debouncedSearchTeam1(team1Name, team1Location, value);
+    dispatch(setTeam1({ id: value }));
+    debouncedSearchTeam1(team1.name, team1.location, value);
   };
 
   const handleTeam2NameChange = (value: string) => {
-    setTeam2Name(value);
-    debouncedSearchTeam2(value, team2Location, team2Id);
+    dispatch(setTeam2({ name: value, id: null }));
+    debouncedSearchTeam2(value, team2.location, '');
   };
 
   const handleTeam2LocationChange = (value: string) => {
-    setTeam2Location(value);
-    debouncedSearchTeam2(team2Name, value, team2Id);
+    dispatch(setTeam2({ location: value }));
+    debouncedSearchTeam2(team2.name, value, team2.id || '');
   };
 
   const handleTeam2IdChange = (value: string) => {
-    setTeam2Id(value);
-    debouncedSearchTeam2(team2Name, team2Location, value);
+    dispatch(setTeam2({ id: value }));
+    debouncedSearchTeam2(team2.name, team2.location, value);
   };
-  
+
   const searchTeam1Timeout = useRef<number>(null);
   const searchTeam2Timeout = useRef<number>(null);
   const searchPlayer1Timeout = useRef<number>(null);
@@ -91,15 +88,9 @@ const TeamManagement = () => {
             if (name) params.name = name;
             if (location) params.location = location;
             if (id) params.id = id;
-            
+
             const response = await TeamService.search(params);
-            console.log('Team1 API Response:', response);
-            
-            // Handle nested response structure: response.data.data
             const teams = response?.data?.data || [];
-            console.log('Processed teams:', teams);
-            console.log('Setting dropdown visible:', teams.length > 0);
-            
             setTeam1Suggestions(teams);
             setShowTeam1Dropdown(teams.length > 0);
           } catch (error) {
@@ -110,11 +101,11 @@ const TeamManagement = () => {
           setShowTeam1Dropdown(false);
         }
       };
-      
+
       if (searchTeam1Timeout.current) window.clearTimeout(searchTeam1Timeout.current);
       searchTeam1Timeout.current = window.setTimeout(searchFunction, 300);
     },
-    [setTeam1Suggestions, setShowTeam1Dropdown]
+    []
   );
 
   const debouncedSearchTeam2 = useCallback(
@@ -126,15 +117,9 @@ const TeamManagement = () => {
             if (name) params.name = name;
             if (location) params.location = location;
             if (id) params.id = id;
-            
+
             const response = await TeamService.search(params);
-            console.log('Team2 API Response:', response);
-            
-            // Handle nested response structure: response.data.data
             const teams = response?.data?.data || [];
-            console.log('Processed teams:', teams);
-            console.log('Setting dropdown visible:', teams.length > 0);
-            
             setTeam2Suggestions(teams);
             setShowTeam2Dropdown(teams.length > 0);
           } catch (error) {
@@ -145,30 +130,22 @@ const TeamManagement = () => {
           setShowTeam2Dropdown(false);
         }
       };
-      
+
       if (searchTeam2Timeout.current) window.clearTimeout(searchTeam2Timeout.current);
       searchTeam2Timeout.current = window.setTimeout(searchFunction, 300);
     },
-    [setTeam2Suggestions, setShowTeam2Dropdown]
+    []
   );
 
-
-
   const handleTeam1Select = (team: Team) => {
-    setTeam1Name(team.name);
-    setTeam1Location(team.location);
-    setTeam1Id(team.id.toString());
+    dispatch(setTeam1({ name: team.name, location: team.location, id: team.id.toString() }));
     setShowTeam1Dropdown(false);
   };
 
   const handleTeam2Select = (team: Team) => {
-    setTeam2Name(team.name);
-    setTeam2Location(team.location);
-    setTeam2Id(team.id.toString());
+    dispatch(setTeam2({ name: team.name, location: team.location, id: team.id.toString() }));
     setShowTeam2Dropdown(false);
   };
-
-
 
   const debouncedSearchPlayer1 = useCallback(
     (name: string, id: string) => {
@@ -178,9 +155,8 @@ const TeamManagement = () => {
             const params: Record<string, string> = {};
             if (name) params.name = name;
             if (id) params.id = id;
-            
+
             const response = await PlayerService.search(params);
-            // Handle nested response structure: response.data.data
             const players = response?.data?.data || [];
             setTeam1PlayerSuggestions(players);
             setShowTeam1PlayerDropdown(players.length > 0);
@@ -192,7 +168,7 @@ const TeamManagement = () => {
           setShowTeam1PlayerDropdown(false);
         }
       };
-      
+
       if (searchPlayer1Timeout.current) window.clearTimeout(searchPlayer1Timeout.current);
       searchPlayer1Timeout.current = window.setTimeout(searchFunction, 300);
     },
@@ -201,7 +177,8 @@ const TeamManagement = () => {
 
   const handleTeam1PlayerNameChange = (value: string) => {
     setTeam1PlayerName(value);
-    debouncedSearchPlayer1(value, team1PlayerId);
+    setTeam1PlayerId(''); // Clear ID on manual change
+    debouncedSearchPlayer1(value, '');
   };
 
   const handleTeam1PlayerIdChange = (value: string) => {
@@ -244,9 +221,8 @@ const TeamManagement = () => {
             const params: Record<string, string> = {};
             if (name) params.name = name;
             if (id) params.id = id;
-            
+
             const response = await PlayerService.search(params);
-            // Handle nested response structure: response.data.data
             const players = response?.data?.data || [];
             setTeam2PlayerSuggestions(players);
             setShowTeam2PlayerDropdown(players.length > 0);
@@ -258,7 +234,7 @@ const TeamManagement = () => {
           setShowTeam2PlayerDropdown(false);
         }
       };
-      
+
       if (searchPlayer2Timeout.current) window.clearTimeout(searchPlayer2Timeout.current);
       searchPlayer2Timeout.current = window.setTimeout(searchFunction, 300);
     },
@@ -267,7 +243,8 @@ const TeamManagement = () => {
 
   const handleTeam2PlayerNameChange = (value: string) => {
     setTeam2PlayerName(value);
-    debouncedSearchPlayer2(value, team2PlayerId);
+    setTeam2PlayerId(''); // Clear ID on manual change
+    debouncedSearchPlayer2(value, '');
   };
 
   const handleTeam2PlayerIdChange = (value: string) => {
@@ -302,97 +279,70 @@ const TeamManagement = () => {
     }
   ];
 
+  const handleClearTeam1 = () => {
+    dispatch(resetTeam1());
+  };
+
+  const handleClearTeam1Player = () => {
+    setTeam1PlayerName('');
+    setTeam1PlayerId('');
+  };
+
+  const handleClearTeam2 = () => {
+    dispatch(resetTeam2());
+  };
+
+  const handleClearTeam2Player = () => {
+    setTeam2PlayerName('');
+    setTeam2PlayerId('');
+  };
+
   return (
     <div className="p-2 md:p-6">
       <h1 className="text-2xl font-bold text-[var(--text)] mb-6">Team Management</h1>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-2">Team 1</h3>
           <p className="text-sm text-gray-600 mb-4">Build your first team</p>
-          
-          <div className="relative">
-            <div className="flex gap-2 mb-4">
-              <Input
-                type="text"
-                label="Name"
-                placeholder="Search by name..."
-                value={team1Name}
-                onChange={handleTeam1NameChange}
-                size="md"
-                className="flex-1"
-              />
-              <Input
-                type="text"
-                label="Location"
-                placeholder="Search by location..."
-                value={team1Location}
-                onChange={handleTeam1LocationChange}
-                size="md"
-                className="flex-1"
-              />
-              <Input
-                type="text"
-                label="ID"
-                placeholder="Search by ID..."
-                value={team1Id}
-                onChange={handleTeam1IdChange}
-                size="md"
-                className="flex-1"
-              />
-            </div>
-            {showTeam1Dropdown && team1Suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-50 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md shadow-lg max-h-48 overflow-y-auto">
-                {team1Suggestions.map((team, index) => (
-                  <div
-                    key={index}
-                    className="px-3 py-2 hover:bg-[var(--hover-bg)] cursor-pointer text-sm text-[var(--text)]"
-                    onClick={() => handleTeam1Select(team)}
-                  >
-                    {team.name} - {team.location} - ({team.id})
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="relative">
-            <div className="flex gap-2 mb-4">
-              <Input
-                type="text"
-                label="Player Name"
-                placeholder="Search by name..."
-                value={team1PlayerName}
-                onChange={handleTeam1PlayerNameChange}
-                size="md"
-                className="flex-1"
-              />
-              <Input
-                type="text"
-                label="Player ID"
-                placeholder="Search by ID..."
-                value={team1PlayerId}
-                onChange={handleTeam1PlayerIdChange}
-                size="md"
-                className="flex-1"
-              />
-            </div>
-            {showTeam1PlayerDropdown && team1PlayerSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-20 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md shadow-lg max-h-48 overflow-y-auto">
-                {team1PlayerSuggestions.map((player, index) => (
-                  <div
-                    key={index}
-                    className="px-3 py-2 hover:bg-[var(--hover-bg)] cursor-pointer text-sm text-[var(--text)]"
-                    onClick={() => handleTeam1PlayerSelect(player)}
-                  >
-                    {player.name} - ({player.id})
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <Form 
+
+          <MultiFieldSearch
+            fields={[
+              { label: 'Name', placeholder: 'Search by name...', value: team1.name, onChange: handleTeam1NameChange, className: 'flex-1' },
+              { label: 'Location', placeholder: 'Search by location...', value: team1.location, onChange: handleTeam1LocationChange, className: 'flex-1' },
+              { label: 'ID', placeholder: 'Search by ID...', value: team1.id || '', onChange: handleTeam1IdChange, className: 'w-20' }
+            ]}
+            suggestions={team1Suggestions}
+            showDropdown={showTeam1Dropdown}
+            onSelect={handleTeam1Select}
+            renderSuggestion={(team) => `${team.name} - ${team.location} - (${team.id})`}
+            actions={
+              <>
+                <Button variant="secondary" onClick={handleClearTeam1}>Clear</Button>
+                <Button variant="primary">Save</Button>
+              </>
+            }
+          />
+
+          <MultiFieldSearch
+            fields={[
+              { label: 'Player Name', placeholder: 'Search by name...', value: team1PlayerName, onChange: handleTeam1PlayerNameChange, className: 'flex-1' },
+              { label: 'Player ID', placeholder: 'Search by ID...', value: team1PlayerId, onChange: handleTeam1PlayerIdChange, className: 'w-20' }
+            ]}
+            suggestions={team1PlayerSuggestions}
+            showDropdown={showTeam1PlayerDropdown}
+            onSelect={handleTeam1PlayerSelect}
+            renderSuggestion={(player) => `${player.name} - (${player.id})`}
+            className="z-20"
+            actions={
+              <>
+                <Button variant="secondary" onClick={handleClearTeam1Player}>Clear</Button>
+                <Button variant="primary">Save</Button>
+              </>
+            }
+          />
+
+          <Form
             inputs={team1Inputs}
             submitText="Add Player"
             className="text-sm"
@@ -405,89 +355,44 @@ const TeamManagement = () => {
         <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-2">Team 2</h3>
           <p className="text-sm text-gray-600 mb-4">Build your second team</p>
-          
-          <div className="relative">
-            <div className="flex gap-2 mb-4">
-              <Input
-                type="text"
-                label="Name"
-                placeholder="Search by name..."
-                value={team2Name}
-                onChange={handleTeam2NameChange}
-                size="md"
-                className="flex-1"
-              />
-              <Input
-                type="text"
-                label="Location"
-                placeholder="Search by location..."
-                value={team2Location}
-                onChange={handleTeam2LocationChange}
-                size="md"
-                className="flex-1"
-              />
-              <Input
-                type="text"
-                label="ID"
-                placeholder="Search by ID..."
-                value={team2Id}
-                onChange={handleTeam2IdChange}
-                size="md"
-                className="flex-1"
-              />
-            </div>
-            {showTeam2Dropdown && team2Suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-20 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md shadow-lg max-h-48 overflow-y-auto">
-                {team2Suggestions.map((team, index) => (
-                  <div
-                    key={index}
-                    className="px-3 py-2 hover:bg-[var(--hover-bg)] cursor-pointer text-sm text-[var(--text)]"
-                    onClick={() => handleTeam2Select(team)}
-                  >
-                    {team.name} - {team.location} - ({team.id})
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="relative">
-            <div className="flex gap-2 mb-4">
-              <Input
-                type="text"
-                label="Player Name"
-                placeholder="Search by name..."
-                value={team2PlayerName}
-                onChange={handleTeam2PlayerNameChange}
-                size="md"
-                className="flex-1"
-              />
-              <Input
-                type="text"
-                label="Player ID"
-                placeholder="Search by ID..."
-                value={team2PlayerId}
-                onChange={handleTeam2PlayerIdChange}
-                size="md"
-                className="flex-1"
-              />
-            </div>
-            {showTeam2PlayerDropdown && team2PlayerSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-20 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md shadow-lg max-h-48 overflow-y-auto">
-                {team2PlayerSuggestions.map((player, index) => (
-                  <div
-                    key={index}
-                    className="px-3 py-2 hover:bg-[var(--hover-bg)] cursor-pointer text-sm text-[var(--text)]"
-                    onClick={() => handleTeam2PlayerSelect(player)}
-                  >
-                    {player.name} - ({player.id})
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <Form 
+
+          <MultiFieldSearch
+            fields={[
+              { label: 'Name', placeholder: 'Search by name...', value: team2.name, onChange: handleTeam2NameChange, className: 'flex-1' },
+              { label: 'Location', placeholder: 'Search by location...', value: team2.location, onChange: handleTeam2LocationChange, className: 'flex-1' },
+              { label: 'ID', placeholder: 'Search by ID...', value: team2.id || '', onChange: handleTeam2IdChange, className: 'w-20' }
+            ]}
+            suggestions={team2Suggestions}
+            showDropdown={showTeam2Dropdown}
+            onSelect={handleTeam2Select}
+            renderSuggestion={(team) => `${team.name} - ${team.location} - (${team.id})`}
+            actions={
+              <>
+                <Button variant="secondary" onClick={handleClearTeam2}>Clear</Button>
+                <Button variant="primary">Save</Button>
+              </>
+            }
+          />
+
+          <MultiFieldSearch
+            fields={[
+              { label: 'Player Name', placeholder: 'Search by name...', value: team2PlayerName, onChange: handleTeam2PlayerNameChange, className: 'flex-1' },
+              { label: 'Player ID', placeholder: 'Search by ID...', value: team2PlayerId, onChange: handleTeam2PlayerIdChange, className: 'w-20' }
+            ]}
+            suggestions={team2PlayerSuggestions}
+            showDropdown={showTeam2PlayerDropdown}
+            onSelect={handleTeam2PlayerSelect}
+            renderSuggestion={(player) => `${player.name} - (${player.id})`}
+            className="z-20"
+            actions={
+              <>
+                <Button variant="secondary" onClick={handleClearTeam2Player}>Clear</Button>
+                <Button variant="primary">Save</Button>
+              </>
+            }
+          />
+
+          <Form
             inputs={team2Inputs}
             submitText="Save Team"
             className="text-sm"
