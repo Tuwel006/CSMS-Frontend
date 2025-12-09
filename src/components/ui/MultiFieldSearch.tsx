@@ -31,7 +31,7 @@ const MultiFieldSearch = <T,>({
 }: MultiFieldSearchProps<T>) => {
     return (
         <div className={`relative ${className}`}>
-            <div className="flex flex-col md:flex-row gap-2 mb-4 items-end">
+            <div className="flex flex-col md:flex-row gap-2 mb-4 items-start md:items-end">
                 {fields.slice(0, -1).map((field, index) => (
                     <Input
                         key={index}

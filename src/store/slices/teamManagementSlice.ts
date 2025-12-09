@@ -9,6 +9,7 @@ interface TeamData {
 interface PlayerData {
     id: string | null;
     name: string;
+    role: string;
 }
 
 interface TeamManagementState {
@@ -62,6 +63,22 @@ const teamManagementSlice = createSlice({
             state.team2Players.push(action.payload);
             localStorage.setItem('teamManagementState', JSON.stringify(state));
         },
+        updateTeam1Player: (state, action: PayloadAction<{ index: number; player: PlayerData }>) => {
+            state.team1Players[action.payload.index] = action.payload.player;
+            localStorage.setItem('teamManagementState', JSON.stringify(state));
+        },
+        updateTeam2Player: (state, action: PayloadAction<{ index: number; player: PlayerData }>) => {
+            state.team2Players[action.payload.index] = action.payload.player;
+            localStorage.setItem('teamManagementState', JSON.stringify(state));
+        },
+        deleteTeam1Player: (state, action: PayloadAction<number>) => {
+            state.team1Players.splice(action.payload, 1);
+            localStorage.setItem('teamManagementState', JSON.stringify(state));
+        },
+        deleteTeam2Player: (state, action: PayloadAction<number>) => {
+            state.team2Players.splice(action.payload, 1);
+            localStorage.setItem('teamManagementState', JSON.stringify(state));
+        },
         resetTeam1: (state) => {
             state.team1 = { id: null, name: '', location: '' };
             localStorage.setItem('teamManagementState', JSON.stringify(state));
@@ -86,6 +103,10 @@ export const {
     setTeam2,
     addTeam1Player,
     addTeam2Player,
+    updateTeam1Player,
+    updateTeam2Player,
+    deleteTeam1Player,
+    deleteTeam2Player,
     resetTeam1,
     resetTeam2,
     resetTeam1Players,

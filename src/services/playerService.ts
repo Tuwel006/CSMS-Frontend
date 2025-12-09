@@ -3,18 +3,20 @@ import { ApiResponse } from '../types/api';
 import { PaginatedData } from '../types/pagination';
 
 export interface PlayerData {
-  name: string;
+  full_name: string;
   role?: string;
   location?: string;
 }
 
 export interface Player extends PlayerData {
   id: number;
+  user_id?: number | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface PlayerSearchQuery {
+  id?: string;
   name?: string;
   role?: string;
   location?: string;
