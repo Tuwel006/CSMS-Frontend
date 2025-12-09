@@ -7,7 +7,7 @@ import { LayoutDashboard, Home, Edit, Settings, Users, UserPlus, BarChart3, Tren
 
 
 const AdminLayout = () => {
-    const links = [
+  const links = [
     { to: "", icon: <Home size={20} />, label: "Home" },
     { to: "/dashboard", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
     { to: "/match-setup", icon: <Edit size={20} />, label: "Match Setup" },
@@ -17,7 +17,7 @@ const AdminLayout = () => {
     { to: "/statistics", icon: <BarChart3 size={20} />, label: "Statistics" },
     { to: "/settings", icon: <Settings size={20} />, label: "Settings" },
   ];
-    const {theme} = useTheme();
+  const { theme } = useTheme();
   return (
     <SearchProvider>
       <div className="min-h-screen flex flex-col">
@@ -26,7 +26,7 @@ const AdminLayout = () => {
           <Sidebar links={links} />
           <main
             key={theme}
-            className="flex-1 ml-16 lg:ml-0 transition-all duration-300"
+            className="flex-1 ml-16 lg:ml-0 transition-all duration-300 overflow-x-hidden"
             style={{
               backgroundColor: "var(--bg)",
               color: "var(--text)",

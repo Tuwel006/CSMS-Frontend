@@ -308,11 +308,11 @@ const TeamManagement = () => {
   };
 
   return (
-    <div className="p-2 md:p-6">
+    <div className="p-2 md:p-6 w-full max-w-full">
       <h1 className="text-2xl font-bold text-[var(--text)] mb-6">Team Management</h1>
 
       {/* Tab Navigation */}
-      <div className="mb-6 border-b border-[var(--card-border)] overflow-x-auto">
+      <div className="mb-6 border-b border-[var(--card-border)] w-full max-w-full overflow-x-auto">
         <div className="flex gap-1 min-w-max">
           <button
             onClick={() => setSearchParams({ tab: 'match-setup' })}
