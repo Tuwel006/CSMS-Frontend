@@ -12,7 +12,7 @@ const Sidebar = ({ links }: { links: { to: string; icon: JSX.Element; label: str
 
   return (
     <aside
-      className={`fixed lg:relative top-16 lg:top-0 left-0 h-[calc(100vh-4rem)] transition-all duration-300 z-50
+      className={`fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] overflow-y-auto transition-all duration-300 z-50
         ${open ? "w-52" : "w-16"} bg-[var(--card-bg)] border-r border-[var(--card-border)]`}
     >
       <button
