@@ -308,49 +308,40 @@ const TeamManagement = () => {
   };
 
   return (
-    <div className="p-2 md:p-6 w-full max-w-full">
+    <div className="p-2 md:p-6">
       <h1 className="text-2xl font-bold text-[var(--text)] mb-6">Team Management</h1>
 
-      {/* Tab Navigation */}
-      <div className="mb-6 border-b border-[var(--card-border)] w-full max-w-full overflow-x-auto">
-        <div className="flex gap-1 min-w-max">
+      {/* Tab Navigation - Premium Soft Zinc */}
+      <div className="mb-6 w-full max-w-full overflow-x-auto pb-1">
+        <div className="inline-flex bg-gray-100/80 dark:bg-gray-900/60 backdrop-blur-sm p-1 rounded-md border border-gray-200/50 dark:border-white/5 items-center">
           <button
             onClick={() => setSearchParams({ tab: 'match-setup' })}
-            className={`px-4 py-2.5 font-medium text-sm transition-colors relative ${activeTab === 'match-setup'
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            className={`px-3 py-1.5 rounded-[4px] text-sm font-medium transition-all duration-200 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === 'match-setup'
+              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/5'
               }`}
           >
             Single Match Setup
-            {activeTab === 'match-setup' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"></div>
-            )}
           </button>
 
           <button
             onClick={() => setSearchParams({ tab: 'match-schedule' })}
-            className={`px-4 py-2.5 font-medium text-sm transition-colors relative ${activeTab === 'match-schedule'
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            className={`px-3 py-1.5 rounded-[4px] text-sm font-medium transition-all duration-200 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === 'match-schedule'
+              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/5'
               }`}
           >
             Match Schedule
-            {activeTab === 'match-schedule' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"></div>
-            )}
           </button>
 
           <button
             onClick={() => setSearchParams({ tab: 'team-management' })}
-            className={`px-4 py-2.5 font-medium text-sm transition-colors relative ${activeTab === 'team-management'
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            className={`px-3 py-1.5 rounded-[4px] text-sm font-medium transition-all duration-200 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === 'team-management'
+              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/5'
               }`}
           >
             Team Management
-            {activeTab === 'team-management' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"></div>
-            )}
           </button>
         </div>
       </div>
