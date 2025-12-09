@@ -25,7 +25,7 @@ const Sidebar = ({ links }: { links: { to: string; icon: JSX.Element; label: str
         {links.map((link) => (
           <Link
             key={link.to}
-            to={path+link.to}
+            to={path + link.to}
             className={`flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-[var(--text)]
               ${location.pathname === link.to ? "bg-gray-100 dark:bg-gray-700" : ""}`}
           >

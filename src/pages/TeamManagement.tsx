@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import TeamSetup from '../components/TeamSetup';
+import MatchSchedule from '../components/MatchSchedule';
 import { RootState } from '../store';
 import {
   setTeam1,
@@ -19,13 +21,19 @@ import Button from '../components/ui/Button';
 import TeamCard from '../components/TeamCard';
 import { TeamService } from '../services/teamService';
 
-type Tab = 'match-setup' | 'team-management';
+type Tab = 'match-setup' | 'match-schedule' | 'team-management';
 
 interface TeamData {
   id: string;
   name: string;
   location: string;
   teamId: string | null;
+  tournamentId?: string | null;
+  players: Array<{ id: string | null; name: string; role: string }>;
+}
+
+interface TeamManageLocalStorage {
+  team: { name: string; location: string; id: string | null };
   players: Array<{ id: string | null; name: string; role: string }>;
 }
 
@@ -35,7 +43,12 @@ const TeamManagement = () => {
     (state: RootState) => state.teamManagement
   );
 
-  const [activeTab, setActiveTab] = useState<Tab>('match-setup');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get('tab') as Tab) || 'match-setup';
+
+  // TODO: Replace with actual tournament context/selection
+  const [currentTournamentId] = useState<string | null>('1'); // Mock tournament ID
+
   const [managedTeams, setManagedTeams] = useState<TeamData[]>([]);
   const [showTeamForm, setShowTeamForm] = useState(false);
   const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
@@ -48,75 +61,71 @@ const TeamManagement = () => {
   });
   const [currentPlayers, setCurrentPlayers] = useState<Array<{ id: string | null; name: string; role: string }>>([]);
 
-  // Load teams from API on mount
+  // Load teams from API on mount and filter by tournament
   useEffect(() => {
-    if (activeTab === 'team-management') {
+    if (activeTab === 'team-management' || activeTab === 'match-schedule') {
       fetchTeams();
+      if (activeTab === 'team-management') {
+        loadFromLocalStorage();
+      }
     }
   }, [activeTab]);
 
-  // Sync Match Setup teams with localStorage
+  // One-time cleanup of deprecated localStorage keys
   useEffect(() => {
-    const team1Data = {
-      team: team1,
-      players: team1Players
-    };
-    localStorage.setItem('matchSetup_team1', JSON.stringify(team1Data));
-  }, [team1, team1Players]);
-
-  useEffect(() => {
-    const team2Data = {
-      team: team2,
-      players: team2Players
-    };
-    localStorage.setItem('matchSetup_team2', JSON.stringify(team2Data));
-  }, [team2, team2Players]);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedTeam1 = localStorage.getItem('matchSetup_team1');
-    const savedTeam2 = localStorage.getItem('matchSetup_team2');
-
-    if (savedTeam1) {
-      try {
-        const data = JSON.parse(savedTeam1);
-        if (data.team?.name) {
-          dispatch(setTeam1(data.team));
-          data.players?.forEach((player: any) => {
-            dispatch(addTeam1Player(player));
-          });
-        }
-      } catch (e) {
-        console.error('Error loading team1 from localStorage', e);
-      }
-    }
-
-    if (savedTeam2) {
-      try {
-        const data = JSON.parse(savedTeam2);
-        if (data.team?.name) {
-          dispatch(setTeam2(data.team));
-          data.players?.forEach((player: any) => {
-            dispatch(addTeam2Player(player));
-          });
-        }
-      } catch (e) {
-        console.error('Error loading team2 from localStorage', e);
-      }
-    }
+    localStorage.removeItem('teamManagementState');
+    localStorage.removeItem('matchSetup_team1');
+    localStorage.removeItem('matchSetup_team2');
   }, []);
+
+  // Sync teamManage localStorage whenever currentTeam or currentPlayers change
+  useEffect(() => {
+    if (activeTab === 'team-management') {
+      const teamManageData: TeamManageLocalStorage = {
+        team: currentTeam,
+        players: currentPlayers
+      };
+      localStorage.setItem('teamManage', JSON.stringify(teamManageData));
+    }
+  }, [currentTeam, currentPlayers, activeTab]);
+
+  // Load Team Management data from localStorage
+  const loadFromLocalStorage = () => {
+    const savedTeamManage = localStorage.getItem('teamManage');
+    if (savedTeamManage) {
+      try {
+        const data: TeamManageLocalStorage = JSON.parse(savedTeamManage);
+        if (data.team) {
+          setCurrentTeam(data.team);
+        }
+        if (data.players) {
+          setCurrentPlayers(data.players);
+        }
+      } catch (e) {
+        console.error('Error loading teamManage from localStorage', e);
+      }
+    }
+  };
 
   const fetchTeams = async () => {
     try {
       const response = await TeamService.getAll({ limit: 100 });
-      const teams: TeamData[] = response?.data?.data?.map((team: any) => ({
+      // Filter teams by current tournament
+      const allTeams: TeamData[] = response?.data?.data?.map((team: any) => ({
         id: team.id.toString(),
         name: team.name,
         location: team.location || '',
         teamId: team.id.toString(),
+        tournamentId: team.tournamentId?.toString() || null,
         players: [] // Players would need to be fetched separately if needed
       }))!;
-      setManagedTeams(teams);
+
+      // Filter by tournament - for now showing all teams since tournament field might not exist yet
+      // TODO: Uncomment when tournament field is added to teams
+      // const tournamentTeams = allTeams.filter(team => team.tournamentId === currentTournamentId);
+      // setManagedTeams(tournamentTeams);
+
+      setManagedTeams(allTeams);
     } catch (error) {
       console.error('Error fetching teams:', error);
     }
@@ -221,6 +230,8 @@ const TeamManagement = () => {
           name: currentTeam.name,
           short_name: currentTeam.name.substring(0, 3).toUpperCase(),
           location: currentTeam.location,
+          // TODO: Add tournament_id when backend supports it
+          // tournament_id: currentTournamentId ? parseInt(currentTournamentId) : undefined,
         });
       } else {
         // Create new team
@@ -228,8 +239,22 @@ const TeamManagement = () => {
           name: currentTeam.name,
           short_name: currentTeam.name.substring(0, 3).toUpperCase(),
           location: currentTeam.location,
+          // TODO: Add tournament_id when backend supports it
+          // tournament_id: currentTournamentId ? parseInt(currentTournamentId) : undefined,
         });
+
+        // TODO: Save players to DB when player-team association API is ready
+        // for (const player of currentPlayers) {
+        //   await PlayerTeamService.create({
+        //     team_id: createdTeam.id,
+        //     player_id: player.id,
+        //     role: player.role
+        //   });
+        // }
       }
+
+      // Clear localStorage after successful save
+      localStorage.removeItem('teamManage');
 
       // Refresh teams list
       await fetchTeams();
@@ -278,6 +303,8 @@ const TeamManagement = () => {
     setCurrentPlayers([]);
     setShowTeamForm(false);
     setEditingTeamId(null);
+    // Clear localStorage when canceling
+    localStorage.removeItem('teamManage');
   };
 
   return (
@@ -285,22 +312,36 @@ const TeamManagement = () => {
       <h1 className="text-2xl font-bold text-[var(--text)] mb-6">Team Management</h1>
 
       {/* Tab Navigation */}
-      <div className="mb-6 border-b border-[var(--card-border)]">
-        <div className="flex gap-1">
+      <div className="mb-6 border-b border-[var(--card-border)] overflow-x-auto">
+        <div className="flex gap-1 min-w-max">
           <button
-            onClick={() => setActiveTab('match-setup')}
+            onClick={() => setSearchParams({ tab: 'match-setup' })}
             className={`px-4 py-2.5 font-medium text-sm transition-colors relative ${activeTab === 'match-setup'
               ? 'text-blue-600 dark:text-blue-400'
               : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               }`}
           >
-            Match Setup
+            Single Match Setup
             {activeTab === 'match-setup' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"></div>
             )}
           </button>
+
           <button
-            onClick={() => setActiveTab('team-management')}
+            onClick={() => setSearchParams({ tab: 'match-schedule' })}
+            className={`px-4 py-2.5 font-medium text-sm transition-colors relative ${activeTab === 'match-schedule'
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              }`}
+          >
+            Match Schedule
+            {activeTab === 'match-schedule' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"></div>
+            )}
+          </button>
+
+          <button
+            onClick={() => setSearchParams({ tab: 'team-management' })}
             className={`px-4 py-2.5 font-medium text-sm transition-colors relative ${activeTab === 'team-management'
               ? 'text-blue-600 dark:text-blue-400'
               : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
@@ -315,7 +356,9 @@ const TeamManagement = () => {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'match-setup' ? (
+      {activeTab === 'match-schedule' ? (
+        <MatchSchedule availableTeams={managedTeams} />
+      ) : activeTab === 'match-setup' ? (
         // Match Setup Tab - Uses localStorage
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <TeamSetup
@@ -346,9 +389,14 @@ const TeamManagement = () => {
         // Team Management Tab - Uses API and shows cards
         <div>
           <div className="flex justify-between items-center mb-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Manage all your teams in one place. Add, edit, or remove teams as needed.
-            </p>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Manage teams for Tournament #{currentTournamentId || 'N/A'}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                Add, edit, or remove teams as needed.
+              </p>
+            </div>
             {!showTeamForm && (
               <Button
                 variant="primary"
