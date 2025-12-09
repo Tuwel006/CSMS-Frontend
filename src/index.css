@@ -3,6 +3,10 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
+button {
+  cursor: pointer;
+}
+
 /* Theme Variables */
 body.light {
   --bg: #f8f9fa;
@@ -10,6 +14,7 @@ body.light {
   --text-secondary: #6b7280;
   --card-bg: #ffffff;
   --card-border: #e5e7eb;
+  --hover-bg: #f3f4f6;
 }
 
 body.dark {
@@ -18,4 +23,5 @@ body.dark {
   --text-secondary: #9ca3af;
   --card-bg: #1f2937;
   --card-border: #374151;
+  --hover-bg: #1f2937;
 }

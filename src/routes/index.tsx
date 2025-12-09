@@ -4,6 +4,7 @@ import Layout from "@/components/layout/Layout";
 import LandingPage from "@/pages/LandingPage";
 import TestCricketGround from "@/pages/TestCricketGround";
 import Login from "@/pages/Login";
+import Auth from "@/pages/Auth";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
@@ -16,6 +17,7 @@ import MatchSetup from "@/pages/MatchSetup";
 import TeamManagement from "@/pages/TeamManagement";
 import ScoreEditor from "@/pages/ScoreEditor";
 import Game from "@/pages/Game";
+import SearchableFormExample from "@/components/ui/SearchableFormExample";
 
 
 export default function AppRoute() {
@@ -23,8 +25,9 @@ export default function AppRoute() {
   return (
     <Routes>
       {/* Public routes */}
+      <Route path="search-form" element={<SearchableFormExample />} />
       <Route element={<PublicRoute isAuth={isAuth} role={role} />}>
-        <Route path="login" element={<Login />} />
+        <Route path="login" element={<Auth />} />
       </Route>
       <Route element={<PublicLayout />}>
         <Route path="/home" element={<Home />} />

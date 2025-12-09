@@ -51,33 +51,33 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElem
   const isDark = theme === 'dark';
 
   const sizeClasses = {
-    sm: 'px-3 py-2 text-sm',
-    md: 'px-4 py-3 text-base',
-    lg: 'px-5 py-4 text-lg'
+    sm: 'px-2.5 py-1 text-xs',
+    md: 'px-3 py-1.5 text-sm',
+    lg: 'px-3.5 py-2 text-base'
   };
 
   const variantClasses = {
-    default: isDark 
-      ? 'bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500/20' 
-      : 'bg-white border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20',
+    default: isDark
+      ? 'bg-gray-800/50 border border-gray-600/50 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30 focus:bg-gray-800'
+      : 'bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20 shadow-sm',
     outlined: isDark
-      ? 'bg-transparent border-2 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400'
-      : 'bg-transparent border-2 border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500',
+      ? 'bg-transparent border border-gray-600/50 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30'
+      : 'bg-transparent border border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20',
     filled: isDark
-      ? 'bg-gray-700 border-0 text-white placeholder-gray-400 focus:bg-gray-600'
-      : 'bg-gray-100 border-0 text-gray-900 placeholder-gray-500 focus:bg-gray-200'
+      ? 'bg-gray-700/50 border-0 text-white placeholder-gray-400 focus:bg-gray-700 focus:ring-1 focus:ring-blue-400/30'
+      : 'bg-gray-50 border-0 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-1 focus:ring-blue-400/20 shadow-sm'
   };
 
-  const baseClasses = 'w-full rounded-lg transition-all duration-200 focus:outline-none focus:ring-2';
-  const errorClasses = error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : '';
+  const baseClasses = 'w-full rounded transition-all duration-200 focus:outline-none font-medium';
+  const errorClasses = error ? 'border-red-400 focus:border-red-400 focus:ring-1 focus:ring-red-400/30' : '';
 
   const inputClasses = cn(
     baseClasses,
-    sizeClasses[size],
-    variantClasses[variant],
+    sizeClasses[size as keyof typeof sizeClasses],
+    variantClasses[variant as keyof typeof variantClasses],
     errorClasses,
-    leftIcon && 'pl-10',
-    rightIcon && 'pr-10',
+    leftIcon && 'pl-8',
+    rightIcon && 'pr-8',
     className
   );
 
@@ -140,7 +140,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElem
               isDark ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'
             )}>
               {filteredSuggestions.length > 0 ? (
-                filteredSuggestions.map((suggestion, index) => (
+                filteredSuggestions.map((suggestion: string, index: number) => (
                   <button
                     key={index}
                     onClick={() => handleSuggestionSelect(suggestion)}
@@ -175,7 +175,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElem
           {...props}
         >
           {placeholder && <option value="">{placeholder}</option>}
-          {options?.map((option) => (
+          {options?.map((option: { value: any; label: string }) => (
             <option key={option.value} value={option.value} className={isDark ? 'bg-gray-800' : 'bg-white'}>
               {option.label}
             </option>
@@ -220,33 +220,33 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElem
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
-      
+
       <div className="relative">
         {leftIcon && !['select', 'textarea'].includes(type) && (
-          <div className={cn('absolute left-3 top-1/2 transform -translate-y-1/2 z-10', isDark ? 'text-gray-400' : 'text-gray-500')}>
+          <div className={cn('absolute left-2.5 top-1/2 transform -translate-y-1/2 z-10', isDark ? 'text-gray-400' : 'text-gray-500')}>
             {leftIcon}
           </div>
         )}
-        
+
         {renderInput()}
-        
+
         {rightIcon && !['select', 'textarea'].includes(type) && (
-          <div className={cn('absolute right-3 top-1/2 transform -translate-y-1/2 z-10', isDark ? 'text-gray-400' : 'text-gray-500')}>
+          <div className={cn('absolute right-2.5 top-1/2 transform -translate-y-1/2 z-10', isDark ? 'text-gray-400' : 'text-gray-500')}>
             {rightIcon}
           </div>
         )}
-        
+
         {children && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+          <div className="absolute right-2.5 top-1/2 transform -translate-y-1/2">
             {children}
           </div>
         )}
       </div>
-      
+
       {error && (
         <p className="text-sm text-red-500">{error}</p>
       )}
-      
+
       {helperText && !error && (
         <p className={cn('text-sm', isDark ? 'text-gray-400' : 'text-gray-600')}>{helperText}</p>
       )}

@@ -46,7 +46,6 @@ const PublicHeader = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const Logo = logo.icon;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  console.log("USER: ", user);
   return (
     <header className={containerClassName}>
       <div className="flex items-center justify-between">

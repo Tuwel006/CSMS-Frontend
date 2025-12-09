@@ -1,4 +1,5 @@
 import apiClient from '../utils/api';
+import { ApiResponse } from '../types/api';
 
 interface LoginData {
   email: string;
@@ -29,12 +30,12 @@ interface AuthResponse {
 export class AuthService {
   private static readonly REDIRECT_URI = import.meta.env.VITE_OAUTH_REDIRECT_URI || 'http://localhost:5173/auth/callback';
 
-  static async login(data: LoginData): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('user/auth/login', data);
+  static async login(data: LoginData): Promise<ApiResponse<AuthResponse['data']>> {
+    return apiClient.post<AuthResponse['data']>('user/auth/login', data);
   }
 
-  static async signup(data: SignupData): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('user/auth/signup', data);
+  static async signup(data: SignupData): Promise<ApiResponse<AuthResponse['data']>> {
+    return apiClient.post<AuthResponse['data']>('user/auth/signup', data);
   }
 
   static initiateGoogleAuth(): void {
