@@ -20,6 +20,7 @@ import { Plus } from 'lucide-react';
 import Button from '../components/ui/Button';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import GenerateMatchToken from '../components/GenerateMatchToken';
+import ActiveSessionHeader from '../components/ActiveSessionHeader';
 import TeamCard from '../components/TeamCard';
 import { TeamService } from '../services/teamService';
 import { MatchService } from '../services/matchService';
@@ -546,36 +547,10 @@ const TeamManagement = () => {
           // Match Setup UI (Visible after token generation)
           <div className="space-y-6 animate-in slide-in-from-bottom-8 duration-500 fade-in">
             {/* Match Token Header (Active Session) */}
-            <div className="flex justify-between items-center p-5 rounded-xl border relative overflow-hidden group
-              bg-white dark:bg-gray-900
-              bg-gradient-to-r from-cyan-50/30 via-white to-blue-50/30
-              dark:from-gray-900 dark:via-slate-900 dark:to-gray-900
-              border-cyan-100 dark:border-cyan-900/30"
-            >
-
-              <div className="flex items-center gap-4 relative z-10">
-                <div className="p-3 rounded-lg border
-                   bg-cyan-50 border-cyan-100
-                   dark:bg-gray-800 dark:border-cyan-900/30"
-                >
-                  <span className="font-mono text-sm font-bold text-cyan-700 dark:text-cyan-400">ID</span>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest mb-0.5 text-cyan-600/80 dark:text-gray-400">Active Session</p>
-                  <p className="text-xl font-bold font-mono tracking-tight tabular-nums text-gray-900 dark:text-white">{matchToken}</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative z-10 transition-colors duration-200
-                  text-gray-500 hover:text-red-600 hover:bg-red-50 
-                  dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-950/30"
-                onClick={() => setShowCancelSessionConfirm(true)}
-              >
-                Cancel Session
-              </Button>
-            </div>
+            <ActiveSessionHeader
+              matchToken={matchToken}
+              onCancel={() => setShowCancelSessionConfirm(true)}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-start">
 
