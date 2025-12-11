@@ -20,16 +20,18 @@ interface TeamData {
 
 interface MatchScheduleProps {
     availableTeams: TeamData[];
+    preSelectedTeam1?: TeamData | null;
+    preSelectedTeam2?: TeamData | null;
 }
 
-const MatchSchedule = ({ availableTeams }: MatchScheduleProps) => {
+const MatchSchedule = ({ availableTeams, preSelectedTeam1, preSelectedTeam2 }: MatchScheduleProps) => {
     // Match Details State
     const [venue, setVenue] = useState('');
     const [overs, setOvers] = useState<string>('');
     const [tossWinner, setTossWinner] = useState<'team1' | 'team2' | ''>('');
     const [tossDecision, setTossDecision] = useState<'bat' | 'bowl' | ''>('');
 
-    // Team Selection State
+    // Team Selection State (used if no pre-selected teams)
     const [selectedTeam1Id, setSelectedTeam1Id] = useState<string>('');
     const [selectedTeam2Id, setSelectedTeam2Id] = useState<string>('');
 
@@ -41,9 +43,9 @@ const MatchSchedule = ({ availableTeams }: MatchScheduleProps) => {
     const [showTeam1Players, setShowTeam1Players] = useState(true);
     const [showTeam2Players, setShowTeam2Players] = useState(true);
 
-    // Derived teams
-    const team1 = availableTeams.find(t => t.id === selectedTeam1Id);
-    const team2 = availableTeams.find(t => t.id === selectedTeam2Id);
+    // Derived teams - Prioritize pre-selected teams
+    const team1 = preSelectedTeam1 || availableTeams.find(t => t.id === selectedTeam1Id);
+    const team2 = preSelectedTeam2 || availableTeams.find(t => t.id === selectedTeam2Id);
 
     // Filter available teams for dropdowns
     const teamsForSelection = availableTeams;
@@ -78,8 +80,8 @@ const MatchSchedule = ({ availableTeams }: MatchScheduleProps) => {
     };
 
     const handleScheduleMatch = () => {
-        if (!selectedTeam1Id || !selectedTeam2Id) {
-            alert('Please select both teams');
+        if (!team1 || !team2) {
+            alert('Please ensure both teams are selected/available');
             return;
         }
         if (!venue || !overs) {
