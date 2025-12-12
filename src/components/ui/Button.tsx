@@ -5,12 +5,13 @@ import { cn } from '../../lib/utils';
 interface ButtonProps {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   disabled?: boolean;
   loading?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   type?: 'button' | 'submit' | 'reset';
   onClick?: () => void;
 }
@@ -24,6 +25,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   leftIcon,
   rightIcon,
   className,
+  style,
   type = 'button',
   onClick,
   ...props
@@ -35,6 +37,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     sm: 'px-2.5 py-1 text-xs',
     md: 'px-3 py-1.5 text-sm',
     lg: 'px-4 py-2 text-base',
+    xl: 'px-5 py-2.5 text-lg',
+    '2xl': 'px-6 py-3 text-xl',
   };
 
   const variantClasses = {
@@ -48,14 +52,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       ? 'bg-transparent hover:bg-gray-800/50 text-gray-300 border border-gray-600/50 hover:border-gray-500'
       : 'bg-transparent hover:bg-gray-50 text-gray-600 border border-gray-200 hover:border-gray-300 shadow-sm',
     ghost: isDark
-      ? 'bg-transparent hover:bg-gray-800/30 text-gray-300 border-0'
-      : 'bg-transparent hover:bg-gray-100/50 text-gray-600 border-0',
+      ? 'hover:bg-gray-800/30 text-gray-300 border-0'
+      : 'hover:bg-gray-100/50 text-gray-600 border-0',
     danger: isDark
       ? 'bg-red-600 hover:bg-red-700 text-white border border-red-600 shadow-sm hover:shadow-md'
       : 'bg-red-600 hover:bg-red-700 text-white border border-red-600 shadow-sm hover:shadow-md',
   };
 
-  const baseClasses = 'inline-flex items-center justify-center rounded font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-400/50 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'inline-flex items-center justify-center rounded font-medium transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed';
 
   const buttonClasses = cn(
     baseClasses,
@@ -72,6 +76,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       disabled={disabled || loading}
       onClick={onClick}
       className={buttonClasses}
+      style={style}
       {...props}
     >
       {loading && (

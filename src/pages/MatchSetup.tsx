@@ -190,7 +190,7 @@ const MatchSetup = () => {
             <Input
               type="number"
               value={overs.toString()}
-              onChange={(e) => setOvers(Number(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOvers(Number(e.target.value))}
               min="1"
               max="50"
             />

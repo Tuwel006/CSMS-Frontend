@@ -26,7 +26,7 @@ import { TeamService } from '../services/teamService';
 import { MatchService } from '../services/matchService';
 import { showToast } from '../utils/toast';
 
-type Tab = 'match-setup' | 'match-schedule' | 'team-management';
+type Tab = 'match-setup' | 'match-start';
 
 interface TeamData {
   id: string;
@@ -37,10 +37,7 @@ interface TeamData {
   players: Array<{ id: string | null; name: string; role: string }>;
 }
 
-interface TeamManageLocalStorage {
-  team: { name: string; location: string; id: string | null };
-  players: Array<{ id: string | null; name: string; role: string }>;
-}
+
 
 const TeamManagement = () => {
   const dispatch = useDispatch();
@@ -51,20 +48,7 @@ const TeamManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get('tab') as Tab) || 'match-setup';
 
-  // TODO: Replace with actual tournament context/selection
-  const [currentTournamentId] = useState<string | null>('1'); // Mock tournament ID
-
   const [managedTeams, setManagedTeams] = useState<TeamData[]>([]);
-  const [showTeamForm, setShowTeamForm] = useState(false);
-  const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
-
-  // Current team being created/edited in Team Management tab
-  const [currentTeam, setCurrentTeam] = useState<{ name: string; location: string; id: string | null }>({
-    name: '',
-    location: '',
-    id: null
-  });
-  const [currentPlayers, setCurrentPlayers] = useState<Array<{ id: string | null; name: string; role: string }>>([]);
 
   // Match Initiation State
   const [matchToken, setMatchToken] = useState<string | null>(null);
@@ -118,7 +102,7 @@ const TeamManagement = () => {
         // Failed to delete on server
         showToast.handleResponse(toastId, response);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error cancelling session:', error);
       showToast.handleResponse(toastId, error);
     }
@@ -139,15 +123,10 @@ const TeamManagement = () => {
   const [isMatchScheduled, setIsMatchScheduled] = useState(false);
   const [countdown, setCountdown] = useState<string>('');
 
-  // Load teams from API on mount and filter by tournament
+  // Load teams from API on mount
   useEffect(() => {
-    if (activeTab === 'team-management' || activeTab === 'match-schedule') {
-      fetchTeams();
-      if (activeTab === 'team-management') {
-        loadFromLocalStorage();
-      }
-    }
-  }, [activeTab]);
+    fetchTeams();
+  }, []);
 
   // Countdown timer effect
   useEffect(() => {
@@ -190,47 +169,24 @@ const TeamManagement = () => {
     }
   }, []);
 
-  // Sync teamManage localStorage whenever currentTeam or currentPlayers change
-  useEffect(() => {
-    if (activeTab === 'team-management') {
-      const teamManageData: TeamManageLocalStorage = {
-        team: currentTeam,
-        players: currentPlayers
-      };
-      localStorage.setItem('teamManage', JSON.stringify(teamManageData));
-    }
-  }, [currentTeam, currentPlayers, activeTab]);
 
-  // Load Team Management data from localStorage
-  const loadFromLocalStorage = () => {
-    const savedTeamManage = localStorage.getItem('teamManage');
-    if (savedTeamManage) {
-      try {
-        const data: TeamManageLocalStorage = JSON.parse(savedTeamManage);
-        if (data.team) {
-          setCurrentTeam(data.team);
-        }
-        if (data.players) {
-          setCurrentPlayers(data.players);
-        }
-      } catch (e) {
-        console.error('Error loading teamManage from localStorage', e);
-      }
-    }
-  };
+
+
 
   const fetchTeams = async () => {
     try {
       const response = await TeamService.getAll({ limit: 100 });
-      const allTeams: TeamData[] = response?.data?.data?.map((team: any) => ({
-        id: team.id.toString(),
-        name: team.name,
-        location: team.location || '',
-        teamId: team.id.toString(),
-        tournamentId: team.tournamentId?.toString() || null,
-        players: []
-      }))!;
-      setManagedTeams(allTeams);
+      if (response?.data?.data) {
+        const allTeams: TeamData[] = response.data.data.map((team: { id: number; name: string; location?: string; tournamentId?: number }) => ({
+          id: team.id.toString(),
+          name: team.name,
+          location: team.location || '',
+          teamId: team.id.toString(),
+          tournamentId: team.tournamentId?.toString() || null,
+          players: []
+        }));
+        setManagedTeams(allTeams);
+      }
     } catch (error) {
       console.error('Error fetching teams:', error);
     }
@@ -256,7 +212,7 @@ const TeamManagement = () => {
       } else {
         showToast.handleResponse(toastId, { status: 500, message: "Failed to parse match token", code: "PARSE_ERROR" });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error generating token:', error);
       showToast.handleResponse(toastId, error);
     } finally {
@@ -270,7 +226,6 @@ const TeamManagement = () => {
   };
 
   const handleEditTeam1 = () => {
-    // Cannot edit if submitted
     if (isTeam1Submitted) return;
   };
 
@@ -333,96 +288,7 @@ const TeamManagement = () => {
     dispatch(deleteTeam2Player(index));
   };
 
-  // Team Management Tab handlers
-  const handleSaveCurrentTeam = (team: { name: string; location: string; id: string | null }) => {
-    setCurrentTeam(team);
-  };
 
-  const handleSaveCurrentPlayer = (
-    player: { id: string | null; name: string; role: string },
-    editingIndex: number | null
-  ) => {
-    if (editingIndex !== null) {
-      const updatedPlayers = [...currentPlayers];
-      updatedPlayers[editingIndex] = player;
-      setCurrentPlayers(updatedPlayers);
-    } else {
-      setCurrentPlayers([...currentPlayers, player]);
-    }
-  };
-
-  const handleDeleteCurrentPlayer = (index: number) => {
-    setCurrentPlayers(currentPlayers.filter((_, i) => i !== index));
-  };
-
-  const handleSubmitTeam = async () => {
-    if (!currentTeam.name) {
-      alert('Please enter a team name');
-      return;
-    }
-
-    try {
-      if (editingTeamId) {
-        await TeamService.update(parseInt(editingTeamId), {
-          name: currentTeam.name,
-          short_name: currentTeam.name.substring(0, 3).toUpperCase(),
-          location: currentTeam.location,
-        });
-      } else {
-        await TeamService.create({
-          name: currentTeam.name,
-          short_name: currentTeam.name.substring(0, 3).toUpperCase(),
-          location: currentTeam.location,
-        });
-      }
-
-      localStorage.removeItem('teamManage');
-      await fetchTeams();
-      setCurrentTeam({ name: '', location: '', id: null });
-      setCurrentPlayers([]);
-      setShowTeamForm(false);
-      setEditingTeamId(null);
-    } catch (error) {
-      console.error('Error submitting team:', error);
-      alert('Failed to save team. Please try again.');
-    }
-  };
-
-  const handleEditManagedTeam = (id: string) => {
-    const team = managedTeams.find(t => t.id === id);
-    if (team) {
-      setCurrentTeam({
-        name: team.name,
-        location: team.location,
-        id: team.teamId
-      });
-      setCurrentPlayers(team.players);
-      setEditingTeamId(id);
-      setShowTeamForm(true);
-    }
-  };
-
-  const handleDeleteManagedTeam = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this team?')) {
-      return;
-    }
-
-    try {
-      await TeamService.delete(parseInt(id));
-      await fetchTeams();
-    } catch (error) {
-      console.error('Error deleting team:', error);
-      alert('Failed to delete team. Please try again.');
-    }
-  };
-
-  const handleCancelForm = () => {
-    setCurrentTeam({ name: '', location: '', id: null });
-    setCurrentPlayers([]);
-    setShowTeamForm(false);
-    setEditingTeamId(null);
-    localStorage.removeItem('teamManage');
-  };
 
   // Submit Specific Team to Backend (Simulated)
   const handleSubmitTeamToBackend = async (teamNum: 1 | 2) => {
@@ -499,45 +365,51 @@ const TeamManagement = () => {
   );
 
   return (
-    <div className="p-2 md:p-6">
-      <h1 className="text-2xl font-bold text-[var(--text)] mb-6">Team Management</h1>
-
+    <div>
       {/* Tab Navigation */}
-      <div className="mb-6 w-full max-w-full overflow-x-auto pb-1">
-        <div className="inline-flex bg-gray-100/80 dark:bg-gray-900/60 backdrop-blur-sm p-1 rounded-md border border-gray-200/50 dark:border-white/5 items-center">
-          <button
-            onClick={() => setSearchParams({ tab: 'match-setup' })}
-            className={`px-3 py-1.5 rounded-[4px] text-sm font-medium transition-all duration-200 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === 'match-setup'
-              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/5'
-              }`}
-          >
-            Single Match Setup
-          </button>
-          <button
-            onClick={() => setSearchParams({ tab: 'match-schedule' })}
-            className={`px-3 py-1.5 rounded-[4px] text-sm font-medium transition-all duration-200 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === 'match-schedule'
-              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/5'
-              }`}
-          >
-            Match Schedule
-          </button>
-          <button
-            onClick={() => setSearchParams({ tab: 'team-management' })}
-            className={`px-3 py-1.5 rounded-[4px] text-sm font-medium transition-all duration-200 whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${activeTab === 'team-management'
-              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/5'
-              }`}
-          >
-            Team Management
-          </button>
-        </div>
+      <div className="grid grid-cols-2 gap-0 border-b border-[var(--card-border)]">
+        <Button
+          variant="ghost"
+          onClick={() => setSearchParams({ tab: 'match-setup' })}
+          className={`rounded-none relative border-r border-gray-300 dark:border-gray-700 ${
+            activeTab === 'match-setup'
+              ? 'text-blue-600 dark:text-blue-400 !bg-transparent'
+              : 'text-[var(--text-secondary)]'
+          }`}
+          style={{
+            backgroundColor: activeTab === 'match-setup' ? 'transparent' : 'var(--hover-bg)'
+          }}
+          size='lg'
+        >
+          Single Match Setup
+          {activeTab === 'match-setup' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400"></div>
+          )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="lg"
+          onClick={() => setSearchParams({ tab: 'match-start' })}
+          className={`rounded-none relative border-l border-gray-300 dark:border-gray-700 ${
+            activeTab === 'match-start'
+              ? 'text-blue-600 dark:text-blue-400 !bg-transparent'
+              : 'text-[var(--text-secondary)]'
+          }`}
+          style={{
+            backgroundColor: activeTab === 'match-start' ? 'transparent' : 'var(--hover-bg)'
+          }}
+        >
+          Match Start
+          {activeTab === 'match-start' && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400"></div>
+          )}
+        </Button>
       </div>
 
-      {activeTab === 'match-schedule' ? (
-        <MatchSchedule availableTeams={managedTeams} />
-      ) : activeTab === 'match-setup' ? (
+      <div className="p-2 md:p-6">
+        {activeTab === 'match-start' ? (
+          <MatchSchedule availableTeams={managedTeams} />
+        ) : activeTab === 'match-setup' ? (
         !isMatchInitiated ? (
           <GenerateMatchToken
             onGenerate={generateMatchToken}
@@ -587,7 +459,8 @@ const TeamManagement = () => {
                     {team1.name && (
                       <Button
                         variant="primary"
-                        className="w-full bg-green-600 hover:bg-green-700"
+                        size="md"
+                        className="w-full"
                         onClick={() => handleSubmitTeamToBackend(1)}
                       >
                         Submit Team 1
@@ -639,7 +512,8 @@ const TeamManagement = () => {
                     {team2.name && (
                       <Button
                         variant="primary"
-                        className="w-full bg-green-600 hover:bg-green-700"
+                        size="md"
+                        className="w-full"
                         onClick={() => handleSubmitTeamToBackend(2)}
                       >
                         Submit Team 2
@@ -727,89 +601,8 @@ const TeamManagement = () => {
             )}
           </div>
         )
-      ) : (
-        // Team Management Tab - Uses API and shows cards
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Manage teams for Tournament #{currentTournamentId || 'N/A'}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                Add, edit, or remove teams as needed.
-              </p>
-            </div>
-            {!showTeamForm && (
-              <Button
-                variant="primary"
-                onClick={() => setShowTeamForm(true)}
-              >
-                <Plus size={16} className="mr-1" />
-                Add Team
-              </Button>
-            )}
-          </div>
-
-          {/* Add/Edit Team Form */}
-          {showTeamForm && (
-            <div className="mb-6">
-              <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">
-                    {editingTeamId ? 'Edit Team' : 'Add New Team'}
-                  </h3>
-                  <div className="flex gap-2">
-                    <Button variant="secondary" onClick={handleCancelForm}>
-                      Cancel
-                    </Button>
-                    <Button variant="primary" onClick={handleSubmitTeam}>
-                      {editingTeamId ? 'Update' : 'Submit'}
-                    </Button>
-                  </div>
-                </div>
-
-                <TeamSetup
-                  teamNumber={managedTeams.length + 1}
-                  savedTeam={currentTeam}
-                  players={currentPlayers}
-                  onSaveTeam={handleSaveCurrentTeam}
-                  onEditTeam={() => { }}
-                  onDeleteTeam={handleCancelForm}
-                  onSavePlayer={handleSaveCurrentPlayer}
-                  onEditPlayer={() => { }}
-                  onDeletePlayer={handleDeleteCurrentPlayer}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Teams List as Cards */}
-          {managedTeams.length === 0 && !showTeamForm ? (
-            <div className="text-center py-12 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg">
-              <p className="text-gray-500 dark:text-gray-400 mb-4">No teams added yet</p>
-              <Button variant="primary" onClick={() => setShowTeamForm(true)}>
-                <Plus size={16} className="mr-1" />
-                Add Your First Team
-              </Button>
-            </div>
-          ) : !showTeamForm && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {managedTeams.map((team, index) => (
-                <TeamCard
-                  key={team.id}
-                  teamNumber={index + 1}
-                  name={team.name}
-                  location={team.location}
-                  teamId={team.teamId}
-                  players={team.players}
-                  onEdit={() => handleEditManagedTeam(team.id)}
-                  onDelete={() => handleDeleteManagedTeam(team.id)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+        ) : null}
+      </div>
     </div>
   );
 };
