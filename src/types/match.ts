@@ -1,25 +1,21 @@
-export interface Player {
-  id: string;
-  name: string;
-  role: 'batsman' | 'bowler' | 'allrounder' | 'wicketkeeper';
-}
+import { MatchPlayer } from './player';
 
 export interface Team {
-  id: string;
+  id: number;
   name: string;
-  players: Player[];
-  playing11: string[];
-  battingOrder: string[];
+  players: MatchPlayer[];
+  playing11: number[];
+  battingOrder: number[];
 }
 
 export interface Match {
   id: string;
   team1: Team;
   team2: Team;
-  tossWinner: string;
+  tossWinner: number;
   tossDecision: 'bat' | 'bowl';
-  battingTeam: string;
-  bowlingTeam: string;
+  battingTeam: number;
+  bowlingTeam: number;
   overs: number;
   currentInnings: 1 | 2;
   status: 'setup' | 'live' | 'completed';
@@ -37,16 +33,16 @@ export interface BallData {
 
 export interface Over {
   overNumber: number;
-  bowler: string;
+  bowler: number;
   balls: BallData[];
 }
 
 export interface Innings {
-  battingTeam: string;
-  bowlingTeam: string;
+  battingTeam: number;
+  bowlingTeam: number;
   score: number;
   wickets: number;
   overs: Over[];
-  currentBatsmen: [string, string];
-  currentBowler: string;
+  currentBatsmen: [number, number];
+  currentBowler: number;
 }

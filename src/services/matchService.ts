@@ -25,6 +25,49 @@ export interface MatchTokenResponse {
     updatedAt: string;
 }
 
+export interface TeamSetupPayload {
+    matchId?: string;
+    team: {
+        name: string;
+        location: string;
+        id?: number | null;
+    };
+    players: Array<{
+        name: string;
+        role: string;
+        id?: number | null;
+    }>;
+}
+
+export interface CurrentMatchResponse {
+    id: string;
+    match_date: string | null;
+    format: string | null;
+    venue: string | null;
+    status: string | null;
+    man_of_the_match: string | null;
+    teamA: {
+        id: number;
+        name: string;
+        short_name: string;
+        players: Array<{
+            id: number;
+            name: string;
+            role: string;
+        }>;
+    } | null;
+    teamB: {
+        id: number;
+        name: string;
+        short_name: string;
+        players: Array<{
+            id: number;
+            name: string;
+            role: string;
+        }>;
+    } | null;
+}
+
 export const MatchService = {
     // Generate Match Token
     generateToken: async (): Promise<ApiResponse<MatchTokenResponse>> => {
@@ -34,6 +77,21 @@ export const MatchService = {
     // Delete Match Token
     deleteToken: async (tokenId: string): Promise<ApiResponse<any>> => {
         return apiClient.delete(`matches/delete-token/${tokenId}`);
+    },
+
+    // Team Setup
+    teamSetup: async (payload: TeamSetupPayload): Promise<ApiResponse<any>> => {
+        return apiClient.post('matches/team-setup', payload);
+    },
+
+    // Get Current Match
+    getCurrentMatch: async (matchId: string): Promise<ApiResponse<CurrentMatchResponse>> => {
+        return apiClient.get<CurrentMatchResponse>(`matches/current/${matchId}`);
+    },
+
+    // Update Team
+    updateTeam: async (matchId: string, teamId: number, payload: { team: { id: number | null; name: string; location: string }; players: Array<{ id: number | null; name: string; role: string }> }): Promise<ApiResponse<any>> => {
+        return apiClient.patch(`matches/team-setup/${matchId}/${teamId}`, payload);
     },
 
     create: async (data: MatchData) => {

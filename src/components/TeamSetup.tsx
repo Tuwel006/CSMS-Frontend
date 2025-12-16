@@ -5,24 +5,14 @@ import MultiFieldSearch from './ui/MultiFieldSearch';
 import { TeamService, Team } from '../services/teamService';
 import { PlayerService } from '../services/playerService';
 import { Trash2, Edit2, ChevronDown, ChevronUp } from 'lucide-react';
-
-interface Player {
-    id: string | null;
-    name: string;
-    role: string;
-}
-
-interface SavedTeam {
-    name: string;
-    location: string;
-    id: string | null;
-}
+import { Player } from '../types/player';
+import { TeamData } from '../types/team';
 
 interface TeamSetupProps {
     teamNumber: number;
-    savedTeam: SavedTeam;
+    savedTeam: TeamData;
     players: Player[];
-    onSaveTeam: (team: SavedTeam) => void;
+    onSaveTeam: (team: TeamData) => void;
     onEditTeam: () => void;
     onDeleteTeam: () => void;
     onSavePlayer: (player: Player, editingIndex: number | null) => void;
@@ -119,7 +109,7 @@ const TeamSetup = ({
 
     const handleSaveTeam = () => {
         if (teamName) {
-            onSaveTeam({ name: teamName, location: teamLocation, id: teamId || null });
+            onSaveTeam({ name: teamName, location: teamLocation, id: teamId ? Number(teamId) : null });
             setTeamName('');
             setTeamLocation('');
             setTeamId('');
@@ -130,7 +120,7 @@ const TeamSetup = ({
     const handleEditTeamClick = () => {
         setTeamName(savedTeam.name);
         setTeamLocation(savedTeam.location);
-        setTeamId(savedTeam.id || '');
+        setTeamId(savedTeam.id ? savedTeam.id.toString() : '');
         setIsEditingTeam(true);
         onEditTeam();
     };
@@ -194,7 +184,7 @@ const TeamSetup = ({
     const handleSavePlayer = () => {
         if (playerName && playerRole) {
             onSavePlayer(
-                { id: playerId || null, name: playerName, role: playerRole },
+                { id: playerId ? Number(playerId) : null, name: playerName, role: playerRole },
                 editingPlayerIndex
             );
             setPlayerName('');
@@ -207,7 +197,7 @@ const TeamSetup = ({
     const handleEditPlayerClick = (index: number) => {
         const player = players[index];
         setPlayerName(player.name);
-        setPlayerId(player.id || '');
+        setPlayerId(player.id ? player.id.toString() : '');
         setPlayerRole(player.role);
         setEditingPlayerIndex(index);
         onEditPlayer(index);

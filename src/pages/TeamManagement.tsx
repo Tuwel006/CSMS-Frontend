@@ -15,6 +15,10 @@ import {
   updateTeam2Player,
   deleteTeam1Player,
   deleteTeam2Player,
+  resetTeam1Players,
+  resetTeam2Players,
+  setTeam1Players,
+  setTeam2Players,
 } from '../store/slices/teamManagementSlice';
 import { Plus } from 'lucide-react';
 import Button from '../components/ui/Button';
@@ -25,16 +29,16 @@ import TeamCard from '../components/TeamCard';
 import { TeamService } from '../services/teamService';
 import { MatchService } from '../services/matchService';
 import { showToast } from '../utils/toast';
+import { Player } from '../types/player';
+import { TeamData as BaseTeamData } from '../types/team';
 
 type Tab = 'match-setup' | 'match-start';
 
-interface TeamData {
-  id: string;
-  name: string;
-  location: string;
-  teamId: string | null;
-  tournamentId?: string | null;
-  players: Array<{ id: string | null; name: string; role: string }>;
+interface TeamData extends BaseTeamData {
+  short_name?: string;
+  teamId?: number | null;
+  tournamentId?: number | null;
+  players?: Player[];
 }
 
 
@@ -49,6 +53,9 @@ const TeamManagement = () => {
   const activeTab = (searchParams.get('tab') as Tab) || 'match-setup';
 
   const [managedTeams, setManagedTeams] = useState<TeamData[]>([]);
+
+  const [matchTeamA, setMatchTeamA] = useState<TeamData | null>(null);
+  const [matchTeamB, setMatchTeamB] = useState<TeamData | null>(null);
 
   // Match Initiation State
   const [matchToken, setMatchToken] = useState<string | null>(null);
@@ -112,6 +119,8 @@ const TeamManagement = () => {
   const [activeSlot, setActiveSlot] = useState<1 | 2 | null>(null);
   const [isTeam1Submitted, setIsTeam1Submitted] = useState(false);
   const [isTeam2Submitted, setIsTeam2Submitted] = useState(false);
+  const [isEditingTeam1, setIsEditingTeam1] = useState(false);
+  const [isEditingTeam2, setIsEditingTeam2] = useState(false);
 
   // Match Schedule Form State
   const [matchDetails, setMatchDetails] = useState({
@@ -124,9 +133,9 @@ const TeamManagement = () => {
   const [countdown, setCountdown] = useState<string>('');
 
   // Load teams from API on mount
-  useEffect(() => {
-    fetchTeams();
-  }, []);
+  // useEffect(() => {
+  //   fetchTeams();
+  // }, []);
 
   // Countdown timer effect
   useEffect(() => {
@@ -166,49 +175,69 @@ const TeamManagement = () => {
     if (savedToken) {
       setMatchToken(savedToken);
       setIsMatchInitiated(true);
+      fetchCurrentMatch(savedToken);
     }
   }, []);
 
-
-
-
-
-  const fetchTeams = async () => {
+  const fetchCurrentMatch = async (token: string) => {
     try {
-      const response = await TeamService.getAll({ limit: 100 });
-      if (response?.data?.data) {
-        const allTeams: TeamData[] = response.data.data.map((team: { id: number; name: string; location?: string; tournamentId?: number }) => ({
-          id: team.id.toString(),
-          name: team.name,
-          location: team.location || '',
-          teamId: team.id.toString(),
-          tournamentId: team.tournamentId?.toString() || null,
-          players: []
-        }));
-        setManagedTeams(allTeams);
+      const response = await MatchService.getCurrentMatch(token);
+      if (response.status >= 200 && response.status < 300 && response.data) {
+        const { teamA, teamB } = response.data;
+        
+        if (teamA) {
+          setMatchTeamA({ id: teamA.id.toString(), name: teamA.name, short_name: teamA?.short_name, players: teamA.players });
+          setIsTeam1Submitted(true);
+        }
+        
+        if (teamB) {
+          setMatchTeamB({ id: teamB.id.toString(), name: teamB.name, short_name: teamB.short_name, players: teamB.players });
+          setIsTeam2Submitted(true);
+        }
       }
     } catch (error) {
-      console.error('Error fetching teams:', error);
+      console.error('Error fetching current match:', error);
     }
   };
+
+
+
+
+
+  // const fetchTeams = async () => {
+  //   try {
+  //     const response = await TeamService.getAll({ limit: 100 });
+  //     if (response?.data?.data) {
+  //       const allTeams: TeamData[] = response.data.data.map((team: { id: number; name: string; location?: string; tournamentId?: number }) => ({
+  //         id: team.id.toString(),
+  //         name: team.name,
+  //         location: team.location || '',
+  //         teamId: team.id.toString(),
+  //         tournamentId: team.tournamentId?.toString() || null,
+  //         players: []
+  //       }));
+  //       setManagedTeams(allTeams);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching teams:', error);
+  //   }
+  // };
 
   const generateMatchToken = async () => {
     setIsGeneratingToken(true);
     const toastId = showToast.loading("Generating Match Token...");
 
     try {
-      // Add artificial delay for better UX/Animation
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const response = await MatchService.generateToken();
-      // response is API Response { status: ..., code: ..., message: ..., data: MatchTokenResponse }
       if (response.data && response.data.id) {
         const token = response.data.id;
-        localStorage.setItem('activeMatchToken', token); // Persist token
+        localStorage.setItem('activeMatchToken', token);
         setMatchToken(token);
         setIsMatchInitiated(true);
-        // Pass the entire response object to handleResponse for the success message
         showToast.handleResponse(toastId, response);
+        fetchCurrentMatch(token);
       } else {
         showToast.handleResponse(toastId, { status: 500, message: "Failed to parse match token", code: "PARSE_ERROR" });
       }
@@ -221,12 +250,15 @@ const TeamManagement = () => {
   };
 
   // Team 1 handlers
-  const handleSaveTeam1 = (team: { name: string; location: string; id: string | null }) => {
+  const handleSaveTeam1 = (team: BaseTeamData) => {
     dispatch(setTeam1(team));
   };
 
   const handleEditTeam1 = () => {
-    if (isTeam1Submitted) return;
+    if (!isTeam1Submitted || !matchTeamA) return;
+    setIsEditingTeam1(true);
+    dispatch(setTeam1(matchTeamA));
+    dispatch(setTeam1Players(matchTeamA.players || []));
   };
 
   const handleDeleteTeam1 = () => {
@@ -239,7 +271,7 @@ const TeamManagement = () => {
   };
 
   const handleSaveTeam1Player = (
-    player: { id: string | null; name: string; role: string },
+    player: Player,
     editingIndex: number | null
   ) => {
     if (editingIndex !== null) {
@@ -255,12 +287,15 @@ const TeamManagement = () => {
   };
 
   // Team 2 handlers
-  const handleSaveTeam2 = (team: { name: string; location: string; id: string | null }) => {
+  const handleSaveTeam2 = (team: BaseTeamData) => {
     dispatch(setTeam2(team));
   };
 
   const handleEditTeam2 = () => {
-    if (isTeam2Submitted) return;
+    if (!isTeam2Submitted || !matchTeamB) return;
+    setIsEditingTeam2(true);
+    dispatch(setTeam2(matchTeamB));
+    dispatch(setTeam2Players(matchTeamB.players || []));
   };
 
   const handleDeleteTeam2 = () => {
@@ -273,7 +308,7 @@ const TeamManagement = () => {
   };
 
   const handleSaveTeam2Player = (
-    player: { id: string | null; name: string; role: string },
+    player: Player,
     editingIndex: number | null
   ) => {
     if (editingIndex !== null) {
@@ -290,48 +325,83 @@ const TeamManagement = () => {
 
 
 
-  // Submit Specific Team to Backend (Simulated)
+  // Submit Specific Team to Backend
   const handleSubmitTeamToBackend = async (teamNum: 1 | 2) => {
     const team = teamNum === 1 ? team1 : team2;
     const players = teamNum === 1 ? team1Players : team2Players;
+    const isEditing = teamNum === 1 ? isEditingTeam1 : isEditingTeam2;
+    const matchTeam = teamNum === 1 ? matchTeamA : matchTeamB;
 
     if (!team.name) {
       alert('Please save team details first');
       return;
     }
 
-    const payload = {
-      matchId: matchToken, // Include the match token
-      team: {
-        name: team.name,
-        location: team.location,
-        id: team.id
-      },
-      players: players.map(p => ({
-        name: p.name,
-        id: p.id,
-        role: p.role
-      }))
-    };
-
-    console.log(`Submitting Team ${teamNum} Payload for Match ${matchToken}:`, payload);
+    const toastId = showToast.loading(isEditing ? `Updating Team ${teamNum}...` : `Submitting Team ${teamNum}...`);
 
     try {
-      // TODO: Replace with actual backend call
-      // await TeamService.createWithPlayers(payload);
+      if (isEditing && matchTeam?.id) {
+        // Update existing team
+        const payload = {
+          team: {
+            id: team.id,
+            name: team.name,
+            location: team.location
+          },
+          players
+        };
+        const response = await MatchService.updateTeam(matchToken!, matchTeam.id as any, payload);
+        
+        if (response.status >= 200 && response.status < 300) {
+          showToast.handleResponse(toastId, response);
+          await fetchCurrentMatch(matchToken!);
+          if (teamNum === 1) {
+            setIsEditingTeam1(false);
+            dispatch(resetTeam1());
+          } else {
+            setIsEditingTeam2(false);
+            dispatch(resetTeam2());
+          }
+        } else {
+          showToast.handleResponse(toastId, response);
+        }
+      } else {
+        // Create new team
+        const payload = {
+          matchId: matchToken!,
+          team: {
+            name: team.name,
+            location: team.location,
+            id: team.id
+          },
+          players: players.map(p => ({
+            name: p.name,
+            id: p.id,
+            role: p.role
+          }))
+        };
+        const response = await MatchService.teamSetup(payload);
+        
+        if (response.status >= 200 && response.status < 300) {
+          showToast.handleResponse(toastId, response);
+          
+          if (teamNum === 1) {
+            dispatch(resetTeam1());
+            setIsTeam1Submitted(true);
+          } else {
+            dispatch(resetTeam2());
+            setIsTeam2Submitted(true);
+          }
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      if (teamNum === 1) setIsTeam1Submitted(true);
-      else setIsTeam2Submitted(true);
-
-      // Close the slot to show the card view
-      setActiveSlot(null);
-
+          setActiveSlot(null);
+          await fetchCurrentMatch(matchToken!);
+        } else {
+          showToast.handleResponse(toastId, response);
+        }
+      }
     } catch (error) {
-      console.error(`Error submitting team ${teamNum}:`, error);
-      alert('Failed to submit team. Please try again.');
+      console.error(`Error ${isEditing ? 'updating' : 'submitting'} team ${teamNum}:`, error);
+      showToast.handleResponse(toastId, error);
     }
   };
 
@@ -428,22 +498,22 @@ const TeamManagement = () => {
 
               {/* Team 1 Slot */}
               <div className="w-full">
-                {isTeam1Submitted ? (
+                {isTeam1Submitted && matchTeamA && !isEditingTeam1 ? (
                   <div className="relative">
                     <TeamCard
                       teamNumber={1}
-                      name={team1.name}
-                      location={team1.location}
-                      teamId={team1.id || 'Pending'}
-                      players={team1Players}
-                      onEdit={() => { }} // Disabled
+                      name={matchTeamA?.name}
+                      short_name={matchTeamA?.short_name}
+                      teamId={matchTeamA?.id || 'Pending'}
+                      players={matchTeamA?.players || []}
+                      onEdit={handleEditTeam1}
                       onDelete={handleDeleteTeam1}
                     />
                     <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full shadow-sm">
                       Ready
                     </div>
                   </div>
-                ) : (team1.name || activeSlot === 1) ? (
+                ) : (team1.name || activeSlot === 1 || isEditingTeam1) ? (
                   <div className="flex flex-col gap-2">
                     <TeamSetup
                       teamNumber={1}
@@ -457,14 +527,29 @@ const TeamManagement = () => {
                       onDeletePlayer={handleDeleteTeam1Player}
                     />
                     {team1.name && (
-                      <Button
-                        variant="primary"
-                        size="md"
-                        className="w-full"
-                        onClick={() => handleSubmitTeamToBackend(1)}
-                      >
-                        Submit Team 1
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="primary"
+                          size="md"
+                          className="flex-1"
+                          onClick={() => handleSubmitTeamToBackend(1)}
+                        >
+                          {isEditingTeam1 ? 'Update Team 1' : 'Submit Team 1'}
+                        </Button>
+                        {isEditingTeam1 && (
+                          <Button
+                            variant="outline"
+                            size="md"
+                            onClick={() => {
+                              setIsEditingTeam1(false);
+                              dispatch(resetTeam1());
+                              dispatch(resetTeam1Players());
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 ) : (
@@ -473,7 +558,7 @@ const TeamManagement = () => {
               </div>
 
               {/* VS Indicator */}
-              <div className="flex items-center justify-center self-center py-4 md:py-32">
+              <div className="flex items-center justify-center py-4">
                 <div className="flex flex-col items-center">
                   <span className="text-2xl md:text-3xl font-black text-gray-300 dark:text-gray-700 italic">VS</span>
                 </div>
@@ -481,22 +566,22 @@ const TeamManagement = () => {
 
               {/* Team 2 Slot */}
               <div className="w-full">
-                {isTeam2Submitted ? (
+                {isTeam2Submitted && matchTeamB && !isEditingTeam2 ? (
                   <div className="relative">
                     <TeamCard
                       teamNumber={2}
-                      name={team2.name}
-                      location={team2.location}
-                      teamId={team2.id || 'Pending'}
-                      players={team2Players}
-                      onEdit={() => { }} // Disabled
+                      name={matchTeamB.name}
+                      short_name={matchTeamB.short_name}
+                      teamId={matchTeamB.id || 'Pending'}
+                      players={matchTeamB.players || []}
+                      onEdit={handleEditTeam2}
                       onDelete={handleDeleteTeam2}
                     />
                     <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full shadow-sm">
                       Ready
                     </div>
                   </div>
-                ) : (team2.name || activeSlot === 2) ? (
+                ) : (team2.name || activeSlot === 2 || isEditingTeam2) ? (
                   <div className="flex flex-col gap-2">
                     <TeamSetup
                       teamNumber={2}
@@ -510,14 +595,29 @@ const TeamManagement = () => {
                       onDeletePlayer={handleDeleteTeam2Player}
                     />
                     {team2.name && (
-                      <Button
-                        variant="primary"
-                        size="md"
-                        className="w-full"
-                        onClick={() => handleSubmitTeamToBackend(2)}
-                      >
-                        Submit Team 2
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="primary"
+                          size="md"
+                          className="flex-1"
+                          onClick={() => handleSubmitTeamToBackend(2)}
+                        >
+                          {isEditingTeam2 ? 'Update Team 2' : 'Submit Team 2'}
+                        </Button>
+                        {isEditingTeam2 && (
+                          <Button
+                            variant="outline"
+                            size="md"
+                            onClick={() => {
+                              setIsEditingTeam2(false);
+                              dispatch(resetTeam2());
+                              dispatch(resetTeam2Players());
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 ) : (

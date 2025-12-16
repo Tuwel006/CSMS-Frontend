@@ -2,26 +2,18 @@ import { useState } from 'react';
 import Button from './ui/Button';
 import Input from './ui/Input';
 import { ChevronDown, ChevronUp, UserCheck } from 'lucide-react';
+import { Player } from '../types/player';
+import { TeamData } from '../types/team';
 
-// Reusing interfaces from TeamManagement to keep consistency
-interface Player {
-    id: string | null;
-    name: string;
-    role: string;
-}
-
-interface TeamData {
-    id: string;
-    name: string;
-    location: string;
-    teamId: string | null;
+interface ExtendedTeamData extends TeamData {
+    teamId: number | null;
     players: Player[];
 }
 
 interface MatchScheduleProps {
-    availableTeams: TeamData[];
-    preSelectedTeam1?: TeamData | null;
-    preSelectedTeam2?: TeamData | null;
+    availableTeams: ExtendedTeamData[];
+    preSelectedTeam1?: ExtendedTeamData | null;
+    preSelectedTeam2?: ExtendedTeamData | null;
 }
 
 const MatchSchedule = ({ availableTeams, preSelectedTeam1, preSelectedTeam2 }: MatchScheduleProps) => {

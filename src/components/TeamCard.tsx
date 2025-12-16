@@ -1,17 +1,12 @@
 import { useState } from 'react';
 import { Edit2, Trash2, ChevronDown, ChevronUp, Users } from 'lucide-react';
-
-interface Player {
-    id: string | null;
-    name: string;
-    role: string;
-}
+import { Player } from '../types/player';
 
 interface TeamCardProps {
     teamNumber: number;
     name: string;
-    location: string;
-    teamId: string | null;
+    short_name?: string;
+    teamId: number | null | string;
     players: Player[];
     onEdit: () => void;
     onDelete: () => void;
@@ -20,7 +15,7 @@ interface TeamCardProps {
 const TeamCard = ({
     teamNumber,
     name,
-    location,
+    short_name,
     teamId,
     players,
     onEdit,
@@ -39,7 +34,7 @@ const TeamCard = ({
                     <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-base text-[var(--text)] truncate">{name}</h4>
                         <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-600 dark:text-gray-400">
-                            <span className="truncate">{location}</span>
+                            <span className="truncate">{short_name}</span>
                             {teamId && (
                                 <>
                                     <span className="text-gray-400">•</span>

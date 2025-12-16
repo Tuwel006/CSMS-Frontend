@@ -1,16 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface TeamData {
-    id: string | null;
-    name: string;
-    location: string;
-}
-
-interface PlayerData {
-    id: string | null;
-    name: string;
-    role: string;
-}
+import { Player, TeamData } from '../../types/team';
 
 interface TeamManagementState {
     team1: TeamData;
@@ -95,6 +84,14 @@ const teamManagementSlice = createSlice({
             state.team2Players = [];
             localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
+        setTeam1Players: (state, action: PayloadAction<PlayerData[]>) => {
+            state.team1Players = action.payload;
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
+        },
+        setTeam2Players: (state, action: PayloadAction<PlayerData[]>) => {
+            state.team2Players = action.payload;
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
+        },
     },
 });
 
@@ -111,6 +108,8 @@ export const {
     resetTeam2,
     resetTeam1Players,
     resetTeam2Players,
+    setTeam1Players,
+    setTeam2Players,
 } = teamManagementSlice.actions;
 
 export default teamManagementSlice.reducer;
