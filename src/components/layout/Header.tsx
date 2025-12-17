@@ -26,8 +26,8 @@ const Header = () => {
   };
 
   return (
-    <header className="h-16 bg-[var(--card-bg)] border-b border-[var(--card-border)] flex items-center justify-between px-6 sticky top-0 z-40">
-      <h1 className="text-xl font-bold text-[var(--text)]">
+    <header className="h-16 bg-[var(--header-bg)] border-b border-[var(--card-border)] flex items-center justify-between px-6 sticky top-0 z-40">
+      <h1 className="text-xl font-bold text-[var(--header-text)]">
         Cricket Live Score
       </h1>
       <div className="flex items-center gap-4 relative">
@@ -44,13 +44,13 @@ const Header = () => {
         </div>
         <button
           onClick={toggleTheme}
-          className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="p-2 rounded hover:bg-gray-200 dark:hover:bg-white/10 text-[var(--header-text)]"
           aria-label="Toggle Theme"
         >
           {theme === 'dark' ? (
-            <Sun className="text-[var(--text)]" />
+            <Sun />
           ) : (
-            <Moon className="text-[var(--text)]" />
+            <Moon />
           )}
         </button>
         <div className="relative">
@@ -62,7 +62,7 @@ const Header = () => {
               {user?.email?.charAt(0).toUpperCase()}
             </div>
             <ChevronDown
-              className={`text-[var(--text)] transition-transform ${
+              className={`text-[var(--header-text)] transition-transform ${
                 isProfileOpen ? 'rotate-180' : ''
               }`}
               size={16}

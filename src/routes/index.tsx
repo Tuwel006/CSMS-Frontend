@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import LandingPage from "@/pages/LandingPage";
 import TestCricketGround from "@/pages/TestCricketGround";
-import Login from "@/pages/Login";
 import Auth from "@/pages/Auth";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "@/pages/Home";
@@ -13,7 +12,7 @@ import NotFound from "@/pages/NotFound";
 import PublicLayout from "@/components/layout/PublicLayout";
 import { useAuthContexxt } from "@/context/AuthContext";
 import MatchDetail from "@/pages/MatchDetails";
-import MatchSetup from "@/pages/MatchSetup";
+
 import TeamManagement from "@/pages/TeamManagement";
 import ScoreEditor from "@/pages/ScoreEditor";
 import Game from "@/pages/Game";
@@ -41,7 +40,7 @@ export default function AppRoute() {
            <Route path="admin">
               <Route index element={<MatchDetail />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="match-setup" element={<MatchSetup/>} />
+
               <Route path="team-management" element={<TeamManagement/>} />
               <Route path="player-management" element={<div>Player Management Page</div>} />
               <Route path="score-updates" element={<ScoreEditor />} />

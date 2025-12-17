@@ -3,14 +3,13 @@ import { useTheme } from "../../context/ThemeContext";
 import { SearchProvider } from "../../context/SearchContext";
 import { Outlet } from "react-router-dom";
 import Header from './Header'
-import { LayoutDashboard, Home, Edit, Settings, Users, UserPlus, BarChart3, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Home, Settings, Users, UserPlus, BarChart3, TrendingUp } from "lucide-react";
 
 
 const AdminLayout = () => {
   const links = [
     { to: "", icon: <Home size={20} />, label: "Home" },
     { to: "/dashboard", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
-    { to: "/match-setup", icon: <Edit size={20} />, label: "Match Setup" },
     { to: "/team-management", icon: <Users size={20} />, label: "Team Management" },
     { to: "/player-management", icon: <UserPlus size={20} />, label: "Player Management" },
     { to: "/score-updates", icon: <TrendingUp size={20} />, label: "Score Updates" },

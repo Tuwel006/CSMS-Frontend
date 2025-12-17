@@ -1,31 +1,6 @@
 import apiClient from '../utils/api';
 import { ApiResponse } from '../types/api';
-
-interface LoginData {
-  email: string;
-  password: string;
-}
-
-interface SignupData {
-  email: string;
-  password: string;
-  name?: string;
-}
-
-interface AuthResponse {
-  status: number;
-  code: string;
-  message: string;
-  data: {
-    token: string;
-    user: {
-      id: string;
-      username: string;
-      email: string;
-      name?: string;
-    }
-  }
-}
+import { LoginData, SignupData, AuthResponse } from '../types/authService';
 
 export class AuthService {
   private static readonly REDIRECT_URI = import.meta.env.VITE_OAUTH_REDIRECT_URI || 'http://localhost:5173/auth/callback';

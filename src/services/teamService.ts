@@ -1,33 +1,7 @@
 import apiClient from '../utils/api';
 import { ApiResponse } from '../types/api';
 import { PaginatedData } from '../types/pagination';
-
-export interface TeamData {
-  name: string;
-  short_name: string;
-  logo_url?: string;
-  location?: string;
-}
-
-export interface Team extends TeamData {
-  id: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface TeamSearchParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  searchBy?: string;
-  sort?: 'ASC' | 'DESC';
-  sortBy?: string;
-}
-
-export interface TeamSearchQuery {
-  name?: string;
-  location?: string;
-}
+import { TeamData, Team, TeamSearchParams, TeamSearchQuery } from '../types/teamService';
 
 export const TeamService = {
   // Create team

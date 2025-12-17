@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Player, TeamData } from '../../types/team';
+import { TeamData } from '../../types/team';
+import { Player } from '../../types/player';
+
+type PlayerData = Player;
 
 interface TeamManagementState {
     team1: TeamData;

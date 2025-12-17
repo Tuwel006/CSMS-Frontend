@@ -10,6 +10,7 @@ interface TeamCardProps {
     players: Player[];
     onEdit: () => void;
     onDelete: () => void;
+    showReady?: boolean;
 }
 
 const TeamCard = ({
@@ -20,6 +21,7 @@ const TeamCard = ({
     players,
     onEdit,
     onDelete,
+    showReady = false,
 }: TeamCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -33,13 +35,19 @@ const TeamCard = ({
                     </div>
                     <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-base text-[var(--text)] truncate">{name}</h4>
-                        <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500 dark:text-gray-500">
                             <span className="truncate">{short_name}</span>
                             {teamId && (
                                 <>
                                     <span className="text-gray-400">•</span>
                                     <span>ID: {teamId}</span>
                                 </>
+                            )}
+                            {showReady && (
+                                <span className="flex items-center gap-1 bg-green-500 text-white text-xs font-medium px-2 py-0.5 rounded ml-1">
+                                    <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                                    Ready
+                                </span>
                             )}
                         </div>
                     </div>
@@ -77,14 +85,14 @@ const TeamCard = ({
 
                 {/* Collapsed View - Show first player */}
                 {!isExpanded && players.length > 0 && (
-                    <div className="mt-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded text-xs text-gray-600 dark:text-gray-400">
-                        <span className="font-medium text-gray-700 dark:text-gray-300">{players[0].name}</span>
+                    <div className="mt-2 px-3 py-2 rounded text-xs" style={{ backgroundColor: 'var(--hover-bg)', color: 'var(--text)' }}>
+                        <span className="font-medium">{players[0].name}</span>
                         {players[0].id && <span className="ml-2">#{players[0].id}</span>}
                         <span className="ml-2 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded capitalize">
                             {players[0].role}
                         </span>
                         {players.length > 1 && (
-                            <span className="ml-2 text-gray-500">+{players.length - 1} more</span>
+                            <span className="ml-2 text-gray-500 dark:text-gray-400">+{players.length - 1} more</span>
                         )}
                     </div>
                 )}
@@ -100,13 +108,14 @@ const TeamCard = ({
                             players.map((player, index) => (
                                 <div
                                     key={index}
-                                    className="flex items-center gap-3 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded text-xs"
+                                    className="flex items-center gap-3 px-3 py-2 rounded text-xs"
+                                    style={{ backgroundColor: 'var(--hover-bg)', color: 'var(--text)' }}
                                 >
-                                    <span className="font-medium text-gray-700 dark:text-gray-300 truncate flex-1">
+                                    <span className="font-medium truncate flex-1">
                                         {player.name}
                                     </span>
                                     {player.id && (
-                                        <span className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
+                                        <span className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded">
                                             #{player.id}
                                         </span>
                                     )}
