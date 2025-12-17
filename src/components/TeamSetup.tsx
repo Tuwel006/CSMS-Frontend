@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import Button from './ui/Button';
 import Input from './ui/Input';
+import Card from './ui/Card';
 import MultiFieldSearch from './ui/MultiFieldSearch';
 import { TeamService, Team } from '../services/teamService';
 import { PlayerService } from '../services/playerService';
@@ -211,7 +212,7 @@ const TeamSetup = ({
     };
 
     return (
-        <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
+        <Card size="lg">
             <h3 className="text-lg font-semibold mb-2">Team {teamNumber}</h3>
             <p className="text-sm text-gray-600 mb-4">
                 Build your {teamNumber === 1 ? 'first' : 'second'} team
@@ -445,7 +446,7 @@ const TeamSetup = ({
                     </div>
                 )}
             </div>
-        </div>
+        </Card>
     );
 };
 

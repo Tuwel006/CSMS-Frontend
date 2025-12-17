@@ -1,27 +1,29 @@
 // AppRoutes.tsx
 import { Routes, Route } from "react-router-dom";
-import Layout from "@/components/layout/Layout";
-import LandingPage from "@/pages/LandingPage";
-import TestCricketGround from "@/pages/TestCricketGround";
-import Auth from "@/pages/Auth";
-import ProtectedRoute from "./ProtectedRoute";
-import Home from "@/pages/Home";
-import Dashboard from "@/pages/Dashboard";
-import PublicRoute from "./PublicRoute";
-import NotFound from "@/pages/NotFound";
-import PublicLayout from "@/components/layout/PublicLayout";
+import { lazy, Suspense } from "react";
 import { useAuthContexxt } from "@/context/AuthContext";
-import MatchDetail from "@/pages/MatchDetails";
+import Layout from "@/components/layout/Layout";
+import PublicLayout from "@/components/layout/PublicLayout";
+import ProtectedRoute from "./ProtectedRoute";
+import PublicRoute from "./PublicRoute";
 
-import TeamManagement from "@/pages/TeamManagement";
-import ScoreEditor from "@/pages/ScoreEditor";
-import Game from "@/pages/Game";
-import SearchableFormExample from "@/components/ui/SearchableFormExample";
+const LandingPage = lazy(() => import("@/pages/LandingPage"));
+const TestCricketGround = lazy(() => import("@/pages/TestCricketGround"));
+const Auth = lazy(() => import("@/pages/Auth"));
+const Home = lazy(() => import("@/pages/Home"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const MatchDetail = lazy(() => import("@/pages/MatchDetails"));
+const TeamManagement = lazy(() => import("@/pages/TeamManagement"));
+const ScoreEditor = lazy(() => import("@/pages/ScoreEditor"));
+const Game = lazy(() => import("@/pages/Game"));
+const SearchableFormExample = lazy(() => import("@/components/ui/SearchableFormExample"));
 
 
 export default function AppRoute() {
   const {isAuth, role} = useAuthContexxt();
   return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
     <Routes>
       {/* Public routes */}
       <Route path="search-form" element={<SearchableFormExample />} />
@@ -54,5 +56,6 @@ export default function AppRoute() {
       {/* 404 Catch All */}
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </Suspense>
   );
 }

@@ -363,9 +363,9 @@ const SingleMatchSetupTab = () => {
                 </div>
               )}
             </div>
-          ) : (
+          ) : !isTeam1Submitted && !matchTeamA ? (
             <TeamPlaceholder onClick={() => setActiveSlot(1)} label="Select Team 1" />
-          )}
+          ) : null}
         </div>
 
         <div className="flex items-center justify-center py-4">
@@ -385,9 +385,9 @@ const SingleMatchSetupTab = () => {
                 </div>
               )}
             </div>
-          ) : (
+          ) : !isTeam2Submitted && !matchTeamB ? (
             <TeamPlaceholder onClick={() => setActiveSlot(2)} label="Select Team 2" />
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -427,9 +427,9 @@ const SingleMatchSetupTab = () => {
                   <p className="text-xs">Umpires: {[matchDetails.umpire_1, matchDetails.umpire_2].filter(Boolean).join(', ')}</p>
                 )}
               </div>
-              <button className="mt-4 px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-base rounded shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+              <Button variant="primary" size="md" className="mt-4">
                 🏏 Let's Start the Match
-              </button>
+              </Button>
             </div>
           )}
         </Card>

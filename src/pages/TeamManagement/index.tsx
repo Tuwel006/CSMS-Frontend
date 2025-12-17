@@ -25,11 +25,11 @@ const TeamManagement = () => {
       `}</style>
       
       {/* Tab Navigation */}
-      <div className="grid grid-cols-2 gap-0 border-b border-[var(--card-border)]">
+      <div className="grid grid-cols-2 gap-0 border border-[var(--card-border)]">
         <Button
           variant="ghost"
           onClick={() => setSearchParams({ tab: 'match-setup' })}
-          className={`rounded-none relative border-r border-gray-300 dark:border-gray-700 ${
+          className={`!rounded-none border-r border-[var(--card-border)] ${
             activeTab === 'match-setup'
               ? 'text-blue-600 dark:text-blue-400 !bg-transparent'
               : 'text-[var(--text-secondary)]'
@@ -40,15 +40,12 @@ const TeamManagement = () => {
           size='lg'
         >
           Single Match Setup
-          {activeTab === 'match-setup' && (
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400"></div>
-          )}
         </Button>
         <Button
           variant="ghost"
           size="lg"
           onClick={() => setSearchParams({ tab: 'match-start' })}
-          className={`rounded-none relative border-l border-gray-300 dark:border-gray-700 ${
+          className={`!rounded-none ${
             activeTab === 'match-start'
               ? 'text-blue-600 dark:text-blue-400 !bg-transparent'
               : 'text-[var(--text-secondary)]'
@@ -58,9 +55,6 @@ const TeamManagement = () => {
           }}
         >
           Match Start
-          {activeTab === 'match-start' && (
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400"></div>
-          )}
         </Button>
       </div>
 

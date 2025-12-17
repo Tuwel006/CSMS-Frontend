@@ -2,7 +2,6 @@
 
 html, body, #root {
   min-height: 100vh;
-  transition: background-color 0.3s, color 0.3s;
 }
 
 button {
@@ -11,37 +10,37 @@ button {
 
 /* Theme Variables */
 body.light {
-  --bg: #e0e7ff;
+  --bg: #dfeeec;
   --text: #1f2937;
   --text-secondary: #6b7280;
-  --card-bg: #ffffff;
-  --card-border: #c7d2fe;
+  --card-bg: #f4ffff;
+  --card-border: #dee4fa;
   --hover-bg: #f3f4f6;
   --card-highlight-bg: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
   --card-highlight-border: #bfdbfe;
-  --header-bg: #ffffff;
+  --header-bg: #f4ffff;
   --header-text: #1f2937;
 }
 
 body.dark {
-  --bg: #0f172a;
+  --bg: #110f2a;
   --text: #f9fafb;
   --text-secondary: #9ca3af;
-  --card-bg: #1e293b;
+  --card-bg: #17283b;
   --card-border: #334155;
-  --hover-bg: #334155;
+  --hover-bg: #335055;
   --card-highlight-bg: linear-gradient(to bottom right, #1e3a8a, #312e81);
   --card-highlight-border: #3730a3;
-  --header-bg: #0f172a;
+  --header-bg: #17283b;
   --header-text: #ffffff;
 }
 
-html.light, body.light, html.light #root {
+body.light {
   background-color: #e0e7ff;
   color: #1f2937;
 }
 
-html.dark, body.dark, html.dark #root {
+body.dark {
   background-color: #0f172a;
   color: #f9fafb;
 }
