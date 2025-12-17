@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -15,16 +16,18 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    historyApiFallback: true,
   },
   build: {
     minify: 'terser',
-    terserOptions: {
+    terserOptions: ({
+      output: {
+        comments: false,
+      },
       compress: {
         drop_console: true,
         drop_debugger: true,
       },
-    },
+    } as any),
     rollupOptions: {
       output: {
         manualChunks: {
