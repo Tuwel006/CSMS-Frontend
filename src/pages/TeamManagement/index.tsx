@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import SingleMatchSetupTab from './SingleMatchSetupTab';
@@ -8,6 +9,7 @@ type Tab = 'match-setup' | 'match-start';
 const TeamManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get('tab') as Tab) || 'match-setup';
+  const [matchData, setMatchData] = useState<any>(null);
 
   return (
     <div className="team-management-page">
@@ -35,7 +37,8 @@ const TeamManagement = () => {
               : 'text-[var(--text-secondary)]'
           }`}
           style={{
-            backgroundColor: activeTab === 'match-setup' ? 'transparent' : 'var(--hover-bg)'
+            backgroundColor: activeTab === 'match-setup' ? 'transparent' : 'var(--hover-bg)',
+            borderRadius: '0 !important'
           }}
           size='lg'
         >
@@ -51,7 +54,8 @@ const TeamManagement = () => {
               : 'text-[var(--text-secondary)]'
           }`}
           style={{
-            backgroundColor: activeTab === 'match-start' ? 'transparent' : 'var(--hover-bg)'
+            backgroundColor: activeTab === 'match-start' ? 'transparent' : 'var(--hover-bg)',
+            borderRadius: '0 !important'
           }}
         >
           Match Start
@@ -59,7 +63,7 @@ const TeamManagement = () => {
       </div>
 
       <div className="p-2 md:p-6">
-        {activeTab === 'match-start' ? <MatchStartTab /> : <SingleMatchSetupTab />}
+        {activeTab === 'match-start' ? <MatchStartTab matchData={matchData} /> : <SingleMatchSetupTab onStartMatch={(data) => { setMatchData(data); setSearchParams({ tab: 'match-start' }); }} />}
       </div>
     </div>
   );

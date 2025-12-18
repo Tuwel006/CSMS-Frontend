@@ -30,7 +30,11 @@ interface TeamData extends BaseTeamData {
   players?: Player[];
 }
 
-const SingleMatchSetupTab = () => {
+interface SingleMatchSetupTabProps {
+  onStartMatch: (data: any) => void;
+}
+
+const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
   const dispatch = useDispatch();
   const { team1, team2, team1Players, team2Players } = useSelector(
     (state: RootState) => state.teamManagement
@@ -427,7 +431,7 @@ const SingleMatchSetupTab = () => {
                   <p className="text-xs">Umpires: {[matchDetails.umpire_1, matchDetails.umpire_2].filter(Boolean).join(', ')}</p>
                 )}
               </div>
-              <Button variant="primary" size="md" className="mt-4">
+              <Button onClick={() => onStartMatch({ teamA: matchTeamA, teamB: matchTeamB, matchDetails, matchToken })} className="mt-4 px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-base rounded shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
                 🏏 Let's Start the Match
               </Button>
             </div>
