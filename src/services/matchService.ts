@@ -1,7 +1,7 @@
 import apiClient from '../utils/api';
 import { ApiResponse } from '../types/api';
 import { ScheduleMatchPayload, ScheduleMatchResponse } from '../types/matchSchedule';
-import { MatchData, MatchTokenResponse, TeamSetupPayload, TeamSetupResponse, CurrentMatchResponse, DeleteTokenResponse, UpdateTeamPayload } from '../types/matchService';
+import { MatchData, MatchTokenResponse, TeamSetupPayload, TeamSetupResponse, CurrentMatchResponse, DeleteTokenResponse, UpdateTeamPayload, StartMatchPayload, StartMatchResponse } from '../types/matchService';
 
 
 
@@ -35,6 +35,11 @@ export const MatchService = {
     scheduleMatch: async (matchId: string, payload: ScheduleMatchPayload): Promise<ApiResponse<ScheduleMatchResponse>> => {
         console.log('Scheduling match with payload:',);
         return apiClient.patch(`matches/schedule/${matchId}`, payload);
+    },
+
+    // Start Match
+    startMatch: async (matchId: string, payload: StartMatchPayload): Promise<ApiResponse<StartMatchResponse>> => {
+        return apiClient.patch(`matches/start/${matchId}`, payload);
     },
 
     create: async (data: MatchData) => {

@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
+
 
 html, body, #root {
   min-height: 100vh;

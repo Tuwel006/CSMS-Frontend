@@ -3,6 +3,8 @@ import { Crown, Users } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import { MatchService } from '../../services/matchService';
+import { showToast } from '../../utils/toast';
 
 interface Player {
   id: number;
@@ -22,6 +24,9 @@ interface MatchStartTabProps {
 }
 
 const MatchStartTab = ({ matchData }: MatchStartTabProps) => {
+  const isScheduled = matchData?.matchDetails?.status === 'SCHEDULED';
+  console.log('Match Data in MatchStartTab:', matchData, isScheduled);
+  
   const teams: Team[] = matchData ? [
     { id: matchData.teamA.id, name: matchData.teamA.name, short_name: matchData.teamA.short_name, players: matchData.teamA.players || [] },
     { id: matchData.teamB.id, name: matchData.teamB.name, short_name: matchData.teamB.short_name, players: matchData.teamB.players || [] },
@@ -48,9 +53,61 @@ const MatchStartTab = ({ matchData }: MatchStartTabProps) => {
     }
   };
 
-  const handleStartMatch = () => {
-    console.log({ team1: selectedTeam1, team2: selectedTeam2, team1Playing11, team2Playing11, team1Captain, team2Captain, tossWinner, tossDecision, overs });
+  const isValidTeamSelection = () => {
+    if (!team1 || !team2) return false;
+    const team1Count = team1.players.length;
+    const team2Count = team2.players.length;
+    
+    if (team1Count < 9 && team2Count < 9) {
+      return team1Playing11.length === team1Count && team2Playing11.length === team2Count && team1Playing11.length === team2Playing11.length;
+    }
+    if (team1Count < 9) {
+      return team1Playing11.length === team1Count && team2Playing11.length === team1Count;
+    }
+    if (team2Count < 9) {
+      return team2Playing11.length === team2Count && team1Playing11.length === team2Count;
+    }
+    return team1Playing11.length >= 9 && team1Playing11.length <= 11 && team2Playing11.length >= 9 && team2Playing11.length <= 11 && team1Playing11.length === team2Playing11.length;
   };
+
+  const handleStartMatch = async () => {
+    const tossWinnerTeamId = tossWinner === 'team1' ? parseInt(selectedTeam1) : parseInt(selectedTeam2);
+    const battingFirstTeamId = tossDecision === 'bat' ? tossWinnerTeamId : (tossWinner === 'team1' ? parseInt(selectedTeam2) : parseInt(selectedTeam1));
+
+    const payload = {
+      toss_winner_team_id: tossWinnerTeamId,
+      batting_first_team_id: battingFirstTeamId,
+      over: parseInt(overs),
+      teamA: {
+        id: parseInt(selectedTeam1),
+        playing_11_id: team1Playing11,
+        captain_id: team1Captain!
+      },
+      teamB: {
+        id: parseInt(selectedTeam2),
+        playing_11_id: team2Playing11,
+        captain_id: team2Captain!
+      }
+    };
+
+    const toastId = showToast.loading('Starting match...');
+    try {
+      const response = await MatchService.startMatch(matchData?.matchToken, payload);
+      showToast.handleResponse(toastId, response);
+    } catch (error) {
+      showToast.handleResponse(toastId, error);
+    }
+  };
+
+  if (!isScheduled) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Card size="sm" variant="default" className="text-center p-6">
+          <p className="text-gray-500 dark:text-gray-400">Match must be scheduled before starting</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
@@ -147,7 +204,7 @@ const MatchStartTab = ({ matchData }: MatchStartTabProps) => {
         </Card>
       </div>
 
-      <button onClick={handleStartMatch} disabled={!selectedTeam1 || !selectedTeam2 || team1Playing11.length !== 11 || team2Playing11.length !== 11 || !team1Captain || !team2Captain || !tossWinner || !tossDecision} className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold text-base rounded shadow-lg hover:shadow-xl disabled:shadow-none transform hover:scale-[1.02] disabled:scale-100 transition-all duration-200 flex items-center justify-center gap-2">
+      <button onClick={handleStartMatch} disabled={!selectedTeam1 || !selectedTeam2 || !isValidTeamSelection() || !team1Captain || !team2Captain || !tossWinner || !tossDecision} className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold text-base rounded shadow-lg hover:shadow-xl disabled:shadow-none transform hover:scale-[1.02] disabled:scale-100 transition-all duration-200 flex items-center justify-center gap-2">
         <Users size={16} />
         🏏 Start Match
       </button>

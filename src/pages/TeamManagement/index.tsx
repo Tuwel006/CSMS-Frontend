@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import SingleMatchSetupTab from './SingleMatchSetupTab';
 import MatchStartTab from './MatchStartTab';
+import { MatchService } from '../../services/matchService';
 
 type Tab = 'match-setup' | 'match-start';
 
@@ -10,6 +11,44 @@ const TeamManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get('tab') as Tab) || 'match-setup';
   const [matchData, setMatchData] = useState<any>(null);
+  const [matchToken, setMatchToken] = useState<string | null>(null);
+  const [key, setKey] = useState(0);
+console.log("key:   ", key);
+  useEffect(() => {
+    const savedToken = localStorage.getItem('activeMatchToken');
+    if (savedToken) {
+      setMatchToken(savedToken);
+      fetchCurrentMatch(savedToken);
+    }
+  }, [key]);
+
+  const fetchCurrentMatch = async (token: string) => {
+    try {
+      const response = await MatchService.getCurrentMatch(token);
+      if (response.status >= 200 && response.status < 300 && response.data) {
+        setMatchData({
+          teamA: response.data.teamA,
+          teamB: response.data.teamB,
+          matchDetails: {
+            status: response.data.status,
+            match_date: response.data.match_date,
+            venue: response.data.venue,
+            format: response.data.format,
+            umpire_1: response.data.umpire_1,
+            umpire_2: response.data.umpire_2,
+            match_id: response.data.id
+          },
+          matchToken: token
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching current match:', error);
+    }
+  };
+
+
+
+
 
   return (
     <div className="team-management-page">
@@ -47,7 +86,12 @@ const TeamManagement = () => {
         <Button
           variant="ghost"
           size="lg"
-          onClick={() => setSearchParams({ tab: 'match-start' })}
+          onClick={() => {
+            if (matchData?.matchDetails?.status === 'SCHEDULED') {
+              setSearchParams({ tab: 'match-start' });
+            }
+          }}
+          disabled={matchData?.matchDetails?.status !== 'SCHEDULED'}
           className={`!rounded-none ${
             activeTab === 'match-start'
               ? 'text-blue-600 dark:text-blue-400 !bg-transparent'
@@ -62,8 +106,15 @@ const TeamManagement = () => {
         </Button>
       </div>
 
-      <div className="p-2 md:p-6">
-        {activeTab === 'match-start' ? <MatchStartTab matchData={matchData} /> : <SingleMatchSetupTab onStartMatch={(data) => { setMatchData(data); setSearchParams({ tab: 'match-start' }); }} />}
+      <div className="p-2 md:p-6" key={key}>
+        {activeTab === 'match-start' ?
+          <MatchStartTab 
+            matchData={matchData} /> 
+          : <SingleMatchSetupTab 
+              matchData={matchData} 
+              onRefresh={() => setKey(prev => prev + 1)} 
+              onGoToMatchStart={() => setSearchParams({ tab: 'match-start' })}
+            />}
       </div>
     </div>
   );

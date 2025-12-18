@@ -93,3 +93,21 @@ export interface CurrentMatchResponse {
         }>;
     } | null;
 }
+
+export interface StartMatchPayload {
+    toss_winner_team_id: number;
+    batting_first_team_id: number;
+    over: number;
+    teamA: {
+        id: number;
+        playing_11_id: number[];
+        captain_id: number;
+    };
+    teamB: {
+        id: number;
+        playing_11_id: number[];
+        captain_id: number;
+    };
+}
+
+export type StartMatchResponse = StartMatchPayload;

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useMatch } from '../context/MatchContext';
 import BallOutcome from '../components/ui/BallOutcome';
 import BallHistory from '../components/ui/BallHistory';
 import LivePreview from '../components/ui/LivePreview';
+import ActiveSessionHeader from '../components/ActiveSessionHeader';
 import { Eye } from 'lucide-react';
-import type { Match, Innings, Team, Player } from '../types/match';
+import { MatchService } from '../services/matchService';
+import { showToast } from '../utils/toast';
+import { CurrentMatchResponse } from '../types/matchService';
 
 interface BallOutcomeData {
   runs: number;
@@ -16,157 +18,91 @@ interface BallOutcomeData {
   newBatsman?: string;
 }
 
-// Stateless components
-const MatchHeader = ({ match }: { match: Match }) => (
-  <div>
-    <h1 className="text-2xl font-bold text-[var(--text)] mb-2">
-      {match.team1.name} vs {match.team2.name}
-    </h1>
-    <div className="flex items-center gap-4 text-sm text-[var(--text-secondary)]">
-      <span className="flex items-center gap-1">
-        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-        Live
-      </span>
-      <span>ODI Match • {match.overs} Overs</span>
-      <span>Innings {match.currentInnings}</span>
+const MatchHeader = ({ teamA, teamB, venue, format }: any) => (
+  <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg shadow-md p-2 mb-2">
+    <div className="flex items-center justify-between gap-2">
+      {/* Team A Card */}
+      <div className="flex-1 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 dark:from-blue-950 dark:via-blue-900 dark:to-indigo-950 border-2 border-blue-300 dark:border-blue-700 rounded-lg px-3 py-2.5 shadow-md hover:shadow-lg transition-shadow">
+        <div className="text-center">
+          <div className="text-[10px] font-bold text-blue-700 dark:text-blue-300 mb-0.5 tracking-wide">TEAM A</div>
+          <h2 className="text-sm sm:text-base font-black text-blue-900 dark:text-blue-50 truncate">{teamA?.short_name || teamA?.name}</h2>
+        </div>
+      </div>
+
+      {/* VS & Live Badge */}
+      <div className="flex flex-col items-center gap-1 px-2">
+        <div className="text-lg sm:text-xl font-black text-gray-400 dark:text-gray-600">VS</div>
+        <div className="flex items-center gap-1 px-2 py-0.5 bg-red-500 dark:bg-red-500 text-white dark:text-white text-[10px] font-bold rounded-full animate-pulse">
+          <div className="w-1.5 h-1.5 bg-white dark:bg-white rounded-full"></div>
+          LIVE
+        </div>
+      </div>
+
+      {/* Team B Card */}
+      <div className="flex-1 bg-gradient-to-br from-emerald-50 via-green-100 to-teal-100 dark:from-emerald-950 dark:via-green-900 dark:to-teal-950 border-2 border-emerald-300 dark:border-emerald-700 rounded-lg px-3 py-2.5 shadow-md hover:shadow-lg transition-shadow">
+        <div className="text-center">
+          <div className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 mb-0.5 tracking-wide">TEAM B</div>
+          <h2 className="text-sm sm:text-base font-black text-emerald-900 dark:text-emerald-50 truncate">{teamB?.short_name || teamB?.name}</h2>
+        </div>
+      </div>
+    </div>
+    
+    {/* Match Info */}
+    <div className="text-center mt-1.5 pt-1.5 border-t border-[var(--card-border)]">
+      <div className="text-[10px] text-[var(--text-secondary)]">
+        <span className="font-semibold">{venue}</span> • <span>{format} Overs</span>
+      </div>
     </div>
   </div>
 );
 
-const CurrentScoreCard = ({ match, innings }: { match: Match; innings: Innings }) => (
+const CurrentScoreCard = ({ score }: any) => (
   <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
     <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Current Score</h3>
-    <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <span className="text-[var(--text)]">{match.team1.name}</span>
-        <span className="text-2xl font-bold text-[var(--text)]">{innings.score}/{innings.wickets}</span>
+    <div className="text-center py-4">
+      <div className="text-5xl font-black text-blue-600 dark:text-blue-400">
+        {score?.runs || 0}/{score?.wickets || 0}
       </div>
-      <div className="text-sm text-[var(--text-secondary)]">
-        Overs: {innings.overs.length}.0/{match.overs} • Run Rate: {(innings.score / (innings.overs.length || 1)).toFixed(2)}
-      </div>
-      <div className="border-t border-[var(--card-border)] pt-3">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-[var(--text-secondary)]">Batsmen:</span>
-            <div className="text-[var(--text)] mt-1">
-              <div>{innings.currentBatsmen[0]}* 45 (32)</div>
-              <div>{innings.currentBatsmen[1]} 23 (18)</div>
-            </div>
-          </div>
-          <div>
-            <span className="text-[var(--text-secondary)]">Bowler:</span>
-            <div className="text-[var(--text)] mt-1">
-              {innings.currentBowler} 3-0-28-2
-            </div>
-          </div>
-        </div>
+      <div className="text-sm text-[var(--text-secondary)] mt-2">
+        Overs: {score?.overs || '0.0'}
       </div>
     </div>
   </div>
 );
 
-const RecentOversCard = ({ overs }: { overs: any[] }) => (
+const RecentOversCard = ({ overs }: any) => (
   <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
     <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Recent Overs</h3>
-    <div className="space-y-2">
-      {overs.slice(-4).reverse().map((over, index) => (
-        <div key={over.overNumber} className="flex justify-between text-sm">
-          <span className="text-[var(--text-secondary)]">Over {over.overNumber}:</span>
-          <span className="text-[var(--text)] font-mono">
-            {over.balls.map((ball: any) => ball.value).join(' ')}
-          </span>
-          <span className="text-[var(--text)]">
-            {over.balls.reduce((sum: number, ball: any) => sum + (typeof ball.value === 'number' ? ball.value : 0), 0)} runs
-          </span>
-        </div>
-      ))}
+    <div className="text-center text-[var(--text-secondary)] py-4">
+      {overs?.length > 0 ? 'Over history will appear here' : 'No overs yet'}
     </div>
   </div>
 );
 
 const Dashboard = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const { match, currentInnings, addBall, createMatch } = useMatch();
+  const [matchData, setMatchData] = useState<CurrentMatchResponse | null>(null);
+  const [matchToken, setMatchToken] = useState<string | null>(null);
+  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
-  // Get ball history from current innings
-  const ballHistory = currentInnings?.overs.map(over => ({
-    overNumber: over.overNumber,
-    bowler: over.bowler,
-    balls: over.balls.map(ball => ({
-      value: ball.ballType === 'wicket' ? 'W' : 
-             ball.ballType === 'wide' ? 'Wd' :
-             ball.ballType === 'noBall' ? 'Nb' : ball.runs,
-      type: ball.ballType === 'wicket' ? 'wicket' as const :
-            ball.ballType === 'wide' ? 'wide' as const :
-            ball.ballType === 'noBall' ? 'noBall' as const : 'run' as const
-    }))
-  })) || [];
-
-  // Initialize dummy data on component mount
   useEffect(() => {
-    if (!match) {
-      initializeDummyMatch();
+    const token = localStorage.getItem('activeMatchToken');
+    if (token) {
+      setMatchToken(token);
+      fetchCurrentMatch(token);
     }
-  }, [match]);
+  }, []);
 
-  const initializeDummyMatch = async () => {
-    const indiaPlayers: Player[] = [
-      { id: '1', name: 'R. Sharma', role: 'batsman' },
-      { id: '2', name: 'S. Gill', role: 'batsman' },
-      { id: '3', name: 'V. Kohli', role: 'batsman' },
-      { id: '4', name: 'S. Iyer', role: 'batsman' },
-      { id: '5', name: 'K.L. Rahul', role: 'wicketkeeper' },
-      { id: '6', name: 'H. Pandya', role: 'allrounder' },
-      { id: '7', name: 'R. Jadeja', role: 'allrounder' },
-      { id: '8', name: 'M. Shami', role: 'bowler' },
-      { id: '9', name: 'J. Bumrah', role: 'bowler' },
-      { id: '10', name: 'K. Yadav', role: 'bowler' },
-      { id: '11', name: 'S. Thakur', role: 'bowler' }
-    ];
-
-    const australiaPlayers: Player[] = [
-      { id: '12', name: 'D. Warner', role: 'batsman' },
-      { id: '13', name: 'T. Head', role: 'batsman' },
-      { id: '14', name: 'S. Smith', role: 'batsman' },
-      { id: '15', name: 'M. Labuschagne', role: 'batsman' },
-      { id: '16', name: 'A. Carey', role: 'wicketkeeper' },
-      { id: '17', name: 'G. Maxwell', role: 'allrounder' },
-      { id: '18', name: 'M. Stoinis', role: 'allrounder' },
-      { id: '19', name: 'P. Cummins', role: 'bowler' },
-      { id: '20', name: 'M. Starc', role: 'bowler' },
-      { id: '21', name: 'J. Hazlewood', role: 'bowler' },
-      { id: '22', name: 'A. Zampa', role: 'bowler' }
-    ];
-
-    const team1: Team = {
-      id: 'india',
-      name: 'India',
-      players: indiaPlayers,
-      playing11: indiaPlayers.map(p => p.id),
-      battingOrder: indiaPlayers.map(p => p.id)
-    };
-
-    const team2: Team = {
-      id: 'australia',
-      name: 'Australia',
-      players: australiaPlayers,
-      playing11: australiaPlayers.map(p => p.id),
-      battingOrder: australiaPlayers.map(p => p.id)
-    };
-
-    const dummyMatch: Omit<Match, 'id'> = {
-      team1,
-      team2,
-      tossWinner: 'india',
-      tossDecision: 'bat',
-      battingTeam: 'india',
-      bowlingTeam: 'australia',
-      overs: 50,
-      currentInnings: 1,
-      status: 'live'
-    };
-
-    await createMatch(dummyMatch);
+  const fetchCurrentMatch = async (token: string) => {
+    try {
+      const response = await MatchService.getCurrentMatch(token);
+      if (response.status >= 200 && response.status < 300 && response.data) {
+        setMatchData(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching match:', error);
+      showToast.error('Failed to load match data');
+    }
   };
 
   const handleBallUpdate = (outcome: BallOutcomeData) => {
@@ -181,46 +117,58 @@ const Dashboard = () => {
     });
   };
 
-  if (!match || !currentInnings) {
+  if (!matchData) {
     return (
-      <div className="p-6 text-center">
-        <div className="animate-pulse">
-          <h2 className="text-xl font-semibold text-[var(--text)] mb-4">Loading Match...</h2>
-          <p className="text-[var(--text-secondary)]">Setting up dummy match data</p>
-        </div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] overflow-y-auto p-4 sm:p-6">
-      {/* Header with Match Info and Live Preview Button */}
-      <div className="flex justify-between items-start mb-6">
-        <MatchHeader match={match} />
+    <div className="h-[calc(100vh-4rem)] overflow-y-auto p-2 sm:p-4">
+      {!isHeaderCollapsed && (
+        <>
+          <div className="mb-2">
+            <ActiveSessionHeader matchToken={matchToken} onCancel={() => {}} />
+          </div>
+          
+          <MatchHeader 
+            teamA={matchData.teamA} 
+            teamB={matchData.teamB} 
+            venue={matchData.venue}
+            format={matchData.format}
+          />
+        </>
+      )}
+
+      <div className="flex justify-between items-center mb-3">
+        <button
+          onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+          className="text-xs text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors"
+        >
+          {isHeaderCollapsed ? '▼ Show Header' : '▲ Hide Header'}
+        </button>
         <button 
           onClick={() => setIsPreviewOpen(true)}
-          className="flex items-center gap-2 text-sm bg-[var(--card-bg)] border border-[var(--card-border)] px-3 py-2 rounded-lg text-[var(--text)] hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="flex items-center gap-2 text-sm bg-[var(--card-bg)] border border-[var(--card-border)] px-3 py-1.5 rounded-lg text-[var(--text)] hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm"
         >
           <Eye size={16} />
           Live Preview
         </button>
       </div>
 
-      {/* Current Match Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <CurrentScoreCard match={match} innings={currentInnings} />
-        <RecentOversCard overs={ballHistory} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+        <CurrentScoreCard score={matchData.score} />
+        <RecentOversCard overs={[]} />
       </div>
 
-      {/* Ball Input Section */}
       <BallOutcome onBallUpdate={handleBallUpdate} />
       
-      {/* Ball History */}
       <div className="mt-6">
-        <BallHistory overs={ballHistory} />
+        <BallHistory overs={[]} />
       </div>
       
-      {/* Live Preview Modal */}
       <LivePreview 
         isOpen={isPreviewOpen} 
         onClose={() => setIsPreviewOpen(false)} 

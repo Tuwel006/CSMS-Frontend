@@ -8,9 +8,10 @@ interface TeamCardProps {
     short_name?: string;
     teamId: number | null | string;
     players: Player[];
-    onEdit: () => void;
-    onDelete: () => void;
+    onEdit?: () => void;
+    onDelete?: () => void;
     showReady?: boolean;
+    isLive?: boolean;
 }
 
 const TeamCard = ({
@@ -22,6 +23,7 @@ const TeamCard = ({
     onEdit,
     onDelete,
     showReady = false,
+    isLive = false,
 }: TeamCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -43,7 +45,13 @@ const TeamCard = ({
                                     <span>ID: {teamId}</span>
                                 </>
                             )}
-                            {showReady && (
+                            {isLive && (
+                                <span className="flex items-center gap-1 bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded ml-1 animate-pulse">
+                                    <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                                    LIVE
+                                </span>
+                            )}
+                            {showReady && !isLive && (
                                 <span className="flex items-center gap-1 bg-green-500 text-white text-xs font-medium px-2 py-0.5 rounded ml-1">
                                     <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
                                     Ready
@@ -52,22 +60,28 @@ const TeamCard = ({
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-1 ml-2">
-                    <button
-                        onClick={onEdit}
-                        className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                        title="Edit team"
-                    >
-                        <Edit2 size={16} />
-                    </button>
-                    <button
-                        onClick={onDelete}
-                        className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                        title="Delete team"
-                    >
-                        <Trash2 size={16} />
-                    </button>
-                </div>
+                {!isLive && (
+                    <div className="flex gap-1 ml-2">
+                        {onEdit && (
+                            <button
+                                onClick={onEdit}
+                                className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                                title="Edit team"
+                            >
+                                <Edit2 size={16} />
+                            </button>
+                        )}
+                        {onDelete && (
+                            <button
+                                onClick={onDelete}
+                                className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                                title="Delete team"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Players Section */}

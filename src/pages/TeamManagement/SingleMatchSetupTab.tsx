@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../store';
 import {
   setTeam1, setTeam2, resetTeam1, resetTeam2,
@@ -9,7 +10,7 @@ import {
   resetTeam1Players, resetTeam2Players,
   setTeam1Players, setTeam2Players,
 } from '../../store/slices/teamManagementSlice';
-import { Plus } from 'lucide-react';
+import { Plus, ArrowRight } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
@@ -31,11 +32,14 @@ interface TeamData extends BaseTeamData {
 }
 
 interface SingleMatchSetupTabProps {
-  onStartMatch: (data: any) => void;
+  matchData?: any;
+  onRefresh?: () => void;
+  onGoToMatchStart?: () => void;
 }
 
-const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
+const SingleMatchSetupTab = ({ matchData: propsMatchData, onRefresh, onGoToMatchStart }: SingleMatchSetupTabProps) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { team1, team2, team1Players, team2Players } = useSelector(
     (state: RootState) => state.teamManagement
   );
@@ -54,7 +58,7 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
   const [isEditingTeam1, setIsEditingTeam1] = useState(false);
   const [isEditingTeam2, setIsEditingTeam2] = useState(false);
   const [matchDetails, setMatchDetails] = useState({
-    venue: '', date: '', time: '', format: '0', umpire_1: '', umpire_2: ''
+    venue: '', date: '', time: '', format: '0', umpire_1: '', umpire_2: '', status: ''
   });
   const [isMatchScheduled, setIsMatchScheduled] = useState(false);
   const [countdown, setCountdown] = useState<string>('');
@@ -85,35 +89,44 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
     if (savedToken) {
       setMatchToken(savedToken);
       setIsMatchInitiated(true);
-      fetchCurrentMatch(savedToken);
+    } else {
+      setIsTeam1Submitted(false);
+      setIsTeam2Submitted(false);
+      setMatchTeamA(null);
+      setMatchTeamB(null);
     }
   }, []);
 
-  const fetchCurrentMatch = async (token: string) => {
-    try {
-      const response = await MatchService.getCurrentMatch(token);
-      if (response.status >= 200 && response.status < 300 && response.data) {
-        const { teamA, teamB, status, match_date, venue, format, umpire_1, umpire_2 } = response.data;
-        if (teamA) {
-          setMatchTeamA({ id: typeof teamA.id === 'number' ? teamA.id : null, name: teamA.name, location: '', short_name: teamA?.short_name, players: teamA.players });
-          setIsTeam1Submitted(true);
-        }
-        if (teamB) {
-          setMatchTeamB({ id: typeof teamB.id === 'number' ? teamB.id : null, name: teamB.name, location: '', short_name: teamB.short_name, players: teamB.players });
-          setIsTeam2Submitted(true);
-        }
-        if (status === 'SCHEDULED' && match_date) {
-          const dateObj = new Date(match_date);
-          const date = dateObj.toISOString().split('T')[0];
-          const time = dateObj.toTimeString().slice(0, 5);
-          setMatchDetails({ venue: venue || '', date, time, format: format || '', umpire_1: umpire_1 || '', umpire_2: umpire_2 || '' });
+  useEffect(() => {
+    if (propsMatchData) {
+      const { teamA, teamB, matchDetails: details } = propsMatchData;
+      if (teamA) {
+        setMatchTeamA({ id: typeof teamA.id === 'number' ? teamA.id : null, name: teamA.name, location: '', short_name: teamA?.short_name, players: teamA.players });
+        setIsTeam1Submitted(true);
+      } else {
+        setMatchTeamA(null);
+        setIsTeam1Submitted(false);
+      }
+      if (teamB) {
+        setMatchTeamB({ id: typeof teamB.id === 'number' ? teamB.id : null, name: teamB.name, location: '', short_name: teamB.short_name, players: teamB.players });
+        setIsTeam2Submitted(true);
+      } else {
+        setMatchTeamB(null);
+        setIsTeam2Submitted(false);
+      }
+      if (details?.status && details?.match_date) {
+        const dateObj = new Date(details.match_date);
+        const date = dateObj.toISOString().split('T')[0];
+        const time = dateObj.toTimeString().slice(0, 5);
+        setMatchDetails({ venue: details.venue || '', date, time, format: details.format || '', umpire_1: details.umpire_1 || '', umpire_2: details.umpire_2 || '', status: details.status || '' });
+        if (details.status === 'SCHEDULED' || details.status === 'LIVE') {
           setIsMatchScheduled(true);
         }
       }
-    } catch (error) {
-      console.error('Error fetching current match:', error);
     }
-  };
+  }, [propsMatchData]);
+
+
 
   const generateMatchToken = async () => {
     setIsGeneratingToken(true);
@@ -127,7 +140,6 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
         setMatchToken(token);
         setIsMatchInitiated(true);
         showToast.handleResponse(toastId, response);
-        fetchCurrentMatch(token);
       } else {
         showToast.handleResponse(toastId, { status: 500, message: "Failed to parse match token", code: "PARSE_ERROR" });
       }
@@ -150,9 +162,13 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
       setIsTeam2Submitted(false);
       dispatch(resetTeam1());
       dispatch(resetTeam2());
-      setMatchDetails({ venue: '', date: '', time: '', format: 'T20', umpire_1: '', umpire_2: '' });
+      dispatch(resetTeam1Players());
+      dispatch(resetTeam2Players());
+      setMatchDetails({ venue: '', date: '', time: '', format: 'T20', umpire_1: '', umpire_2: '', status: '' });
       setIsMatchScheduled(false);
       setCountdown('');
+      setMatchTeamA(null);
+      setMatchTeamB(null);
       return;
     }
     const toastId = showToast.loading("Cancelling Session...");
@@ -169,9 +185,13 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
         setIsTeam2Submitted(false);
         dispatch(resetTeam1());
         dispatch(resetTeam2());
-        setMatchDetails({ venue: '', date: '', time: '', format: 'T20', umpire_1: '', umpire_2: '' });
+        dispatch(resetTeam1Players());
+        dispatch(resetTeam2Players());
+        setMatchDetails({ venue: '', date: '', time: '', format: 'T20', umpire_1: '', umpire_2: '', status: '' });
         setIsMatchScheduled(false);
         setCountdown('');
+        setMatchTeamA(null);
+        setMatchTeamB(null);
       } else {
         showToast.handleResponse(toastId, response);
       }
@@ -268,7 +288,6 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
         const response = await MatchService.updateTeam(matchToken!, matchTeam.id, payload);
         if (response.status >= 200 && response.status < 300) {
           showToast.handleResponse(toastId, response);
-          await fetchCurrentMatch(matchToken!);
           if (teamNum === 1) {
             setIsEditingTeam1(false);
             dispatch(resetTeam1());
@@ -276,6 +295,8 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
             setIsEditingTeam2(false);
             dispatch(resetTeam2());
           }
+          console.log("Refresh on update: ", onRefresh);
+          if (onRefresh) onRefresh();
         } else {
           showToast.handleResponse(toastId, response);
         }
@@ -296,7 +317,8 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
             setIsTeam2Submitted(true);
           }
           setActiveSlot(null);
-          await fetchCurrentMatch(matchToken!);
+          console.log("Refresh on setup: ", onRefresh);
+          if (onRefresh) onRefresh();
         } else {
           showToast.handleResponse(toastId, response);
         }
@@ -326,6 +348,7 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
       if (response.status >= 200 && response.status < 300) {
         showToast.handleResponse(toastId, response);
         setIsMatchScheduled(true);
+        if (onRefresh) onRefresh();
       } else {
         showToast.handleResponse(toastId, response);
       }
@@ -356,7 +379,7 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 items-start">
         <div className="w-full">
           {isTeam1Submitted && matchTeamA && !isEditingTeam1 ? (
-            <TeamCard teamNumber={1} name={matchTeamA?.name} short_name={matchTeamA?.short_name} teamId={matchTeamA?.id?.toString() || 'Pending'} players={matchTeamA?.players || []} onEdit={handleEditTeam1} onDelete={handleDeleteTeam1} showReady={true} />
+            <TeamCard teamNumber={1} name={matchTeamA?.name} short_name={matchTeamA?.short_name} teamId={matchTeamA?.id?.toString() || 'Pending'} players={matchTeamA?.players || []} onEdit={matchDetails.status === 'LIVE' ? undefined : handleEditTeam1} onDelete={matchDetails.status === 'LIVE' ? undefined : handleDeleteTeam1} showReady={matchDetails.status !== 'LIVE'} isLive={matchDetails.status === 'LIVE'} />
           ) : (team1.name || activeSlot === 1 || isEditingTeam1) ? (
             <div className="flex flex-col gap-2">
               <TeamSetup teamNumber={1} savedTeam={team1} players={team1Players} onSaveTeam={handleSaveTeam1} onEditTeam={handleEditTeam1} onDeleteTeam={handleDeleteTeam1} onSavePlayer={handleSaveTeam1Player} onEditPlayer={() => {}} onDeletePlayer={handleDeleteTeam1Player} />
@@ -378,7 +401,7 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
 
         <div className="w-full">
           {isTeam2Submitted && matchTeamB && !isEditingTeam2 ? (
-            <TeamCard teamNumber={2} name={matchTeamB.name} short_name={matchTeamB.short_name} teamId={matchTeamB.id?.toString() || 'Pending'} players={matchTeamB.players || []} onEdit={handleEditTeam2} onDelete={handleDeleteTeam2} showReady={true} />
+            <TeamCard teamNumber={2} name={matchTeamB.name} short_name={matchTeamB.short_name} teamId={matchTeamB.id?.toString() || 'Pending'} players={matchTeamB.players || []} onEdit={matchDetails.status === 'LIVE' ? undefined : handleEditTeam2} onDelete={matchDetails.status === 'LIVE' ? undefined : handleDeleteTeam2} showReady={matchDetails.status !== 'LIVE'} isLive={matchDetails.status === 'LIVE'} />
           ) : (team2.name || activeSlot === 2 || isEditingTeam2) ? (
             <div className="flex flex-col gap-2">
               <TeamSetup teamNumber={2} savedTeam={team2} players={team2Players} onSaveTeam={handleSaveTeam2} onEditTeam={handleEditTeam2} onDeleteTeam={handleDeleteTeam2} onSavePlayer={handleSaveTeam2Player} onEditPlayer={() => {}} onDeletePlayer={handleDeleteTeam2Player} />
@@ -420,6 +443,23 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
               </div>
               <Button variant="primary" size="md" onClick={handleScheduleMatch}>Schedule Match</Button>
             </div>
+          ) : matchDetails.status === 'LIVE' ? (
+            <div className="text-center py-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white font-bold rounded-full mb-3 animate-pulse">
+                <span className="w-3 h-3 bg-white rounded-full"></span>
+                MATCH IS LIVE NOW
+              </div>
+              <div className="text-2xl font-black text-[var(--text)] mb-4">
+                {matchTeamA?.short_name || matchTeamA?.name} vs {matchTeamB?.short_name || matchTeamB?.name}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400 space-y-0.5 mb-4">
+                <p>{matchDetails.venue} • {matchDetails.format}</p>
+                <p>{new Date(matchDetails.date).toDateString()} at {matchDetails.time}</p>
+              </div>
+              <Button onClick={() => navigate('/admin/score-edit')} className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold text-base rounded shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 mx-auto">
+                📊 Go to Score Edit Page <ArrowRight size={18} />
+              </Button>
+            </div>
           ) : (
             <div className="text-center py-4">
               <div className="text-xs font-medium text-green-500 uppercase tracking-widest mb-1">Match Scheduled Successfully</div>
@@ -431,8 +471,8 @@ const SingleMatchSetupTab = ({ onStartMatch }: SingleMatchSetupTabProps) => {
                   <p className="text-xs">Umpires: {[matchDetails.umpire_1, matchDetails.umpire_2].filter(Boolean).join(', ')}</p>
                 )}
               </div>
-              <Button onClick={() => onStartMatch({ teamA: matchTeamA, teamB: matchTeamB, matchDetails, matchToken })} className="mt-4 px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-base rounded shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-                🏏 Let's Start the Match
+              <Button onClick={onGoToMatchStart} className="mt-4 px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-base rounded shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2">
+                🏏 Let's Go to Start Match <ArrowRight size={18} />
               </Button>
             </div>
           )}

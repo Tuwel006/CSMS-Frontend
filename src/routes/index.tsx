@@ -41,7 +41,7 @@ export default function AppRoute() {
         <Route element={<ProtectedRoute allowedRoles={['admin']}/>}>
            <Route path="admin">
               <Route index element={<MatchDetail />} />
-              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="score-edit" element={<Dashboard />} />
 
               <Route path="team-management" element={<TeamManagement/>} />
               <Route path="player-management" element={<div>Player Management Page</div>} />
