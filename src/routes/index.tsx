@@ -16,6 +16,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 const MatchDetail = lazy(() => import("@/pages/MatchDetails"));
 const TeamManagement = lazy(() => import("@/pages/TeamManagement"));
 const ScoreEditor = lazy(() => import("@/pages/ScoreEditor"));
+const ScoreEditorNew = lazy(() => import("@/pages/ScoreEditorNew"));
 const Game = lazy(() => import("@/pages/Game"));
 const SearchableFormExample = lazy(() => import("@/components/ui/SearchableFormExample"));
 
@@ -46,6 +47,7 @@ export default function AppRoute() {
               <Route path="team-management" element={<TeamManagement/>} />
               <Route path="player-management" element={<div>Player Management Page</div>} />
               <Route path="score-updates" element={<ScoreEditor />} />
+              <Route path="score-editor" element={<ScoreEditorNew />} />
               <Route path="statistics" element={<div>Statistics Page</div>} />
               <Route path="settings" element={<div>Settings Page</div>} />
               {/* Add more admin routes here */}

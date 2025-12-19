@@ -3,7 +3,7 @@ import BallOutcome from '../components/ui/BallOutcome';
 import BallHistory from '../components/ui/BallHistory';
 import LivePreview from '../components/ui/LivePreview';
 import ActiveSessionHeader from '../components/ActiveSessionHeader';
-import { Eye } from 'lucide-react';
+import { Eye, Star, ChevronDown } from 'lucide-react';
 import { MatchService } from '../services/matchService';
 import { showToast } from '../utils/toast';
 import { CurrentMatchResponse } from '../types/matchService';
@@ -56,28 +56,118 @@ const MatchHeader = ({ teamA, teamB, venue, format }: any) => (
   </div>
 );
 
-const CurrentScoreCard = ({ score }: any) => (
-  <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
-    <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Current Score</h3>
-    <div className="text-center py-4">
-      <div className="text-5xl font-black text-blue-600 dark:text-blue-400">
-        {score?.runs || 0}/{score?.wickets || 0}
+const CurrentScoreCard = ({ score }: any) => {
+  const [showBatsmanDropdown, setShowBatsmanDropdown] = useState(false);
+  const batsmen = ['S. Iyer', 'H. Pandya', 'R. Jadeja'];
+  const striker = { name: 'R. Sharma', runs: 45, balls: 32 };
+  const nonStriker = { name: 'V. Kohli', runs: 28, balls: 21 };
+  
+  return (
+    <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3">
+      <h3 className="text-sm font-bold text-[var(--text)] mb-2">Current Score</h3>
+      <div className="text-center py-2">
+        <div className="text-3xl font-black text-blue-600 dark:text-blue-400">
+          {score?.runs || 0}/{score?.wickets || 0}
+        </div>
+        <div className="text-xs text-[var(--text-secondary)] mt-1">
+          Overs: {score?.overs || '0.0'}
+        </div>
       </div>
-      <div className="text-sm text-[var(--text-secondary)] mt-2">
-        Overs: {score?.overs || '0.0'}
+      
+      <div className="mt-2 space-y-1.5">
+        <p className="text-[10px] font-semibold text-gray-600 dark:text-gray-400 mb-1">BATTING NOW</p>
+        <div className="bg-green-50 dark:bg-green-900/20 rounded p-1.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Star size={12} className="text-green-600 dark:text-green-400 fill-current" />
+              <span className="text-xs font-bold text-[var(--text)]">{striker.name}</span>
+            </div>
+            <span className="text-xs font-bold text-[var(--text)]">{striker.runs}({striker.balls})</span>
+          </div>
+        </div>
+        
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded p-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[var(--text)]">{nonStriker.name}</span>
+            <span className="text-xs font-bold text-[var(--text)]">{nonStriker.runs}({nonStriker.balls})</span>
+          </div>
+        </div>
+        
+        <div className="relative mt-3">
+          <p className="text-[10px] font-semibold text-gray-600 dark:text-gray-400 mb-1">SELECT NEXT</p>
+          <button
+            onClick={() => setShowBatsmanDropdown(!showBatsmanDropdown)}
+            className="w-full flex items-center justify-between bg-white dark:bg-gray-800 border-2 border-dashed border-blue-400 dark:border-blue-600 rounded p-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+          >
+            <span className="text-xs font-medium text-blue-600 dark:text-blue-400">Choose Next Batsman</span>
+            <ChevronDown size={12} className={`text-blue-600 dark:text-blue-400 transition-transform ${showBatsmanDropdown ? 'rotate-180' : ''}`} />
+          </button>
+          {showBatsmanDropdown && (
+            <div className="absolute z-10 w-full mt-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded shadow-lg max-h-24 overflow-y-auto">
+              {batsmen.map((b, i) => (
+                <button key={i} onClick={() => setShowBatsmanDropdown(false)} className="w-full text-left px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-xs border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                  {b}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-const RecentOversCard = ({ overs }: any) => (
-  <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
-    <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Recent Overs</h3>
-    <div className="text-center text-[var(--text-secondary)] py-4">
-      {overs?.length > 0 ? 'Over history will appear here' : 'No overs yet'}
+const RecentOversCard = ({ overs }: any) => {
+  const [showBowlerDropdown, setShowBowlerDropdown] = useState(false);
+  const bowlers = ['M. Starc', 'A. Zampa', 'J. Hazlewood'];
+  const currentBowler = 'P. Cummins';
+  
+  const getBallColor = (ball: string) => {
+    const colors: any = { '0': 'bg-gray-500', '1': 'bg-green-500', '2': 'bg-green-600', '3': 'bg-green-700', '4': 'bg-blue-500', '6': 'bg-yellow-500', 'W': 'bg-red-500', 'WD': 'bg-pink-500', 'NB': 'bg-purple-500' };
+    return colors[ball] || 'bg-gray-400';
+  };
+  
+  return (
+    <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3">
+      <h3 className="text-sm font-bold text-[var(--text)] mb-2">Recent Overs</h3>
+      
+      <div className="mb-2 relative">
+        <button
+          onClick={() => setShowBowlerDropdown(!showBowlerDropdown)}
+          className="w-full flex items-center justify-between bg-orange-50 dark:bg-orange-900/20 border border-orange-300 dark:border-orange-700 rounded p-2 hover:bg-orange-100 dark:hover:bg-orange-900/30"
+        >
+          <div>
+            <p className="text-[10px] text-gray-600 dark:text-gray-400">Bowler</p>
+            <p className="font-bold text-xs text-[var(--text)]">{currentBowler}</p>
+          </div>
+          <ChevronDown size={14} className={`transition-transform ${showBowlerDropdown ? 'rotate-180' : ''}`} />
+        </button>
+        {showBowlerDropdown && (
+          <div className="absolute z-10 w-full mt-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded shadow-lg max-h-24 overflow-y-auto">
+            {bowlers.map((b, i) => (
+              <button key={i} onClick={() => setShowBowlerDropdown(false)} className="w-full text-left px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-xs border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                {b}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      
+      <div>
+        <p className="text-[10px] text-[var(--text-secondary)] mb-1.5">Current Over</p>
+        <div className="flex gap-1.5">
+          {['1', '4', '0', 'W'].map((ball, i) => (
+            <div key={i} className={`${getBallColor(ball)} text-white w-7 h-7 rounded flex items-center justify-center text-xs font-bold`}>
+              {ball}
+            </div>
+          ))}
+          <div className="bg-gray-200 dark:bg-gray-700 w-7 h-7 rounded flex items-center justify-center text-xs">•</div>
+          <div className="bg-gray-200 dark:bg-gray-700 w-7 h-7 rounded flex items-center justify-center text-xs">•</div>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const Dashboard = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -163,7 +253,20 @@ const Dashboard = () => {
         <RecentOversCard overs={[]} />
       </div>
 
-      <BallOutcome onBallUpdate={handleBallUpdate} />
+      <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3">
+        <h3 className="text-sm font-bold text-[var(--text)] mb-2">Ball Outcome</h3>
+        <div className="grid grid-cols-6 sm:grid-cols-9 gap-1.5">
+          {['0', '1', '2', '3', '4', '6', 'W', 'WD', 'NB'].map((ball) => (
+            <button
+              key={ball}
+              onClick={() => console.log(ball)}
+              className="h-9 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-800 dark:text-gray-200 font-bold text-sm transition-all"
+            >
+              {ball}
+            </button>
+          ))}
+        </div>
+      </div>
       
       <div className="mt-6">
         <BallHistory overs={[]} />

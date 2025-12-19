@@ -145,7 +145,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElem
                     key={index}
                     onClick={() => handleSuggestionSelect(suggestion)}
                     className={cn(
-                      'w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg',
+                      'w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 last:border-b-0 first:rounded-t-lg last:rounded-b-lg',
                       isDark ? 'text-white' : 'text-gray-900'
                     )}
                   >
