@@ -68,6 +68,11 @@ export const MatchService = {
         return apiClient.patch(`matches/start/${matchId}`, payload);
     },
 
+    // Record Ball
+    recordBall: async (matchId: string, payload: any): Promise<ApiResponse<any>> => {
+        return apiClient.post(`matches/${matchId}/record-ball`, payload);
+    },
+
     create: async (data: MatchData) => {
         // TODO: Replace with actual API endpoint
         // return apiClient.post('matches', data);

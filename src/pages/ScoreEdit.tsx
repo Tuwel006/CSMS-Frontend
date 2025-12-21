@@ -54,8 +54,8 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, o
   const battingTeam = teams?.[currentInnings?.battingTeam];
   const bowlingTeam = teams?.[currentInnings?.bowlingTeam];
   
-  const striker = batting.find((b: any) => b.s && !b.out);
-  const nonStriker = batting.find((b: any) => !b.s && !b.out);
+  const striker = batting.striker;
+  const nonStriker = batting.nonStriker;
   
   const handleBatsmanClick = useCallback(() => {
     fetchAvailableBatsmen();
@@ -165,7 +165,7 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, bow
   
   const currentOver = currentInnings?.currentOver;
   const bowling = currentInnings?.bowling || [];
-  const currentBowler = bowling.find((b: any) => b.id === currentInnings?.currentOver?.bowlerId);
+  const currentBowler = bowling.find((b: any) => b.id === currentOver?.bowlerId);
   const bowlingTeam = teams?.[currentInnings?.bowlingTeam];
   const isOverComplete = currentOver?.balls?.length === 6;
   
@@ -233,8 +233,8 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, bow
         </div>
         <div className="flex gap-1.5">
           {(currentOver?.balls || []).map((ball: any, i: number) => (
-            <div key={i} className={`${getBallColor(ball.outcome)} text-white w-7 h-7 rounded flex items-center justify-center text-xs font-bold`}>
-              {ball.outcome}
+            <div key={i} className={`${getBallColor(ball.r)} text-white w-7 h-7 rounded flex items-center justify-center text-xs font-bold`}>
+              {ball.t === 'WICKET' ? 'W' : ball.t === 'WIDE' ? 'Wd' : ball.t === 'NO_BALL' ? 'Nb' : ball.r}
             </div>
           ))}
           {Array.from({ length: 6 - (currentOver?.balls?.length || 0) }).map((_, i) => (
@@ -334,37 +334,90 @@ const ScoreEdit = () => {
     });
   }, []);
 
+  const currentInnings = useMemo(() => matchData?.innings?.[matchData?.innings?.length ? matchData.innings.length - 1 : 0], [matchData]);
+
   const handleBallUpdate = useCallback(async (ballType: string) => {
     if (ballType === 'W') {
       setShowWicketModal(true);
     } else {
       setScoreUpdating(true);
       try {
-        console.log('Ball type:', ballType);
+        const currentBatsman = currentInnings?.batting?.striker;
+        const currentBowler = currentInnings?.bowling?.find((b: any) => b.id === currentInnings?.currentOver?.bowlerId);
         
-        setTimeout(() => {
-          const runs = parseInt(ballType) || 0;
-          updateScoreData({
-            score: {
-              r: (matchData?.innings[0]?.score?.r || 0) + runs,
-              w: matchData?.innings[0]?.score?.w || 0,
-              o: matchData?.innings[0]?.score?.o || '0.0'
-            }
-          });
+        if (!currentBatsman || !currentBowler) {
+          showToast.error('Please select batsman and bowler first');
           setScoreUpdating(false);
-        }, 500);
+          return;
+        }
+
+        const runs = parseInt(ballType) || 0;
+        const payload = {
+          ball_type: ballType === 'WD' ? 'WIDE' : ballType === 'NB' ? 'NO_BALL' : ballType === 'BYE' ? 'BYE' : ballType === 'LB' ? 'LEG_BYE' : 'NORMAL',
+          runs,
+          batsman_id: currentBatsman.id,
+          bowler_id: currentBowler.id,
+          is_wicket: false,
+          is_boundary: runs === 4 || runs === 6
+        };
+
+        const response = await MatchService.recordBall(matchToken!, payload);
+        if (response.data?.success) {
+          // Refresh scorecard
+          const scorecardResponse = await MatchService.getMatchScore(matchToken!);
+          if (scorecardResponse.data) {
+            setMatchData(scorecardResponse.data);
+          }
+          showToast.success('Ball recorded successfully');
+        }
       } catch (error) {
+        console.error('Error recording ball:', error);
+        showToast.error('Failed to record ball');
+      } finally {
         setScoreUpdating(false);
-        console.error('Error updating score:', error);
       }
     }
-  }, [updateScoreData, matchData]);
+  }, [currentInnings, matchToken]);
 
-  const handleWicket = useCallback((dismissalType: string, fielder?: string) => {
-    console.log('Wicket:', dismissalType, fielder);
-    fetchAvailableBatsmen();
-    setShowBatsmanModal(true);
-  }, [fetchAvailableBatsmen]);
+  const handleWicket = useCallback(async (dismissalType: string, fielder?: string) => {
+    try {
+      const currentBatsman = currentInnings?.batting?.striker;
+      const currentBowler = currentInnings?.bowling?.find((b: any) => b.id === currentInnings?.currentOver?.bowlerId);
+      
+      if (!currentBatsman || !currentBowler) {
+        showToast.error('Please select batsman and bowler first');
+        return;
+      }
+
+      const payload = {
+        ball_type: 'NORMAL',
+        runs: 0,
+        batsman_id: currentBatsman.id,
+        bowler_id: currentBowler.id,
+        is_wicket: true,
+        wicket_type: dismissalType,
+        fielder_id: fielder ? parseInt(fielder) : undefined,
+        is_boundary: false
+      };
+
+      const response = await MatchService.recordBall(matchToken!, payload);
+      if (response.data?.success) {
+        setShowWicketModal(false);
+        // Refresh scorecard
+        const scorecardResponse = await MatchService.getMatchScore(matchToken!);
+        if (scorecardResponse.data) {
+          setMatchData(scorecardResponse.data);
+        }
+        showToast.success('Wicket recorded successfully');
+        // Show batsman selection modal
+        fetchAvailableBatsmen();
+        setShowBatsmanModal(true);
+      }
+    } catch (error) {
+      console.error('Error recording wicket:', error);
+      showToast.error('Failed to record wicket');
+    }
+  }, [currentInnings, matchToken, fetchAvailableBatsmen]);
 
   const handleSelectBatsman = useCallback(async (player: any) => {
     if (player === 'OPEN_MODAL') {
@@ -428,8 +481,6 @@ const ScoreEdit = () => {
     fetchBowlingTeam();
     setShowBowlerModal(true);
   }, [fetchBowlingTeam]);
-
-  const currentInnings = useMemo(() => matchData?.innings?.[matchData?.innings?.length ? matchData.innings.length - 1 : 0], [matchData]);
 
   if (loading) {
     return (
@@ -555,7 +606,7 @@ const ScoreEdit = () => {
       </div>
       
       <div className="mt-6">
-        <BallHistory overs={currentInnings?.currentOver ? [currentInnings.currentOver] : []} />
+        <BallHistory overs={currentInnings?.currentOver ? [{...currentInnings.currentOver, overNumber: currentInnings.currentOver.o || 1, bowler: currentInnings.bowling?.find((b: any) => b.id === currentInnings.currentOver?.bowlerId)?.n || 'Unknown'}] : []} />
       </div>
       
       <LivePreview 

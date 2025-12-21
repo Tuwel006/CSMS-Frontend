@@ -11,6 +11,7 @@ export interface Score {
 }
 
 export interface Batsman {
+  id: number;
   name: string;
   runs: number;
   balls: number;
@@ -19,6 +20,7 @@ export interface Batsman {
 }
 
 export interface Bowler {
+  id: number;
   name: string;
   overs: number;
   maidens: number;
@@ -32,6 +34,7 @@ export interface Ball {
 }
 
 export interface CurrentOver {
+  bowlerId: number;
   o: number;
   balls: Ball[];
 }
@@ -41,7 +44,10 @@ export interface Innings {
   battingTeam: string;
   bowlingTeam: string;
   score: Score;
-  batting: Batsman[];
+  batting: {
+    striker: Batsman;
+    nonStriker: Batsman;
+  }
   dismissed: any[];
   bowling: Bowler[];
   currentOver: CurrentOver;
