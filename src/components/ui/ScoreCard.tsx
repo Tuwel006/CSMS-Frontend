@@ -104,6 +104,21 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
   const teamA = match.teamInfo?.[0] ?? { shortname: match.teams?.[0], name: match.teams?.[0], img: "" };
   const teamB = match.teamInfo?.[1] ?? { shortname: match.teams?.[1], name: match.teams?.[1], img: "" };
 
+  // Toss information helper
+  const getTossInfo = () => {
+    if (!match.toss_winner_team_id || !match.batting_first_team_id) return null;
+    
+    const tossWinnerTeam = match.teamInfo?.find((_, index) => index + 1 === match.toss_winner_team_id) || 
+                          (match.toss_winner_team_id === 1 ? teamA : teamB);
+    const battingFirstTeam = match.teamInfo?.find((_, index) => index + 1 === match.batting_first_team_id) || 
+                            (match.batting_first_team_id === 1 ? teamA : teamB);
+    
+    const decision = match.toss_winner_team_id === match.batting_first_team_id ? 'bat' : 'bowl';
+    return `${tossWinnerTeam?.shortname || 'Team'} won toss, chose to ${decision} first`;
+  };
+
+  const tossInfo = getTossInfo();
+
   // Get matched scores per team (strict)
   const teamAScores = getTeamScores(teamA);
   const teamBScores = getTeamScores(teamB);
@@ -179,6 +194,11 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
           <div className="text-[12px] font-semibold leading-tight truncate" title={match.name}>
             {match.name}
           </div>
+          {tossInfo && (
+            <div className="text-[10px] text-gray-500 leading-tight truncate mt-0.5" title={tossInfo}>
+              {tossInfo}
+            </div>
+          )}
         </div>
 
         <div className="grid gap-2" style={{ gridTemplateRows: "1fr 1fr", height: `calc(${heightPx}px - 56px)` }}>

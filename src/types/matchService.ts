@@ -72,6 +72,8 @@ export interface CurrentMatchResponse {
     umpire_1: string | null;
     umpire_2: string | null;
     man_of_the_match: string | null;
+    toss_winner_team_id?: number;
+    batting_first_team_id?: number;
     teamA: {
         id: number;
         name: string;

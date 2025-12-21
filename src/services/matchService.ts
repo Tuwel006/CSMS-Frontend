@@ -2,6 +2,7 @@ import apiClient from '../utils/api';
 import { ApiResponse } from '../types/api';
 import { ScheduleMatchPayload, ScheduleMatchResponse } from '../types/matchSchedule';
 import { MatchData, MatchTokenResponse, TeamSetupPayload, TeamSetupResponse, CurrentMatchResponse, DeleteTokenResponse, UpdateTeamPayload, StartMatchPayload, StartMatchResponse } from '../types/matchService';
+import { MatchScoreResponse } from '../types/scoreService';
 
 
 
@@ -24,6 +25,31 @@ export const MatchService = {
     // Get Current Match
     getCurrentMatch: async (matchId: string): Promise<ApiResponse<CurrentMatchResponse>> => {
         return apiClient.get<CurrentMatchResponse>(`matches/current/${matchId}`);
+    },
+
+    // Get Match Score
+    getMatchScore: async (matchId: string): Promise<ApiResponse<MatchScoreResponse>> => {
+        return apiClient.get(`matches/${matchId}/score`);
+    },
+
+    // Set Batsman
+    setBatsman: async (matchId: string, payload: any): Promise<ApiResponse<any>> => {
+        return apiClient.post(`matches/${matchId}/set-batsman`, payload);
+    },
+
+    // Get Available Batsmen
+    getAvailableBatsmen: async (matchId: string, inningsNumber: number): Promise<ApiResponse<any>> => {
+        return apiClient.get(`matches/${matchId}/innings/${inningsNumber}/available-batsmen`);
+    },
+
+    // Set Bowler
+    setBowler: async (matchId: string, payload: any): Promise<ApiResponse<any>> => {
+        return apiClient.post(`matches/${matchId}/set-bowler`, payload);
+    },
+
+    // Get Bowling Team
+    getBowlingTeam: async (matchId: string, inningsNumber: number): Promise<ApiResponse<any>> => {
+        return apiClient.get(`matches/${matchId}/innings/${inningsNumber}/bowling-team`);
     },
 
     // Update Team

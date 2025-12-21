@@ -36,7 +36,9 @@ console.log("key:   ", key);
             format: response.data.format,
             umpire_1: response.data.umpire_1,
             umpire_2: response.data.umpire_2,
-            match_id: response.data.id
+            match_id: response.data.id,
+            toss_winner_team_id: response.data.toss_winner_team_id,
+            batting_first_team_id: response.data.batting_first_team_id
           },
           matchToken: token
         });
@@ -109,7 +111,10 @@ console.log("key:   ", key);
       <div className="p-2 md:p-6" key={key}>
         {activeTab === 'match-start' ?
           <MatchStartTab 
-            matchData={matchData} /> 
+            matchData={matchData}
+            onMatchStart={() => setSearchParams({tab: 'match-setup'})}
+            onRefresh={() => setKey(prev => prev + 1)} 
+             /> 
           : <SingleMatchSetupTab 
               matchData={matchData} 
               onRefresh={() => setKey(prev => prev + 1)} 

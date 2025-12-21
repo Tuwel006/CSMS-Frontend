@@ -73,7 +73,7 @@ const BallHistory = ({ overs }: BallHistoryProps) => {
             <div className="flex gap-2 flex-wrap">
               {over.balls.map((ball, index) => (
                 <div
-                  key={index}
+                  key={`ball-${over.overNumber}-${index}`}
                   className={getBallStyle(ball)}
                   title={`Ball ${index + 1}: ${ball.type} - ${ball.value}`}
                 >
@@ -83,14 +83,12 @@ const BallHistory = ({ overs }: BallHistoryProps) => {
               
               {/* Show remaining balls in current over */}
               {over.balls.length < 6 && (
-                <>
-                  {Array.from({ length: 6 - over.balls.length }).map((_, index) => (
-                    <div
-                      key={`empty-${index}`}
-                      className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600"
-                    />
-                  ))}
-                </>
+                Array.from({ length: 6 - over.balls.length }).map((_, index) => (
+                  <div
+                    key={`empty-${over.overNumber}-${index}`}
+                    className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600"
+                  />
+                ))
               )}
             </div>
           </div>

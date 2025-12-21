@@ -21,9 +21,11 @@ interface Team {
 
 interface MatchStartTabProps {
   matchData?: any;
+  onMatchStart: () => void;
+  onRefresh: () => void;
 }
 
-const MatchStartTab = ({ matchData }: MatchStartTabProps) => {
+const MatchStartTab = ({ matchData, onMatchStart, onRefresh }: MatchStartTabProps) => {
   const isScheduled = matchData?.matchDetails?.status === 'SCHEDULED';
   console.log('Match Data in MatchStartTab:', matchData, isScheduled);
   
@@ -94,6 +96,8 @@ const MatchStartTab = ({ matchData }: MatchStartTabProps) => {
     try {
       const response = await MatchService.startMatch(matchData?.matchToken, payload);
       showToast.handleResponse(toastId, response);
+        onRefresh();
+        onMatchStart();
     } catch (error) {
       showToast.handleResponse(toastId, error);
     }

@@ -39,6 +39,8 @@ export interface Match {
   hasSquad: boolean;
   matchStarted: boolean;
   matchEnded: boolean;
+  toss_winner_team_id?: number;
+  batting_first_team_id?: number;
 }
 
 

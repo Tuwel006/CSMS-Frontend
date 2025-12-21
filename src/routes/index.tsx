@@ -6,12 +6,13 @@ import Layout from "@/components/layout/Layout";
 import PublicLayout from "@/components/layout/PublicLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
+import ScoreEdit from "@/pages/ScoreEdit";
 
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const TestCricketGround = lazy(() => import("@/pages/TestCricketGround"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const Home = lazy(() => import("@/pages/Home"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Dashboard = lazy(() => import("@/pages/ScoreEdit"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const MatchDetail = lazy(() => import("@/pages/MatchDetails"));
 const TeamManagement = lazy(() => import("@/pages/TeamManagement"));
@@ -48,6 +49,7 @@ export default function AppRoute() {
               <Route path="player-management" element={<div>Player Management Page</div>} />
               <Route path="score-updates" element={<ScoreEditor />} />
               <Route path="score-editor" element={<ScoreEditorNew />} />
+              <Route path="score-edit" element={<ScoreEdit />} />
               <Route path="statistics" element={<div>Statistics Page</div>} />
               <Route path="settings" element={<div>Settings Page</div>} />
               {/* Add more admin routes here */}
