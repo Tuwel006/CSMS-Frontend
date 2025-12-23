@@ -168,6 +168,7 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, bow
   const currentBowler = bowling.find((b: any) => b.id === currentOver?.bowlerId);
   const bowlingTeam = teams?.[currentInnings?.bowlingTeam];
   const isOverComplete = currentOver?.balls?.length === 6;
+  const bowlersWithOvers = bowling.filter((b: any) => parseFloat(b.o) > 0);
   
   const handleBowlerClick = useCallback(() => {
     fetchBowlingTeam();
@@ -219,6 +220,21 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, bow
         )}
       </div>
       
+      {/* Bowlers List */}
+      {bowlersWithOvers.length > 0 && (
+        <div className="mb-2">
+          <p className="text-[10px] text-[var(--text-secondary)] mb-1">BOWLERS</p>
+          <div className="space-y-1 max-h-[4.5rem] overflow-y-auto">
+            {bowlersWithOvers.map((bowler: any) => (
+              <div key={bowler.id} className="bg-gray-50 dark:bg-gray-800 rounded p-1.5 flex items-center justify-between">
+                <span className="text-xs font-medium text-[var(--text)] truncate">{bowler.n}</span>
+                <span className="text-xs text-[var(--text-secondary)]">{bowler.o}-{bowler.m || 0}-{bowler.r}-{bowler.w}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <p className="text-[10px] text-[var(--text-secondary)]">Current Over {currentOver?.o || 1}</p>
@@ -261,6 +277,9 @@ const ScoreEdit = () => {
   const [showBatsmanModal, setShowBatsmanModal] = useState(false);
   const [showBowlerModal, setShowBowlerModal] = useState(false);
   const [showWicketModal, setShowWicketModal] = useState(false);
+  const [showBallConfirmModal, setShowBallConfirmModal] = useState(false);
+  const [pendingBallType, setPendingBallType] = useState<string>('');
+  const [ballRuns, setBallRuns] = useState<string>('0');
   const [availableBatsmen, setAvailableBatsmen] = useState([]);
   const [bowlingTeamPlayers, setBowlingTeamPlayers] = useState([]);
   const [modalLoading, setModalLoading] = useState(false);
@@ -340,44 +359,53 @@ const ScoreEdit = () => {
     if (ballType === 'W') {
       setShowWicketModal(true);
     } else {
-      setScoreUpdating(true);
-      try {
-        const currentBatsman = currentInnings?.batting?.striker;
-        const currentBowler = currentInnings?.bowling?.find((b: any) => b.id === currentInnings?.currentOver?.bowlerId);
-        
-        if (!currentBatsman || !currentBowler) {
-          showToast.error('Please select batsman and bowler first');
-          setScoreUpdating(false);
-          return;
-        }
-
-        const runs = parseInt(ballType) || 0;
-        const payload = {
-          ball_type: ballType === 'WD' ? 'WIDE' : ballType === 'NB' ? 'NO_BALL' : ballType === 'BYE' ? 'BYE' : ballType === 'LB' ? 'LEG_BYE' : 'NORMAL',
-          runs,
-          batsman_id: currentBatsman.id,
-          bowler_id: currentBowler.id,
-          is_wicket: false,
-          is_boundary: runs === 4 || runs === 6
-        };
-
-        const response = await MatchService.recordBall(matchToken!, payload);
-        if (response.data?.success) {
-          // Refresh scorecard
-          const scorecardResponse = await MatchService.getMatchScore(matchToken!);
-          if (scorecardResponse.data) {
-            setMatchData(scorecardResponse.data);
-          }
-          showToast.success('Ball recorded successfully');
-        }
-      } catch (error) {
-        console.error('Error recording ball:', error);
-        showToast.error('Failed to record ball');
-      } finally {
-        setScoreUpdating(false);
-      }
+      // Show confirmation modal
+      setPendingBallType(ballType);
+      setBallRuns(['1', '2', '3', '4', '5', '6'].includes(ballType) ? ballType : '0');
+      setShowBallConfirmModal(true);
     }
-  }, [currentInnings, matchToken]);
+  }, []);
+
+  const handleConfirmBall = useCallback(async () => {
+    setShowBallConfirmModal(false);
+    setScoreUpdating(true);
+    try {
+      const currentBatsman = currentInnings?.batting?.striker;
+      const currentBowler = currentInnings?.bowling?.find((b: any) => b.id === currentInnings?.currentOver?.bowlerId);
+      
+      if (!currentBatsman || !currentBowler) {
+        showToast.error('Please select batsman and bowler first');
+        setScoreUpdating(false);
+        return;
+      }
+
+      const runs = parseInt(ballRuns) || 0;
+      const payload = {
+        ball_type: pendingBallType === 'WD' ? 'WIDE' : pendingBallType === 'NB' ? 'NO_BALL' : pendingBallType === 'BYE' ? 'BYE' : pendingBallType === 'LB' ? 'LEG_BYE' : 'NORMAL',
+        runs,
+        batsman_id: currentBatsman.id,
+        bowler_id: currentBowler.id,
+        is_wicket: false,
+        is_boundary: runs === 4 || runs === 6
+      };
+
+      const response = await MatchService.recordBall(matchToken!, payload);
+      if (response.data?.success) {
+        const scorecardResponse = await MatchService.getMatchScore(matchToken!);
+        if (scorecardResponse.data) {
+          setMatchData(scorecardResponse.data);
+        }
+        showToast.success('Ball recorded successfully');
+      }
+    } catch (error) {
+      console.error('Error recording ball:', error);
+      showToast.error('Failed to record ball');
+    } finally {
+      setScoreUpdating(false);
+      setPendingBallType('');
+      setBallRuns('0');
+    }
+  }, [currentInnings, matchToken, ballRuns, pendingBallType]);
 
   const handleWicket = useCallback(async (dismissalType: string, fielder?: string) => {
     try {
@@ -574,7 +602,7 @@ const ScoreEdit = () => {
       <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3">
         <h3 className="text-sm font-bold text-[var(--text)] mb-2">Ball Outcome</h3>
         <div className="grid grid-cols-6 sm:grid-cols-9 gap-1.5 mb-3">
-          {['0', '1', '2', '3', '4', '6'].map((ball) => (
+          {['0', '1', '2', '3', '4', '5', '6'].map((ball) => (
             <button
               key={ball}
               onClick={() => handleBallUpdate(ball)}
@@ -639,6 +667,67 @@ const ScoreEdit = () => {
         onConfirm={handleWicket}
         bowlingTeamPlayers={bowlingTeamPlayers}
       />
+      
+      {/* Ball Confirmation Modal */}
+      {showBallConfirmModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg p-6 w-11/12 max-w-md shadow-lg">
+            <h2 className="text-lg font-bold mb-4">Confirm Ball Outcome</h2>
+            
+            <div className="mb-4">
+              <div className="bg-blue-500 text-white rounded-xl p-4 text-center">
+                <div className="text-3xl font-bold mb-1">{pendingBallType}</div>
+                <div className="text-sm">
+                  {pendingBallType === 'WD' ? 'Wide' : 
+                   pendingBallType === 'NB' ? 'No Ball' : 
+                   pendingBallType === 'BYE' ? 'Bye' : 
+                   pendingBallType === 'LB' ? 'Leg Bye' : 
+                   `${pendingBallType} Run${pendingBallType !== '1' ? 's' : ''}`}
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2">Runs</label>
+              <input
+                type="number"
+                min="0"
+                max="6"
+                value={ballRuns}
+                onChange={(e) => setBallRuns(e.target.value)}
+                placeholder="Enter runs (0-6)"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {['WD', 'NB'].includes(pendingBallType) 
+                  ? "Additional runs by batsman or bye/leg bye"
+                  : ['BYE', 'LB'].includes(pendingBallType)
+                  ? `Runs scored as ${pendingBallType === 'BYE' ? 'bye' : 'leg bye'}`
+                  : "Runs scored by batsman"}
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition"
+                onClick={() => {
+                  setShowBallConfirmModal(false);
+                  setPendingBallType('');
+                  setBallRuns('0');
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition"
+                onClick={handleConfirmBall}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
