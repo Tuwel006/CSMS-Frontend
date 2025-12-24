@@ -732,7 +732,15 @@ const ScoreEdit = () => {
                 min="0"
                 max="6"
                 value={ballRuns}
-                onChange={(e) => setBallRuns(e.target.value)}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value) || 0;
+                  setBallRuns(Math.max(0, Math.min(6, value)).toString());
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                    e.preventDefault();
+                  }
+                }}
                 placeholder="Enter runs (0-6)"
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
               />
