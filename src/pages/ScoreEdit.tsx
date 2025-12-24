@@ -272,6 +272,10 @@ const ScoreEdit = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scoreUpdating, setScoreUpdating] = useState(false);
+  const [extrasEnabled, setExtrasEnabled] = useState(() => {
+    const saved = localStorage.getItem('extrasEnabled');
+    return saved !== null ? saved === 'true' : true;
+  });
   
   // Modal states
   const [showBatsmanModal, setShowBatsmanModal] = useState(false);
@@ -283,6 +287,21 @@ const ScoreEdit = () => {
   const [availableBatsmen, setAvailableBatsmen] = useState([]);
   const [bowlingTeamPlayers, setBowlingTeamPlayers] = useState([]);
   const [modalLoading, setModalLoading] = useState(false);
+  const [showExtrasWarning, setShowExtrasWarning] = useState(false);
+  const [pendingExtrasValue, setPendingExtrasValue] = useState(false);
+
+  const toggleExtras = useCallback(() => {
+    const newValue = !extrasEnabled;
+    setPendingExtrasValue(newValue);
+    setShowExtrasWarning(true);
+  }, [extrasEnabled]);
+
+  const confirmExtrasChange = useCallback(() => {
+    setExtrasEnabled(pendingExtrasValue);
+    localStorage.setItem('extrasEnabled', String(pendingExtrasValue));
+    setShowExtrasWarning(false);
+    showToast.success(`Extra runs ${pendingExtrasValue ? 'enabled' : 'disabled'}`);
+  }, [pendingExtrasValue]);
 
   const fetchMatchScore = useCallback(async () => {
     if (!matchToken) {
@@ -386,7 +405,8 @@ const ScoreEdit = () => {
         batsman_id: currentBatsman.id,
         bowler_id: currentBowler.id,
         is_wicket: false,
-        is_boundary: runs === 4 || runs === 6
+        is_boundary: runs === 4 || runs === 6,
+        extras_enabled: extrasEnabled
       };
 
       const response = await MatchService.recordBall(matchToken!, payload);
@@ -405,7 +425,7 @@ const ScoreEdit = () => {
       setPendingBallType('');
       setBallRuns('0');
     }
-  }, [currentInnings, matchToken, ballRuns, pendingBallType]);
+  }, [currentInnings, matchToken, ballRuns, pendingBallType, extrasEnabled]);
 
   const handleWicket = useCallback(async (dismissalType: string, fielder?: string) => {
     try {
@@ -425,7 +445,8 @@ const ScoreEdit = () => {
         is_wicket: true,
         wicket_type: dismissalType,
         fielder_id: fielder ? parseInt(fielder) : undefined,
-        is_boundary: false
+        is_boundary: false,
+        extras_enabled: extrasEnabled
       };
 
       const response = await MatchService.recordBall(matchToken!, payload);
@@ -445,7 +466,7 @@ const ScoreEdit = () => {
       console.error('Error recording wicket:', error);
       showToast.error('Failed to record wicket');
     }
-  }, [currentInnings, matchToken, fetchAvailableBatsmen]);
+  }, [currentInnings, matchToken, fetchAvailableBatsmen, extrasEnabled]);
 
   const handleSelectBatsman = useCallback(async (player: any) => {
     if (player === 'OPEN_MODAL') {
@@ -547,18 +568,16 @@ const ScoreEdit = () => {
 
   return (
     <div className="h-[calc(100vh-4rem)] overflow-y-auto p-2 sm:p-4">
-      {!isHeaderCollapsed && (
-        <>
-          <div className="mb-2">
-            <ActiveSessionHeader matchToken={matchToken} onCancel={() => {}} />
-          </div>
-          
-          <MatchHeader 
-            teams={matchData.teams}
-            meta={matchData.meta}
-          />
-        </>
-      )}
+      <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isHeaderCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
+        <div className="mb-2">
+          <ActiveSessionHeader matchToken={matchToken} onCancel={() => {}} />
+        </div>
+        
+        <MatchHeader 
+          teams={matchData.teams}
+          meta={matchData.meta}
+        />
+      </div>
 
       <div className="flex justify-between items-center mb-3">
         <button
@@ -599,8 +618,26 @@ const ScoreEdit = () => {
         />
       </div>
 
-      <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3">
-        <h3 className="text-sm font-bold text-[var(--text)] mb-2">Ball Outcome</h3>
+      <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3 mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-bold text-[var(--text)]">Ball Outcomes</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-[var(--text-secondary)]">Extra Runs</span>
+            <button
+              onClick={toggleExtras}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                extrasEnabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            >
+              <span
+                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                  extrasEnabled ? 'translate-x-5' : 'translate-x-0.5'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-6 sm:grid-cols-9 gap-1.5 mb-3">
           {['0', '1', '2', '3', '4', '5', '6'].map((ball) => (
             <button
@@ -633,13 +670,14 @@ const ScoreEdit = () => {
         </button>
       </div>
       
-      <div className="mt-6">
+      <div className="mb-3">
         <BallHistory overs={currentInnings?.currentOver ? [{...currentInnings.currentOver, overNumber: currentInnings.currentOver.o || 1, bowler: currentInnings.bowling?.find((b: any) => b.id === currentInnings.currentOver?.bowlerId)?.n || 'Unknown'}] : []} />
       </div>
       
       <LivePreview 
         isOpen={isPreviewOpen} 
-        onClose={() => setIsPreviewOpen(false)} 
+        onClose={() => setIsPreviewOpen(false)}
+        matchData={matchData}
       />
       
       {/* Player Selection Modals */}
@@ -723,6 +761,43 @@ const ScoreEdit = () => {
                 onClick={handleConfirmBall}
               >
                 Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Extras Warning Modal */}
+      {showExtrasWarning && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg p-6 w-11/12 max-w-md shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-bold">Change Extra Runs Setting?</h2>
+            </div>
+            
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              {pendingExtrasValue 
+                ? "Enabling extra runs will add 1 run to the team score for Wide and No Ball deliveries (standard cricket rules)."
+                : "Disabling extra runs means Wide and No Ball will NOT add extra runs to the team score (gully cricket rules). Only runs scored by batsman will count."}
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 rounded bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600 transition"
+                onClick={() => setShowExtrasWarning(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+                onClick={confirmExtrasChange}
+              >
+                Confirm Change
               </button>
             </div>
           </div>

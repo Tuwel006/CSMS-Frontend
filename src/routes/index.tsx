@@ -19,6 +19,7 @@ const TeamManagement = lazy(() => import("@/pages/TeamManagement"));
 const ScoreEditor = lazy(() => import("@/pages/ScoreEditor"));
 const ScoreEditorNew = lazy(() => import("@/pages/ScoreEditorNew"));
 const Game = lazy(() => import("@/pages/Game"));
+const LiveScore = lazy(() => import("@/pages/LiveScore"));
 const SearchableFormExample = lazy(() => import("@/components/ui/SearchableFormExample"));
 
 
@@ -36,6 +37,7 @@ export default function AppRoute() {
         <Route path="/home" element={<Home />} />
         <Route path="/test" element={<TestCricketGround />} />
         <Route path="/game" element={<Game />} />
+        <Route path="/matches/match/:id/score" element={<LiveScore />} />
         <Route index element={<LandingPage />} />
       </Route>
       {/* Protected ROutes */}

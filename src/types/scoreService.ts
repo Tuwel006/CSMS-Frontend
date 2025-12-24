@@ -12,25 +12,40 @@ export interface Score {
 
 export interface Batsman {
   id: number;
-  name: string;
-  runs: number;
-  balls: number;
-  onStrike: boolean;
-  status: string;
+  n: string;
+  r: number;
+  b: number;
+  sr: string;
+  onStrike?: boolean;
+  status?: string;
+  '4s'?: number;
+  '6s'?: number;
+  order?: number;
+  dismissal?: {
+    type: string;
+    bowler?: string;
+    fielder?: string;
+  };
 }
 
 export interface Bowler {
   id: number;
-  name: string;
-  overs: number;
-  maidens: number;
-  runs: number;
-  wickets: number;
-  isCurrent: boolean;
+  n: string;
+  o: string | number;
+  m?: number;
+  r: number;
+  w: number;
+  eco?: string;
+  isCurrent?: boolean;
+  '4s'?: number;
+  '6s'?: number;
+  extras?: number;
 }
 
 export interface Ball {
-  outcome: string;
+  b: number;
+  t: string;
+  r: number;
 }
 
 export interface CurrentOver {
@@ -51,6 +66,9 @@ export interface Innings {
   dismissed: any[];
   bowling: Bowler[];
   currentOver: CurrentOver;
+  extras?: string;
+  runRate?: string;
+  didNotBat?: string[];
 }
 
 export interface Meta {

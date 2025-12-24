@@ -93,7 +93,7 @@ const WicketModal: React.FC<WicketModalProps> = ({
               >
                 <option value="">Select Fielder</option>
                 {bowlingTeamPlayers.map((player) => (
-                  <option key={player.id} value={player.name}>
+                  <option key={player.id} value={player.id}>
                     {player.name}
                   </option>
                 ))}

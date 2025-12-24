@@ -1,34 +1,38 @@
-import { Outlet, useNavigate, useOutlet } from 'react-router-dom';
-import { Gamepad2, User } from 'lucide-react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Gamepad2, User, Moon, Sun } from 'lucide-react';
 import PublicHeader from './PublicHeader';
 import { useAuthContexxt } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 
 const PublicLayout = () => {
   const navigate = useNavigate();
-  const outlet = useOutlet();
+  const location = useLocation();
   const {isAuth, user, logout } = useAuthContexxt();
-  console.log('Outlet:', outlet);
+  const { theme, toggleTheme } = useTheme();
+
   const navItems = [
-    { label: 'Home', href: '/', isActive: true },
-    { label: 'Matches', href: '/matches' },
-    { label: 'Tournaments', href: '/tournaments' },
-    { label: 'Leaderboards', href: '/leaderboards' },
-    { label: 'Profile', href: '/profile' }
+    { label: 'Home', href: '/', isActive: location.pathname === '/' },
+    { label: 'Matches', href: '/matches', isActive: location.pathname.startsWith('/matches') },
+    { label: 'Tournaments', href: '/tournaments', isActive: location.pathname.startsWith('/tournaments') },
+    { label: 'Leaderboards', href: '/leaderboards', isActive: location.pathname.startsWith('/leaderboards') },
+    { label: 'Profile', href: '/profile', isActive: location.pathname.startsWith('/profile') }
   ];
 
   const handleLogout = () => {
     logout();
-    // navigate('/login');
   };
-  console.log('Public Layout Rendered. isAuth:', isAuth, 'user:', user);
+
   const actions = !isAuth
-    ? [{ icon: User, label: 'Login', onClick: () => navigate('/login') }]
-    : [];
+    ? [
+        { icon: theme === 'dark' ? Sun : Moon, onClick: toggleTheme },
+        { icon: User, label: 'Login', onClick: () => navigate('/login') }
+      ]
+    : [{ icon: theme === 'dark' ? Sun : Moon, onClick: toggleTheme }];
 
   return (
-    <div className="min-h-screen bg-slate-800">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <PublicHeader
-        logo={{ icon: Gamepad2, className: 'text-green-400' }}
+        logo={{ icon: Gamepad2, className: 'text-slate-300' }}
         navItems={navItems}
         actions={actions}
         user={user}

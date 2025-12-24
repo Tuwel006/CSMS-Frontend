@@ -12,6 +12,7 @@ import DefaultMatches from '@/utils/DefaultMatchesData.json';
 export interface TeamInfo {
   name: string;
   shortname: string;
+  short: string;
   img: string;
 }
 
