@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TeamService, Team, TeamData, TeamSearchParams, TeamSearchQuery } from '../services/teamService';
+import { TeamService, Team, TeamData, TeamSearchParams } from '../services/teamService';
 
 interface UseTeamsReturn {
   teams: Team[];
@@ -119,7 +119,7 @@ const useTeams = (initialParams: TeamSearchParams = {}): UseTeamsReturn => {
     try {
       const response = await TeamService.search({ name: query });
       if (response.data) {
-        return response.data.map((team: Team) => `${team.name} - ${team.location || 'Unknown'} - (${team.id})`);
+        return response.data.data.map((team: Team) => `${team.name} - ${team.location || 'Unknown'} - (${team.id})`);
       }
       return [];
     } catch (err: any) {

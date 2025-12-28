@@ -1,7 +1,9 @@
 import apiClient from '../utils/api';
 import { ApiResponse } from '../types/api';
 import { PaginatedData } from '../types/pagination';
-import { TeamData, Team, TeamSearchParams, TeamSearchQuery } from '../types/teamService';
+import type { TeamData, Team, TeamSearchParams, TeamSearchQuery } from '../types/teamService';
+
+export type { Team, TeamData, TeamSearchParams, TeamSearchQuery };
 
 export const TeamService = {
   // Create team

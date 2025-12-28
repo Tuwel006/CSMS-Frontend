@@ -46,8 +46,7 @@ const MatchHeader = React.memo(({ teams, meta }: any) => {
   );
 });
 
-const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, onSelectBowler, loading, scoreUpdating, availableBatsmen, modalLoading, fetchAvailableBatsmen }: any) => {
-  const [showBatsmanDropdown, setShowBatsmanDropdown] = useState(false);
+const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, loading, scoreUpdating, fetchAvailableBatsmen }: any) => {
   
   const score = currentInnings?.score || { r: 0, w: 0, o: '0.0' };
   const batting = currentInnings?.batting || [];
@@ -59,7 +58,6 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, o
   
   const handleBatsmanClick = useCallback(() => {
     fetchAvailableBatsmen();
-    setShowBatsmanDropdown(false); // Close dropdown
     // Use parent's modal instead
     onSelectBatsman('OPEN_MODAL');
   }, [fetchAvailableBatsmen, onSelectBatsman]);
@@ -160,8 +158,7 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, o
   );
 });
 
-const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, bowlingTeamPlayers, modalLoading, fetchBowlingTeam, onOverComplete }: any) => {
-  const [showBowlerDropdown, setShowBowlerDropdown] = useState(false);
+const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, fetchBowlingTeam, onOverComplete }: any) => {
   
   const currentOver = currentInnings?.currentOver;
   const bowling = currentInnings?.bowling || [];
@@ -172,7 +169,6 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, bow
   
   const handleBowlerClick = useCallback(() => {
     fetchBowlingTeam();
-    setShowBowlerDropdown(false);
     onSelectBowler('OPEN_MODAL');
   }, [fetchBowlingTeam, onSelectBowler]);
   
@@ -359,18 +355,6 @@ const ScoreEdit = () => {
       setModalLoading(false);
     }
   }, [matchToken, matchData]);
-
-  const updateScoreData = useCallback((newScoreData: any) => {
-    setMatchData(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        innings: prev.innings.map((inning, index) => 
-          index === 0 ? { ...inning, ...newScoreData } : inning
-        )
-      };
-    });
-  }, []);
 
   const currentInnings = useMemo(() => matchData?.innings?.[matchData?.innings?.length ? matchData.innings.length - 1 : 0], [matchData]);
 

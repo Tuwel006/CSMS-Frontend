@@ -3,31 +3,14 @@ import { useScore } from "@/context/ScoreContext";
 import OverBallBubble from "./OverBallBubble";
 import OverActionAccordion from "./OverActionAccordion";
 const OverTracker = () => {
-  const { overs, addBallRun, editBallRun } = useScore();
+  const { overs } = useScore();
   const [activeOverIndex, setActiveOverIndex] = useState(overs.length - 1);
   const [showAction, setShowAction] = useState(false);
-  const [selectedBallIndex, setSelectedBallIndex] = useState<number | null>(null);
 
   const currentOver = overs[activeOverIndex] || [];
-  const nextBallIndex = currentOver.length; // index of next ball to be added
 
-  const handleSelectBall = (index: number) => {
-    setSelectedBallIndex(index);
+  const handleSelectBall = (_index: number) => {
     setShowAction(true);
-  };
-
-  const handleRunSelect = (run: string) => {
-    if (selectedBallIndex !== null) {
-      if (selectedBallIndex < currentOver.length) {
-        // Edit existing ball
-        editBallRun(activeOverIndex, selectedBallIndex, run);
-      } else if (selectedBallIndex === currentOver.length) {
-        // Add new ball
-        addBallRun(run);
-      }
-    }
-    setShowAction(false);
-    setSelectedBallIndex(null);
   };
 
   return (

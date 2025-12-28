@@ -6,6 +6,7 @@ import { Player } from '../types/player';
 import { TeamData } from '../types/team';
 
 interface ExtendedTeamData extends TeamData {
+    id: number;
     teamId: number | null;
     players: Player[];
 }
@@ -24,8 +25,8 @@ const MatchSchedule = ({ availableTeams, preSelectedTeam1, preSelectedTeam2 }: M
     const [tossDecision, setTossDecision] = useState<'bat' | 'bowl' | ''>('');
 
     // Team Selection State (used if no pre-selected teams)
-    const [selectedTeam1Id, setSelectedTeam1Id] = useState<string>('');
-    const [selectedTeam2Id, setSelectedTeam2Id] = useState<string>('');
+    const [selectedTeam1Id, setSelectedTeam1Id] = useState<number | null>(null);
+    const [selectedTeam2Id, setSelectedTeam2Id] = useState<number | null>(null);
 
     // Playing 11 State
     const [team1Playing11, setTeam1Playing11] = useState<Player[]>([]);
@@ -36,20 +37,20 @@ const MatchSchedule = ({ availableTeams, preSelectedTeam1, preSelectedTeam2 }: M
     const [showTeam2Players, setShowTeam2Players] = useState(true);
 
     // Derived teams - Prioritize pre-selected teams
-    const team1 = preSelectedTeam1 || availableTeams.find(t => t.id === selectedTeam1Id);
-    const team2 = preSelectedTeam2 || availableTeams.find(t => t.id === selectedTeam2Id);
+    const team1 = preSelectedTeam1 || availableTeams.find(t => t.teamId === selectedTeam1Id);
+    const team2 = preSelectedTeam2 || availableTeams.find(t => t.teamId === selectedTeam2Id);
 
     // Filter available teams for dropdowns
     const teamsForSelection = availableTeams;
 
     // Handlers
     const handleTeam1Select = (id: string) => {
-        setSelectedTeam1Id(id);
+        setSelectedTeam1Id(Number(id));
         setTeam1Playing11([]); // Reset playing 11 when team changes
     };
 
     const handleTeam2Select = (id: string) => {
-        setSelectedTeam2Id(id);
+        setSelectedTeam2Id(Number(id));
         setTeam2Playing11([]); // Reset playing 11 when team changes
     };
 
@@ -133,7 +134,7 @@ const MatchSchedule = ({ availableTeams, preSelectedTeam1, preSelectedTeam2 }: M
                             type="select"
                             label="Select Team"
                             placeholder="Choose Team 1"
-                            value={selectedTeam1Id}
+                            value={selectedTeam1Id?.toString() || ''}
                             onChange={(val: string) => handleTeam1Select(val)}
                             options={teamsForSelection.map(team => ({
                                 value: team.id,
@@ -202,7 +203,7 @@ const MatchSchedule = ({ availableTeams, preSelectedTeam1, preSelectedTeam2 }: M
                             type="select"
                             label="Select Team"
                             placeholder="Choose Team 2"
-                            value={selectedTeam2Id}
+                            value={selectedTeam2Id?.toString() || ''}
                             onChange={(val: string) => handleTeam2Select(val)}
                             options={teamsForSelection.map(team => ({
                                 value: team.id,

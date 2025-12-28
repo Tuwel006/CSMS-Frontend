@@ -1,4 +1,8 @@
-import { MatchPlayer } from './player';
+export interface MatchPlayer {
+  id: number;
+  name: string;
+  role: 'batsman' | 'bowler' | 'allrounder' | 'wicketkeeper';
+}
 
 export interface Team {
   id: number;

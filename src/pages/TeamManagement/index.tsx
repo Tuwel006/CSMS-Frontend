@@ -11,7 +11,7 @@ const TeamManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get('tab') as Tab) || 'match-setup';
   const [matchData, setMatchData] = useState<any>(null);
-  const [matchToken, setMatchToken] = useState<string | null>(null);
+  const [, setMatchToken] = useState<string | null>(null);
   const [key, setKey] = useState(0);
 console.log("key:   ", key);
   useEffect(() => {

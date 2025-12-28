@@ -4,7 +4,11 @@ import PublicHeader from './PublicHeader';
 import { useAuthContexxt } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 
-const PublicLayout = () => {
+interface PublicLayoutProps {
+  children?: React.ReactNode;
+}
+
+const PublicLayout = ({ children }: PublicLayoutProps = {}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const {isAuth, user, logout } = useAuthContexxt();
@@ -40,7 +44,7 @@ const PublicLayout = () => {
         onLogout={handleLogout}
       />
       <main className="p-4">
-        <Outlet />
+        {children || <Outlet />}
       </main>
     </div>
   );

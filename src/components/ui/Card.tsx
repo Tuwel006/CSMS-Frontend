@@ -1,6 +1,5 @@
 import { type ReactNode } from 'react';
 import { cn } from '../../lib/utils';
-import { useTheme } from '../../context/ThemeContext';
 
 interface CardProps {
   children: ReactNode;
@@ -19,8 +18,6 @@ const Card = ({
   hover = false,
   onClick 
 }: CardProps) => {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
 
   const sizeClasses = {
     sm: 'p-3',

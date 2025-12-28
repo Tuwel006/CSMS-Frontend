@@ -11,25 +11,20 @@ const SearchableFormExample = () => {
       type: 'text',
       label: 'Player Name',
       placeholder: 'Enter player name',
-      validation: { required: true },
-      style: { className: 'col-span-2' }
+      validation: { required: true }
     },
     {
       key: 'team',
-      type: 'select',
+      type: 'text',
       label: 'Team',
-      placeholder: 'Select team',
-      options: [
-        { value: 'team1', label: 'Team A' },
-        { value: 'team2', label: 'Team B' }
-      ]
+      placeholder: 'Select team'
     },
     {
       key: 'age',
       type: 'number',
       label: 'Age',
       placeholder: 'Enter age',
-      validation: { min: 16, max: 50 }
+      validation: { required: true }
     }
   ];
 
@@ -37,7 +32,7 @@ const SearchableFormExample = () => {
     {
       id: 'playerSearch',
       triggerFields: ['playerName', 'team'],
-      searchFunction: async (params) => {
+      searchFunction: async (_params) => {
         // Mock API call
         return {
           data: {
@@ -82,18 +77,13 @@ const SearchableFormExample = () => {
       type: 'number',
       label: 'Overs',
       placeholder: 'Number of overs',
-      validation: { min: 1, max: 50 }
+      validation: { required: true }
     },
     {
       key: 'matchType',
-      type: 'select',
+      type: 'text',
       label: 'Match Type',
-      placeholder: 'Select type',
-      options: [
-        { value: 'T20', label: 'T20' },
-        { value: 'ODI', label: 'One Day' },
-        { value: 'Test', label: 'Test Match' }
-      ]
+      placeholder: 'Select type'
     }
   ];
 
@@ -101,7 +91,7 @@ const SearchableFormExample = () => {
     {
       id: 'venueSearch',
       triggerFields: ['venue'],
-      searchFunction: async (params) => {
+      searchFunction: async (_params) => {
         return {
           data: {
             data: [

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Sphere, Box, Plane } from '@react-three/drei';
 import * as THREE from 'three';
@@ -85,7 +85,7 @@ function CricketBall({ position, onHit, gameState, onWicket }: {
     }
   }, [gameState.ballInMotion, isMoving, position]);
   
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (isMoving && ballRef.current) {
       const newPos = ballPosition.clone();
       const newVel = velocity.clone();

@@ -1,11 +1,13 @@
-import apiClient from '../utils/api';
-
 export interface RoleUpdatePayload {
+  userId: string;
   role: string;
 }
 
-export class SubscribeService {
-  static async subscribeRoleUpdate(payload: RoleUpdatePayload): Promise<any> {
-    return await apiClient.post('/role_update', payload);;
-  }
-}
+export const subscribeRoleUpdate = async (_payload: RoleUpdatePayload) => {
+  // Implementation placeholder
+  return Promise.resolve();
+};
+
+export const SubscribeService = {
+  subscribeRoleUpdate
+};

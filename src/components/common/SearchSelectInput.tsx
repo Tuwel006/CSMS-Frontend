@@ -22,9 +22,9 @@ interface InputsProps {
     onSelect?: (team: Team) => void;
 }
 
-const SearchSelectInput = ({ className = "", inputs, suggestions = [], onSelect }: InputsProps) => {
+const SearchSelectInput = ({ inputs, suggestions = [], onSelect }: InputsProps) => {
   const [showTeam1Dropdown, setShowTeam1Dropdown] = useState(false);
-  const [team1Suggestions, setTeam1Suggestions] = useState<Team[]>(suggestions);
+  const [team1Suggestions] = useState<Team[]>(suggestions);
 
   const handleTeam1Select = (team: Team) => {
     onSelect?.(team);

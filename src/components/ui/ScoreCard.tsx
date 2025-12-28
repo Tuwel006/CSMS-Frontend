@@ -159,7 +159,7 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
   const isTest = String(match.matchType ?? "").toLowerCase().includes("test");
   const lastN = (arr: ScoreEntry[], n: number) => (arr.length <= n ? arr.slice() : arr.slice(arr.length - n));
 
-  const renderForTeam = (team: { name?: string; short?: string; img?: string }, matched: ScoreEntry[]) => {
+  const renderForTeam = (_team: { name?: string; short?: string; img?: string }, matched: ScoreEntry[]) => {
     const use = isTest ? lastN(matched, 2) : matched.length ? [matched[matched.length - 1]] : [];
     return use;
   };

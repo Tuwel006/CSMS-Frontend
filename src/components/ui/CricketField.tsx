@@ -61,54 +61,7 @@ export default function CricketField({ width = 900, height = 700 }: { width?: nu
   // flip vertical axis so top/bottom orientation matches reference image
   const positions = _rawPositions.map((p) => ({ ...p, y: 100 - p.y }));
 
-  // initial on-field players (map 11 players to common starting positions)
-  const defaultOnFieldIds = ['bowler', 'batsman1', 'batsman2', 'keeper', 'slip', 'gully', 'point', 'cover', 'mid_off', 'mid_on', 'fine_leg'];
-  const initialOnField: Player[] = defaultOnFieldIds.map((pid, idx) => {
-    const pos = positions.find((p) => p.id === pid) || positions[0];
-    const role: Player['role'] = pos.type === 'umpire' ? 'umpire' : pos.type === 'batting' ? 'batsman' : 'fielder';
-
-    // clamp initial named positions to boundary (pixel-space math)
-    const cxPx = (50 / 100) * width;
-    const cyPx = (50 / 100) * height;
-    const xPx = (pos.x / 100) * width;
-    const yPx = (pos.y / 100) * height;
-    const rPx = (45 / 100) * Math.min(width, height);
-    const dx = xPx - cxPx;
-    const dy = yPx - cyPx;
-    const d = Math.sqrt(dx * dx + dy * dy);
-    let finalX = pos.x;
-    let finalY = pos.y;
-    if (d > rPx) {
-      const scale = rPx / d;
-      const nx = cxPx + dx * scale;
-      const ny = cyPx + dy * scale;
-      finalX = (nx / width) * 100;
-      finalY = (ny / height) * 100;
-    }
-
-    // Australian fielding team names
-    const australianFielders = [
-      'Travis Head', 'Marnus Labuschagne', 'Glenn Maxwell', 'Alex Carey', 
-      'Marcus Stoinis', 'Adam Zampa', 'Sean Abbott', 'Cameron Green',
-      'Matthew Short', 'Josh Inglis', 'Nathan Ellis'
-    ];
-    
-    return {
-      id: `player${idx + 1}`,
-      label: australianFielders[idx] || `Player ${idx + 1}`,
-      short: shortName(australianFielders[idx] || `P${idx + 1}`),
-      x: finalX,
-      y: finalY,
-      color: ['#ff6b6b', '#ffd93d', '#6bcB77', '#a5d8ff', '#b39ddb', '#ffab91', '#ffe082', '#c8e6c9', '#c5cae9', '#ffccbc', '#d7ccc8'][idx % 11],
-      assignedPosition: pos.name,
-      role,
-    };
-  });
-
-  // derive display positions (clamped) from the initialOnField so regions
-  // appear where players are actually placed. Look up the initial player by
-  // assignedPosition to avoid index mismatches when positions > initial players.
-  // displayPositions are the canonical named regions (start empty)
+  // derive display positions (clamped) from the positions
   const displayPositions = positions.map((pos) => ({ ...pos }));
 
   // Indian batting team substitutes
@@ -143,7 +96,7 @@ export default function CricketField({ width = 900, height = 700 }: { width?: nu
 
   // start with an empty field — we'll place players from the upcoming list
   const [playersOnField, setPlayersOnField] = useState<Player[]>([]);
-  const [battingSubstitutes, setBattingSubstitutes] = useState<Player[]>(initialBattingSubstitutes);
+  const [battingSubstitutes] = useState<Player[]>(initialBattingSubstitutes);
   const [fieldingTeam, setFieldingTeam] = useState(initialFieldingTeam);
   const [fieldingSubstitutes, setFieldingSubstitutes] = useState<Player[]>(initialFieldingSubstitutes);
   const [selectedStandbyId, setSelectedStandbyId] = useState<string | null>(null);
@@ -190,7 +143,6 @@ export default function CricketField({ width = 900, height = 700 }: { width?: nu
     { id: 'batTeam10', name: 'Jasprit Bumrah' },
     { id: 'batTeam11', name: 'Mohammed Siraj' },
   ];
-  const [battingTeam] = useState(initialBattingTeam);
   // split batting list into upcoming, out (outs), substitutes (standby already exists)
   const [upcomingBatters, setUpcomingBatters] = useState(initialBattingTeam.map(b => ({ id: b.id, name: b.name })));
   const [outPlayers, setOutPlayers] = useState<{ id: string; name: string }[]>([]);

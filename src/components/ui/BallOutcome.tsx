@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import ScoreButton from './ScoreButton';
 import Dropdown from './Dropdown';
 import Input from './Input';
 
@@ -176,7 +175,7 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
               <Input
                 type="number"
                 value={additionalRuns}
-                onChange={(e) => setAdditionalRuns(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAdditionalRuns(e.target.value)}
                 placeholder="0"
                 min="0"
                 size="sm"
@@ -205,7 +204,7 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
               <Input
                 type="text"
                 value={fielder}
-                onChange={(e) => setFielder(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFielder(e.target.value)}
                 placeholder="Select fielder"
                 size="sm"
               />
@@ -223,7 +222,7 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
             <Input
               type="text"
               value={newBatsman}
-              onChange={(e) => setNewBatsman(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewBatsman(e.target.value)}
               placeholder="Select Player"
               size="sm"
             />
