@@ -29,9 +29,10 @@ interface FormProps {
   error?: string | null;
   footerSlot?: ReactNode;
   layout?: string;
+  containerClassName?: string;
 }
 
-const Form = ({ inputs, title, description, className, onSubmit, children, submitText = 'Submit', variant, spacing, loading, error, footerSlot, layout }: FormProps) => {
+const Form = ({ inputs, title, description, className, onSubmit, children, submitText = 'Submit', containerClassName, loading, error, footerSlot }: FormProps) => {
   const renderInput = (input: InputConfig, index: number) => {
     if (input.render) {
       return <div key={index}>{input.render()}</div>;
@@ -48,7 +49,7 @@ const Form = ({ inputs, title, description, className, onSubmit, children, submi
   };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-4', containerClassName, className)}>
       {title && (
         <div>
           <h3 className="text-lg font-semibold text-[var(--text)]">{title}</h3>

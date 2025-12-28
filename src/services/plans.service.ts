@@ -31,7 +31,8 @@ interface Plan {
 
 export class PlansService {
   static async getPlans(): Promise<PlansResponse> {
-    return apiClient.get<PlansResponse>('/admin/plans');
+    const response = await apiClient.get<PlansResponse>('/admin/plans');
+    return response.data || { status: 0, code: '', message: '', data: { plans: [] } };
   }
 }
 

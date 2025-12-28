@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import { type Player, type Team, type Match, type BallData, type Over, type Innings } from '../types/match';
+import { type MatchPlayer, type Team, type Match, type BallData, type Innings } from '../types/match';
 
 interface MatchContextType {
   match: Match | null;
@@ -17,8 +17,8 @@ interface MatchContextType {
   updateTeam: (teamId: string, teamData: Partial<Team>) => Promise<void>;
   
   // Player Management
-  addPlayer: (teamId: string, player: Omit<Player, 'id'>) => Promise<void>;
-  updatePlayer: (teamId: string, playerId: string, playerData: Partial<Player>) => Promise<void>;
+  addPlayer: (teamId: string, player: Omit<MatchPlayer, 'id'>) => Promise<void>;
+  updatePlayer: (teamId: string, playerId: string, playerData: Partial<MatchPlayer>) => Promise<void>;
 }
 
 const MatchContext = createContext<MatchContextType | undefined>(undefined);
@@ -61,7 +61,7 @@ export const MatchProvider = ({ children }: { children: ReactNode }) => {
           ? newMatch.team1.battingOrder[1] 
           : newMatch.team2.battingOrder[1]
       ],
-      currentBowler: ''
+      currentBowler: 0
     };
     
     setCurrentInnings(innings);
@@ -91,10 +91,10 @@ export const MatchProvider = ({ children }: { children: ReactNode }) => {
       // Update batsmen if someone is out
       if (ballData.newBatsman) {
         const batsmanOutIndex = updatedInnings.currentBatsmen.findIndex(
-          batsman => batsman === ballData.batsmanOut
+          batsman => batsman === Number(ballData.batsmanOut)
         );
         if (batsmanOutIndex !== -1) {
-          updatedInnings.currentBatsmen[batsmanOutIndex] = ballData.newBatsman;
+          updatedInnings.currentBatsmen[batsmanOutIndex] = Number(ballData.newBatsman);
         }
       }
     }
@@ -123,7 +123,7 @@ export const MatchProvider = ({ children }: { children: ReactNode }) => {
     // This would be an API call in real implementation
     const newTeam: Team = {
       ...team,
-      id: Date.now().toString(),
+      id: Date.now(),
     };
     
     saveToStorage(`team_${newTeam.id}`, newTeam);
@@ -136,9 +136,9 @@ export const MatchProvider = ({ children }: { children: ReactNode }) => {
       saveToStorage(`team_${teamId}`, updatedTeam);
       
       // Update match if this team is part of current match
-      if (match && (match.team1.id === teamId || match.team2.id === teamId)) {
+      if (match && (match.team1.id === Number(teamId) || match.team2.id === Number(teamId))) {
         const updatedMatch = { ...match };
-        if (match.team1.id === teamId) {
+        if (match.team1.id === Number(teamId)) {
           updatedMatch.team1 = updatedTeam;
         } else {
           updatedMatch.team2 = updatedTeam;
@@ -149,12 +149,12 @@ export const MatchProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addPlayer = async (teamId: string, player: Omit<Player, 'id'>) => {
+  const addPlayer = async (teamId: string, player: Omit<MatchPlayer, 'id'>) => {
     const team = loadFromStorage(`team_${teamId}`);
     if (team) {
-      const newPlayer: Player = {
+      const newPlayer: MatchPlayer = {
         ...player,
-        id: Date.now().toString(),
+        id: Date.now(),
       };
       
       team.players.push(newPlayer);
@@ -162,10 +162,10 @@ export const MatchProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updatePlayer = async (teamId: string, playerId: string, playerData: Partial<Player>) => {
+  const updatePlayer = async (teamId: string, playerId: string, playerData: Partial<MatchPlayer>) => {
     const team = loadFromStorage(`team_${teamId}`);
     if (team) {
-      const playerIndex = team.players.findIndex((p: Player) => p.id === playerId);
+      const playerIndex = team.players.findIndex((p: MatchPlayer) => p.id === Number(playerId));
       if (playerIndex !== -1) {
         team.players[playerIndex] = { ...team.players[playerIndex], ...playerData };
         saveToStorage(`team_${teamId}`, team);

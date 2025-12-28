@@ -1,5 +1,5 @@
 // File: src/context/ScoreContext.tsx
-import React, { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 interface BallEntry {
   value: string;
@@ -39,7 +39,7 @@ export const ScoreProvider = ({ children }: { children: ReactNode }) => {
   const [opponentTeam] = useState("Australia");
   const [battingScore, setBattingScore] = useState(145);
   const [battingWickets, setBattingWickets] = useState(3);
-  const [battingOvers, setBattingOvers] = useState(17.4);
+  const [battingOvers] = useState(17.4);
   const [totalOvers] = useState(20);
   const [chasing] = useState(true);
   const [targetScore] = useState(175);

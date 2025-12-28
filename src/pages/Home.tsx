@@ -1,19 +1,16 @@
 import { useState } from 'react';
-import { Gamepad2, Trophy } from 'lucide-react';
 import PremiumModal from '../components/ui/PremiumModal';
 import PaymentGateway from '../components/payment/PaymentGateway';
 import PlanCard from '../components/ui/PlanCard';
-import { useNavigate } from 'react-router-dom';
 import useSubscribe from '@/hooks/useSubscribe';
 import usePlans from '@/hooks/usePlans';
 
 const Home = () => {
-  const navigate = useNavigate();
   // Track which premium modal is open: 'classic', 'gold', or null
   const [openPremiumType, setOpenPremiumType] = useState<null | 'classic' | 'gold'>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentData, setPaymentData] = useState<any>(null);
-  const { subscribe, loading: subscribeLoading, error: subscribeError } = useSubscribe();
+  const { subscribe } = useSubscribe();
   const { plans, loading: plansLoading, error: plansError } = usePlans();
 
   // Classic (lower level) plan data
@@ -87,7 +84,7 @@ const Home = () => {
       // Don't close modal yet, let PaymentGateway handle it
     } else {
       alert(`Subscribe to ${planId} for $${amount}`);
-      subscribe({ role: "admin" });
+      subscribe({ userId: "user123", role: "admin" });
       setOpenPremiumType(null);
     }
   };

@@ -1,8 +1,7 @@
 // src/context/MatchContext.tsx
-import React, {
+import {
   createContext,
   useContext,
-  useEffect,
   useState,
   type ReactNode
 } from 'react';
@@ -12,6 +11,7 @@ import DefaultMatches from '@/utils/DefaultMatchesData.json';
 export interface TeamInfo {
   name: string;
   shortname: string;
+  short: string;
   img: string;
 }
 
@@ -39,6 +39,8 @@ export interface Match {
   hasSquad: boolean;
   matchStarted: boolean;
   matchEnded: boolean;
+  toss_winner_team_id?: number;
+  batting_first_team_id?: number;
 }
 
 
@@ -46,11 +48,12 @@ interface MatchContextType {
   matches: Match[];
   loading: boolean;
   error: string | null;
+  fetchMatches: () => Promise<void>;
 }
 
 const CurrentMatchContext = createContext<MatchContextType | undefined>(undefined);
 
-const getApiKey = () => process.env.REACT_APP_CRICKET_API_KEY;
+const getApiKey = () => import.meta.env.VITE_CRICKET_API_KEY;
 const API_URL = 'https://api.cricapi.com/v1/currentMatches';
 
 export const CurrentMatchProvider = ({ children }: { children: ReactNode }) => {
@@ -92,14 +95,8 @@ export const CurrentMatchProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  useEffect(() => {
-    fetchMatches();
-    const interval = setInterval(fetchMatches, 30000); // Live update every 30s
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <CurrentMatchContext.Provider value={{ matches, loading, error }}>
+    <CurrentMatchContext.Provider value={{ matches, loading, error, fetchMatches }}>
       {children}
     </CurrentMatchContext.Provider>
   );

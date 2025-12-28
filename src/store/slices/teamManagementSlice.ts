@@ -1,16 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { TeamData } from '../../types/team';
+import { Player } from '../../types/player';
 
-interface TeamData {
-    id: string | null;
-    name: string;
-    location: string;
-}
-
-interface PlayerData {
-    id: string | null;
-    name: string;
-    role: string;
-}
+type PlayerData = Player;
 
 interface TeamManagementState {
     team1: TeamData;
@@ -21,7 +13,7 @@ interface TeamManagementState {
 
 const loadState = (): TeamManagementState => {
     try {
-        const serializedState = localStorage.getItem('teamManagementState');
+        const serializedState = localStorage.getItem('matchSetup_state');
         if (serializedState === null) {
             return {
                 team1: { id: null, name: '', location: '' },
@@ -49,51 +41,59 @@ const teamManagementSlice = createSlice({
     reducers: {
         setTeam1: (state, action: PayloadAction<Partial<TeamData>>) => {
             state.team1 = { ...state.team1, ...action.payload };
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         setTeam2: (state, action: PayloadAction<Partial<TeamData>>) => {
             state.team2 = { ...state.team2, ...action.payload };
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         addTeam1Player: (state, action: PayloadAction<PlayerData>) => {
             state.team1Players.push(action.payload);
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         addTeam2Player: (state, action: PayloadAction<PlayerData>) => {
             state.team2Players.push(action.payload);
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         updateTeam1Player: (state, action: PayloadAction<{ index: number; player: PlayerData }>) => {
             state.team1Players[action.payload.index] = action.payload.player;
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         updateTeam2Player: (state, action: PayloadAction<{ index: number; player: PlayerData }>) => {
             state.team2Players[action.payload.index] = action.payload.player;
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         deleteTeam1Player: (state, action: PayloadAction<number>) => {
             state.team1Players.splice(action.payload, 1);
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         deleteTeam2Player: (state, action: PayloadAction<number>) => {
             state.team2Players.splice(action.payload, 1);
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         resetTeam1: (state) => {
             state.team1 = { id: null, name: '', location: '' };
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         resetTeam2: (state) => {
             state.team2 = { id: null, name: '', location: '' };
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         resetTeam1Players: (state) => {
             state.team1Players = [];
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
         resetTeam2Players: (state) => {
             state.team2Players = [];
-            localStorage.setItem('teamManagementState', JSON.stringify(state));
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
+        },
+        setTeam1Players: (state, action: PayloadAction<PlayerData[]>) => {
+            state.team1Players = action.payload;
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
+        },
+        setTeam2Players: (state, action: PayloadAction<PlayerData[]>) => {
+            state.team2Players = action.payload;
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
     },
 });
@@ -111,6 +111,8 @@ export const {
     resetTeam2,
     resetTeam1Players,
     resetTeam2Players,
+    setTeam1Players,
+    setTeam2Players,
 } = teamManagementSlice.actions;
 
 export default teamManagementSlice.reducer;

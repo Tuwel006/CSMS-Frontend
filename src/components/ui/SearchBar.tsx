@@ -36,7 +36,7 @@ const SearchBar = ({
           <Input
             type="text"
             value={searchValue}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
             placeholder={placeholder}
             autoFocus={isOpen}
             size="sm"

@@ -24,7 +24,7 @@ const PaymentContext = createContext<PaymentContextType | undefined>(undefined);
 export const PaymentProvider = ({ children }: { children: ReactNode }) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const processPayment = async (data: PaymentRequest): Promise<PaymentResult> => {
+  const processPayment = async (_data: PaymentRequest): Promise<PaymentResult> => {
     setIsProcessing(true);
     
     try {

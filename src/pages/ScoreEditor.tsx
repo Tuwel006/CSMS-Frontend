@@ -1,5 +1,5 @@
 // File: src/pages/ScoreEditorPage.tsx
-import ActionOverAccordion from "@/components/ui/ScoreEditorComponets/ActionOverAccordion";
+
 import BattingList from "@/components/ui/ScoreEditorComponets/BattingList";
 import OpponentTeam from "@/components/ui/ScoreEditorComponets/OpponentTeam";
 import OverTracker from "@/components/ui/ScoreEditorComponets/OverTracker";

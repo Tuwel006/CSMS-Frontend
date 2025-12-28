@@ -7,9 +7,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuth } = useAuth();
 
-  if (!isAuthenticated) {
+  if (!isAuth) {
     return (
       <PublicLayout>
         <Home />

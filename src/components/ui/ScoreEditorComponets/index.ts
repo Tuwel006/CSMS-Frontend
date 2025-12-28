@@ -10,3 +10,7 @@ export * from './BattingRow';
 export * from './OverBallBubble';
 export * from './ActionOverAccordion';
 export * from './BolowerList';
+export { default as CurrentScoreCard } from './CurrentScoreCard';
+export { default as BattingManagement } from './BattingManagement';
+export { default as OverManagement } from './OverManagement';
+export { default as BallOutcomeButtons } from './BallOutcomeButtons';

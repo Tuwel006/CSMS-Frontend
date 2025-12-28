@@ -87,8 +87,8 @@ const MatchSetup = () => {
     setTeams(savedTeams);
   }, []);
 
-  const getSelectedTeam1 = () => teams.find(t => t.id === team1Id) || null;
-  const getSelectedTeam2 = () => teams.find(t => t.id === team2Id) || null;
+  const getSelectedTeam1 = () => teams.find(t => t.id === Number(team1Id)) || null;
+  const getSelectedTeam2 = () => teams.find(t => t.id === Number(team2Id)) || null;
 
   const handleStartMatch = async () => {
     const team1 = getSelectedTeam1();
@@ -109,13 +109,13 @@ const MatchSetup = () => {
       return;
     }
 
-    const battingTeam = tossDecision === 'bat' ? tossWinner : (tossWinner === team1.id ? team2.id : team1.id);
+    const battingTeam = tossDecision === 'bat' ? Number(tossWinner) : (Number(tossWinner) === team1.id ? team2.id : team1.id);
     const bowlingTeam = battingTeam === team1.id ? team2.id : team1.id;
 
     await createMatch({
       team1,
       team2,
-      tossWinner,
+      tossWinner: Number(tossWinner),
       tossDecision,
       battingTeam,
       bowlingTeam,
@@ -190,7 +190,7 @@ const MatchSetup = () => {
             <Input
               type="number"
               value={overs.toString()}
-              onChange={(e) => setOvers(Number(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOvers(Number(e.target.value))}
               min="1"
               max="50"
             />
@@ -234,11 +234,11 @@ const MatchSetup = () => {
           <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
             <p><strong>Teams:</strong> {getSelectedTeam1()!.name} vs {getSelectedTeam2()!.name}</p>
             <p><strong>Format:</strong> {overs} Overs</p>
-            <p><strong>Toss:</strong> {teams.find(t => t.id === tossWinner)?.name} won and chose to {tossDecision} first</p>
+            <p><strong>Toss:</strong> {teams.find(t => t.id === Number(tossWinner))?.name} won and chose to {tossDecision} first</p>
             <p><strong>Batting First:</strong> {
               tossDecision === 'bat' 
-                ? teams.find(t => t.id === tossWinner)?.name
-                : teams.find(t => t.id !== tossWinner && (t.id === team1Id || t.id === team2Id))?.name
+                ? teams.find(t => t.id === Number(tossWinner))?.name
+                : teams.find(t => t.id !== Number(tossWinner) && (t.id === Number(team1Id) || t.id === Number(team2Id)))?.name
             }</p>
           </div>
         </div>

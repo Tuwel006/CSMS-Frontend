@@ -1,8 +1,11 @@
 // src/pages/MatchDetail.tsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import type { MatchDetails, Match, Innings, PlayerBat, PlayerBowl } from "../types/ViewerMatch";
-import defaultMatches from "../utils/DefaultMatchesData.json"; // fallback list
+import type { MatchDetails, Innings, PlayerBat, PlayerBowl } from "../types/ViewerMatch";
+import type { Match } from "../context/CurrentMatchContext";
+import defaultMatches from "../utils/DefaultMatchesData.json";
+import { MatchService } from "../services/matchService";
+import ScoreCard from "../components/ui/ScoreCard";
 
 const Spinner: React.FC = () => (
   <div className="flex items-center justify-center py-10">
@@ -11,28 +14,26 @@ const Spinner: React.FC = () => (
 );
 
 const buildFallbackDetails = (m: Match): MatchDetails => {
-  // create a minimal fallback innings list using match.score
   const scores = Array.isArray(m.score) ? m.score : [];
-  // map score entries to innings objects
-  const innings: Innings[] = scores.map((s: any) => ({
+  const innings: Innings[] = scores.map((s) => ({
     inningLabel: s.inning ?? "",
     runs: s.r,
     wickets: s.w,
     overs: s.o,
-    batting: [], // no player-level data in fallback
+    batting: [],
     bowling: [],
-    extras: s.extras ?? "",
+    extras: "",
   }));
 
   return {
     id: m.id,
-    match: m,
+    match: m as unknown as import("../types/ViewerMatch").Match,
     innings,
     scorecardUpdatedAt: new Date().toISOString(),
   };
 };
 
-const formatShort = (v?: any) => (v === undefined || v === null ? "-" : String(v));
+const formatShort = (v?: string | number) => (v === undefined || v === null ? "-" : String(v));
 
 const BattingTable: React.FC<{ rows: PlayerBat[] }> = ({ rows }) => (
   <table className="w-full text-sm">
@@ -96,12 +97,13 @@ const MatchDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [data, setData] = useState<MatchDetails | null>(null);
   const [activeInningIdx, setActiveInningIdx] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [loadingMatches, setLoadingMatches] = useState(true);
 
   useEffect(() => {
     if (!id) {
-      setErr("Invalid match id");
       setLoading(false);
       return;
     }
@@ -110,14 +112,12 @@ const MatchDetail: React.FC = () => {
       setLoading(true);
       setErr(null);
       try {
-        // try to fetch detailed JSON from public folder (optional)
         const resp = await fetch(`/data/matchDetails/${id}.json`);
         if (resp.ok) {
           const json = await resp.json();
           setData(json as MatchDetails);
           setActiveInningIdx(0);
         } else {
-          // fallback - find in defaultMatches (basic) and build details
           const found = (defaultMatches as Match[]).find((m) => m.id === id);
           if (found) {
             setData(buildFallbackDetails(found));
@@ -126,8 +126,7 @@ const MatchDetail: React.FC = () => {
             setErr("Match not found locally");
           }
         }
-      } catch (e) {
-        // fallback to defaultMatches
+      } catch {
         const found = (defaultMatches as Match[]).find((m) => m.id === id);
         if (found) {
           setData(buildFallbackDetails(found));
@@ -142,15 +141,85 @@ const MatchDetail: React.FC = () => {
     fetchDetails();
   }, [id]);
 
-  if (loading) return <Spinner />;
-  if (err) return <div className="p-6 text-center text-red-500">{err}</div>;
-  if (!data) return <div className="p-6 text-center text-gray-500">No data</div>;
+  useEffect(() => {
+    const fetchMatches = async () => {
+      setLoadingMatches(true);
+      const activeMatchToken = localStorage.getItem('activeMatchToken');
+      
+      if (!activeMatchToken) {
+        setMatches(defaultMatches as Match[]);
+        setLoadingMatches(false);
+        return;
+      }
 
-  const innings = data.innings ?? [];
+      try {
+        const response = await MatchService.getMatchScore(activeMatchToken);
+        if (response.data) {
+          const matchWithScore: Match = {
+            id: activeMatchToken,
+            name: 'Current Match',
+            matchType: response.data.meta.format,
+            status: response.data.meta.status,
+            venue: '',
+            date: '',
+            dateTimeGMT: response.data.meta.lastUpdated,
+            teams: [response.data.teams.A.name, response.data.teams.B.name],
+            teamInfo: [
+              { name: response.data.teams.A.name, short: response.data.teams.A.short, shortname: response.data.teams.A.short, img: '' },
+              { name: response.data.teams.B.name, short: response.data.teams.B.short, shortname: response.data.teams.B.short, img: '' }
+            ],
+            score: response.data.innings.map(inn => ({
+              r: inn.score.r,
+              w: inn.score.w,
+              o: inn.score.o,
+              inning: inn.battingTeam
+            })),
+            series_id: '',
+            fantasyEnabled: false,
+            bbbEnabled: false,
+            hasSquad: false,
+            matchStarted: true,
+            matchEnded: response.data.meta.status === 'completed'
+          };
+          setMatches([matchWithScore]);
+        } else {
+          setMatches(defaultMatches as Match[]);
+        }
+      } catch {
+        setMatches(defaultMatches as Match[]);
+      } finally {
+        setLoadingMatches(false);
+      }
+    };
+    fetchMatches();
+  }, []);
+
+  const innings = data?.innings ?? [];
   const active = innings[activeInningIdx];
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto">
+      {/* Match Cards Grid */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">Active Match</h2>
+        {loadingMatches ? (
+          <Spinner />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {matches.map((match) => (
+              <ScoreCard key={match.id} match={match} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Match Detail Section - Only show if id exists */}
+      {id && (
+        <>
+          {loading && <Spinner />}
+          {err && <div className="p-6 text-center text-red-500">{err}</div>}
+          {!loading && !err && data && (
+            <div className="border-t pt-8">
       <div className="flex items-start gap-6">
         {/* Left: main detail */}
         <div className="flex-1">
@@ -201,12 +270,12 @@ const MatchDetail: React.FC = () => {
 
                 <div className="mb-4">
                   <h3 className="text-sm font-medium mb-2">Batting</h3>
-                  <BattingTable rows={(active?.batting ?? []) as any} />
+                  <BattingTable rows={(active?.batting ?? []) as PlayerBat[]} />
                 </div>
 
                 <div>
                   <h3 className="text-sm font-medium mb-2">Bowling</h3>
-                  <BowlingTable rows={(active?.bowling ?? []) as any} />
+                  <BowlingTable rows={(active?.bowling ?? []) as PlayerBowl[]} />
                 </div>
               </div>
             </div>
@@ -232,6 +301,10 @@ const MatchDetail: React.FC = () => {
           </div>
         </div>
       </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

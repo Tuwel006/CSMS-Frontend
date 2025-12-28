@@ -18,14 +18,20 @@ interface Props {
  * - Inning subtitle is taken from score.inning (no static text).
  * - Fixed-width score column to avoid layout shift.
  */
+interface ScoreEntry {
+  r: string | number;
+  w: string | number;
+  o: string | number;
+  inning?: string;
+}
+
 const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debug = false }) => {
   const theme = typeof window !== "undefined" ? localStorage.getItem("theme") : "light";
   const isDark = theme === "dark";
 
-  const scores: any[] = Array.isArray(match.score) ? match.score : [];
+  const scores: ScoreEntry[] = Array.isArray(match.score) ? match.score : [];
 
-  if (debug && process.env.NODE_ENV === "development") {
-    // eslint-disable-next-line no-console
+  if (debug && import.meta.env.DEV) {
     console.log("[MatchCard debug] scores raw:", scores);
   }
 
@@ -58,13 +64,13 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
   // escape regex helper
   const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-  // Get score entries that belong to a team, prioritizing shortname exact token matches
-  const getTeamScores = (team?: { name?: string; shortname?: string }) => {
+  // Get score entries that belong to a team, prioritizing short exact token matches
+  const getTeamScores = (team?: { name?: string; short?: string }) => {
     if (!team) return [];
-    const short = team.shortname ?? "";
+    const short = team.short ?? "";
     const name = team.name ?? "";
 
-    // 1) shortname token matches
+    // 1) short token matches
     const byShort = scoredEntries.filter((s) => typeof s.inning === "string" && matchesInningForShort(s.inning, short));
     if (byShort.length > 0) return byShort;
 
@@ -76,7 +82,7 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
     // (this handles some APIs that use index ordering)
     if (scoredEntries.length >= 2 && match.teamInfo && match.teamInfo.length >= 2) {
       // try find which index this team occupies
-      const idx = match.teamInfo.findIndex((t: any) => normalize(t.shortname) === normalize(short) || normalize(t.name) === normalize(name));
+      const idx = match.teamInfo.findIndex((t) => normalize(t.short) === normalize(short) || normalize(t.name) === normalize(name));
       if (idx >= 0 && scoredEntries[idx]) return [scoredEntries[idx]];
     }
 
@@ -87,7 +93,7 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
   };
 
   // Format helpers
-  const formatFull = (s?: any) => {
+  const formatFull = (s?: ScoreEntry) => {
     if (!s) return "-";
     const r = s.r ?? "-";
     const w = s.w ?? "-";
@@ -95,14 +101,27 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
     return `${r}-${w} (${o})`;
   };
 
-  const inningLabel = (s?: any) => {
+  const inningLabel = (s?: ScoreEntry) => {
     if (!s?.inning) return "";
     return String(s.inning).trim();
   };
 
-  // Defensive team objects
-  const teamA = match.teamInfo?.[0] ?? { shortname: match.teams?.[0], name: match.teams?.[0], img: "" };
-  const teamB = match.teamInfo?.[1] ?? { shortname: match.teams?.[1], name: match.teams?.[1], img: "" };
+  // Defensive team objects - updated to match new API structure
+  const teamA = match.teamInfo?.[0] ?? { short: match.teams?.[0], name: match.teams?.[0], img: "" };
+  const teamB = match.teamInfo?.[1] ?? { short: match.teams?.[1], name: match.teams?.[1], img: "" };
+
+  // Toss information helper
+  const getTossInfo = () => {
+    if (!match.toss_winner_team_id || !match.batting_first_team_id) return null;
+    
+    const tossWinnerTeam = match.teamInfo?.find((_, index) => index + 1 === match.toss_winner_team_id) || 
+                          (match.toss_winner_team_id === 1 ? teamA : teamB);
+    
+    const decision = match.toss_winner_team_id === match.batting_first_team_id ? 'bat' : 'bowl';
+    return `${tossWinnerTeam?.short || 'Team'} won toss, chose to ${decision} first`;
+  };
+
+  const tossInfo = getTossInfo();
 
   // Get matched scores per team (strict)
   const teamAScores = getTeamScores(teamA);
@@ -138,9 +157,9 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
 
   // Test match: show up to last 2 innings (most recent last)
   const isTest = String(match.matchType ?? "").toLowerCase().includes("test");
-  const lastN = (arr: any[], n: number) => (arr.length <= n ? arr.slice() : arr.slice(arr.length - n));
+  const lastN = (arr: ScoreEntry[], n: number) => (arr.length <= n ? arr.slice() : arr.slice(arr.length - n));
 
-  const renderForTeam = (team: any, matched: any[]) => {
+  const renderForTeam = (_team: { name?: string; short?: string; img?: string }, matched: ScoreEntry[]) => {
     const use = isTest ? lastN(matched, 2) : matched.length ? [matched[matched.length - 1]] : [];
     return use;
   };
@@ -148,13 +167,12 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
   const renderA = renderForTeam(teamA, displayA);
   const renderB = renderForTeam(teamB, displayB);
 
-  if (debug && process.env.NODE_ENV === "development") {
-    // eslint-disable-next-line no-console
-    console.log("[MatchCard debug] A matches:", teamA.shortname, renderA, "B matches:", teamB.shortname, renderB);
+  if (debug && import.meta.env.DEV) {
+    console.log("[MatchCard debug] A matches:", teamA.short, renderA, "B matches:", teamB.short, renderB);
   }
 
   return (
-    <Link to={`/match/${match.id}`} target="_blank" rel="noopener noreferrer"
+    <Link to={`/matches/match/${match.id}/score`} target="_blank" rel="noopener noreferrer"
       className={`relative transform transition-transform duration-200 hover:scale-[1.03] ${isDark ? "text-gray-200" : "text-gray-800"}`}
       style={{ width: `${widthPx}px` }}
     >
@@ -166,19 +184,24 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
       </div>
 
       <div
-        className="rounded-sm overflow-hidden border p-2"
+        className="rounded overflow-hidden border p-2"
         style={{
           height: `${heightPx}px`,
           boxSizing: "border-box",
           background: isDark ? "#0b1220" : "#ffffff",
           borderColor: isDark ? "#374151" : "#e5e7eb",
-          boxShadow: isDark ? "0 10px 25px rgba(2,6,23,0.6)" : "0 40px 40px rgba(13,38,59,0.08)",
+          boxShadow: isDark ? "0 4px 12px rgba(2,6,23,0.4)" : "0 2px 8px rgba(13,38,59,0.08)",
         }}
       >
         <div className="mb-1">
           <div className="text-[12px] font-semibold leading-tight truncate" title={match.name}>
             {match.name}
           </div>
+          {tossInfo && (
+            <div className="text-[10px] text-gray-500 leading-tight truncate mt-0.5" title={tossInfo}>
+              {tossInfo}
+            </div>
+          )}
         </div>
 
         <div className="grid gap-2" style={{ gridTemplateRows: "1fr 1fr", height: `calc(${heightPx}px - 56px)` }}>
@@ -198,7 +221,7 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
                 )}
 
                 <div className="min-w-0">
-                  <div className="text-[11px] font-medium truncate">{row.team.shortname ?? row.team.name}</div>
+                  <div className="text-[11px] font-medium truncate">{row.team.short ?? row.team.name}</div>
                   <div className="text-[10px] text-gray-400 truncate" title={row.rows.length ? inningLabel(row.rows[row.rows.length - 1]) : ""}>
                     {row.rows.length ? inningLabel(row.rows[row.rows.length - 1]) : ""}
                   </div>
@@ -210,7 +233,7 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
                 {row.rows && row.rows.length > 1 ? (
                   // stacked (older first, latest last)
                   <div className="flex flex-col items-end gap-0.5">
-                    {row.rows.map((s: any, idx: number) => (
+                    {row.rows.map((s: ScoreEntry, idx: number) => (
                       <div key={idx} className="text-[11px] leading-none font-medium" title={formatFull(s)}>
                         {formatFull(s)}
                       </div>
@@ -234,8 +257,7 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
             {match.status}
           </div>
           <div className="flex gap-2 text-[11px] text-gray-400">
-            <button className="px-2 py-0.5 rounded hover:underline">POINTS</button>
-            <button className="px-2 py-0.5 rounded hover:underline">SCHEDULE</button>
+            <span className="px-2 py-0.5 rounded hover:underline cursor-pointer">VIEW</span>
           </div>
         </div>
       </div>

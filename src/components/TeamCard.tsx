@@ -1,30 +1,29 @@
 import { useState } from 'react';
 import { Edit2, Trash2, ChevronDown, ChevronUp, Users } from 'lucide-react';
-
-interface Player {
-    id: string | null;
-    name: string;
-    role: string;
-}
+import { Player } from '../types/player';
 
 interface TeamCardProps {
     teamNumber: number;
     name: string;
-    location: string;
-    teamId: string | null;
+    short_name?: string;
+    teamId: number | null | string;
     players: Player[];
-    onEdit: () => void;
-    onDelete: () => void;
+    onEdit?: () => void;
+    onDelete?: () => void;
+    showReady?: boolean;
+    isLive?: boolean;
 }
 
 const TeamCard = ({
     teamNumber,
     name,
-    location,
+    short_name,
     teamId,
     players,
     onEdit,
     onDelete,
+    showReady = false,
+    isLive = false,
 }: TeamCardProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -38,33 +37,51 @@ const TeamCard = ({
                     </div>
                     <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-base text-[var(--text)] truncate">{name}</h4>
-                        <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-600 dark:text-gray-400">
-                            <span className="truncate">{location}</span>
+                        <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500 dark:text-gray-500">
+                            <span className="truncate">{short_name}</span>
                             {teamId && (
                                 <>
                                     <span className="text-gray-400">•</span>
                                     <span>ID: {teamId}</span>
                                 </>
                             )}
+                            {isLive && (
+                                <span className="flex items-center gap-1 bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded ml-1 animate-pulse">
+                                    <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                                    LIVE
+                                </span>
+                            )}
+                            {showReady && !isLive && (
+                                <span className="flex items-center gap-1 bg-green-500 text-white text-xs font-medium px-2 py-0.5 rounded ml-1">
+                                    <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                                    Ready
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-1 ml-2">
-                    <button
-                        onClick={onEdit}
-                        className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                        title="Edit team"
-                    >
-                        <Edit2 size={16} />
-                    </button>
-                    <button
-                        onClick={onDelete}
-                        className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                        title="Delete team"
-                    >
-                        <Trash2 size={16} />
-                    </button>
-                </div>
+                {!isLive && (
+                    <div className="flex gap-1 ml-2">
+                        {onEdit && (
+                            <button
+                                onClick={onEdit}
+                                className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                                title="Edit team"
+                            >
+                                <Edit2 size={16} />
+                            </button>
+                        )}
+                        {onDelete && (
+                            <button
+                                onClick={onDelete}
+                                className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                                title="Delete team"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Players Section */}
@@ -82,14 +99,14 @@ const TeamCard = ({
 
                 {/* Collapsed View - Show first player */}
                 {!isExpanded && players.length > 0 && (
-                    <div className="mt-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded text-xs text-gray-600 dark:text-gray-400">
-                        <span className="font-medium text-gray-700 dark:text-gray-300">{players[0].name}</span>
+                    <div className="mt-2 px-3 py-2 rounded text-xs" style={{ backgroundColor: 'var(--hover-bg)', color: 'var(--text)' }}>
+                        <span className="font-medium">{players[0].name}</span>
                         {players[0].id && <span className="ml-2">#{players[0].id}</span>}
                         <span className="ml-2 px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded capitalize">
                             {players[0].role}
                         </span>
                         {players.length > 1 && (
-                            <span className="ml-2 text-gray-500">+{players.length - 1} more</span>
+                            <span className="ml-2 text-gray-500 dark:text-gray-400">+{players.length - 1} more</span>
                         )}
                     </div>
                 )}
@@ -105,13 +122,14 @@ const TeamCard = ({
                             players.map((player, index) => (
                                 <div
                                     key={index}
-                                    className="flex items-center gap-3 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded text-xs"
+                                    className="flex items-center gap-3 px-3 py-2 rounded text-xs"
+                                    style={{ backgroundColor: 'var(--hover-bg)', color: 'var(--text)' }}
                                 >
-                                    <span className="font-medium text-gray-700 dark:text-gray-300 truncate flex-1">
+                                    <span className="font-medium truncate flex-1">
                                         {player.name}
                                     </span>
                                     {player.id && (
-                                        <span className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
+                                        <span className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded">
                                             #{player.id}
                                         </span>
                                     )}

@@ -1,7 +1,7 @@
 interface BallData {
-  value: string | number;
-  type: 'run' | 'wide' | 'noBall' | 'wicket' | 'bye' | 'legBye';
-  isCurrentBall?: boolean;
+  b: number;
+  t: string;
+  r: number;
 }
 
 interface OverData {
@@ -18,28 +18,23 @@ const BallHistory = ({ overs }: BallHistoryProps) => {
   const getBallStyle = (ball: BallData) => {
     const baseStyle = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-all";
     
-    if (ball.isCurrentBall) {
-      return `${baseStyle} border-blue-500 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 animate-pulse`;
-    }
-    
-    switch (ball.type) {
-      case 'run':
-        const runs = Number(ball.value);
-        if (runs === 4) return `${baseStyle} border-green-500 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300`;
-        if (runs === 6) return `${baseStyle} border-green-600 bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200`;
+    switch (ball.t) {
+      case 'NORMAL':
+        if (ball.r === 4) return `${baseStyle} border-green-500 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300`;
+        if (ball.r === 6) return `${baseStyle} border-green-600 bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200`;
         return `${baseStyle} border-gray-400 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300`;
       
-      case 'wicket':
+      case 'WICKET':
         return `${baseStyle} border-red-500 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300`;
       
-      case 'wide':
+      case 'WIDE':
         return `${baseStyle} border-orange-500 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300`;
       
-      case 'noBall':
+      case 'NO_BALL':
         return `${baseStyle} border-purple-500 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300`;
       
-      case 'bye':
-      case 'legBye':
+      case 'BYE':
+      case 'LEG_BYE':
         return `${baseStyle} border-yellow-500 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300`;
       
       default:
@@ -48,10 +43,12 @@ const BallHistory = ({ overs }: BallHistoryProps) => {
   };
 
   const formatBallValue = (ball: BallData) => {
-    if (ball.type === 'wicket') return 'W';
-    if (ball.type === 'wide') return 'Wd';
-    if (ball.type === 'noBall') return 'Nb';
-    return ball.value.toString();
+    if (ball.t === 'WICKET') return 'W';
+    if (ball.t === 'WIDE') return 'Wd';
+    if (ball.t === 'NO_BALL') return 'Nb';
+    if (ball.t === 'BYE') return 'B';
+    if (ball.t === 'LEG_BYE') return 'Lb';
+    return ball.r.toString();
   };
 
   return (
@@ -73,9 +70,9 @@ const BallHistory = ({ overs }: BallHistoryProps) => {
             <div className="flex gap-2 flex-wrap">
               {over.balls.map((ball, index) => (
                 <div
-                  key={index}
+                  key={`ball-${over.overNumber}-${index}`}
                   className={getBallStyle(ball)}
-                  title={`Ball ${index + 1}: ${ball.type} - ${ball.value}`}
+                  title={`Ball ${ball.b}: ${ball.t} - ${ball.r} runs`}
                 >
                   {formatBallValue(ball)}
                 </div>
@@ -83,14 +80,12 @@ const BallHistory = ({ overs }: BallHistoryProps) => {
               
               {/* Show remaining balls in current over */}
               {over.balls.length < 6 && (
-                <>
-                  {Array.from({ length: 6 - over.balls.length }).map((_, index) => (
-                    <div
-                      key={`empty-${index}`}
-                      className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600"
-                    />
-                  ))}
-                </>
+                Array.from({ length: 6 - over.balls.length }).map((_, index) => (
+                  <div
+                    key={`empty-${over.overNumber}-${index}`}
+                    className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600"
+                  />
+                ))
               )}
             </div>
           </div>

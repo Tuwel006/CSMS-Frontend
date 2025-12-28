@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import ScoreButton from './ScoreButton';
 import Dropdown from './Dropdown';
 import Input from './Input';
 
@@ -112,34 +111,47 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
       <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Ball Outcome</h3>
       
       {/* Run Selection */}
-      <div className="mb-4">
-        <div className="grid grid-cols-3 sm:flex gap-3">
+      <div className="mb-6">
+        <label className="block text-sm font-semibold text-[var(--text)] mb-3">Runs</label>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
           {runOptions.map((run) => (
-            <ScoreButton
+            <button
               key={run}
-              value={run}
-              isSelected={selectedRuns === run}
               onClick={() => setSelectedRuns(run)}
-              variant={run === 4 || run === 6 ? 'success' : 'primary'}
               disabled={isRunButtonDisabled(run)}
-            />
+              className={`h-14 sm:h-16 rounded-xl font-bold text-xl sm:text-2xl transition-all shadow-md hover:shadow-lg transform hover:scale-105 ${
+                selectedRuns === run
+                  ? run === 4 || run === 6
+                    ? 'bg-gradient-to-br from-green-500 to-emerald-600 text-white scale-105'
+                    : 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white scale-105'
+                  : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500'
+              } disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+            >
+              {run}
+            </button>
           ))}
         </div>
       </div>
 
       {/* Ball Type Selection */}
-      <div className="mb-4">
-        <div className="grid grid-cols-2 sm:flex gap-3">
+      <div className="mb-6">
+        <label className="block text-sm font-semibold text-[var(--text)] mb-3">Extras & Wicket</label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
           {ballTypeOptions.map((type) => (
-            <ScoreButton
+            <button
               key={type}
-              value={type}
-              isSelected={ballType === type}
               onClick={() => handleBallTypeSelect(type)}
-              variant={type === 'Wicket' ? 'danger' : 'secondary'}
-              size="sm"
               disabled={isBallTypeDisabled(type)}
-            />
+              className={`py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold text-xs sm:text-sm transition-all shadow-sm hover:shadow-md ${
+                ballType === type
+                  ? type === 'Wicket'
+                    ? 'bg-gradient-to-br from-red-500 to-red-600 text-white'
+                    : 'bg-gradient-to-br from-orange-500 to-amber-600 text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:border-orange-400 dark:hover:border-orange-500'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {type}
+            </button>
           ))}
         </div>
       </div>
@@ -163,7 +175,7 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
               <Input
                 type="number"
                 value={additionalRuns}
-                onChange={(e) => setAdditionalRuns(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAdditionalRuns(e.target.value)}
                 placeholder="0"
                 min="0"
                 size="sm"
@@ -192,7 +204,7 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
               <Input
                 type="text"
                 value={fielder}
-                onChange={(e) => setFielder(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFielder(e.target.value)}
                 placeholder="Select fielder"
                 size="sm"
               />
@@ -210,7 +222,7 @@ const BallOutcome = ({ onBallUpdate }: BallOutcomeProps) => {
             <Input
               type="text"
               value={newBatsman}
-              onChange={(e) => setNewBatsman(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewBatsman(e.target.value)}
               placeholder="Select Player"
               size="sm"
             />

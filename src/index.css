@@ -1,6 +1,11 @@
 @import "tailwindcss";
-body {
-  transition: background-color 0.3s, color 0.3s;
+@config "../tailwind.config.ts";
+
+
+html,
+body,
+#root {
+  min-height: 100vh;
 }
 
 button {
@@ -9,19 +14,37 @@ button {
 
 /* Theme Variables */
 body.light {
-  --bg: #f8f9fa;
+  --bg: #dfeeec;
   --text: #1f2937;
   --text-secondary: #6b7280;
-  --card-bg: #ffffff;
-  --card-border: #e5e7eb;
+  --card-bg: #f4ffff;
+  --card-border: #dee4fa;
   --hover-bg: #f3f4f6;
+  --card-highlight-bg: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
+  --card-highlight-border: #bfdbfe;
+  --header-bg: #f4ffff;
+  --header-text: #1f2937;
 }
 
 body.dark {
-  --bg: #111827;
+  --bg: #110f2a;
   --text: #f9fafb;
   --text-secondary: #9ca3af;
-  --card-bg: #1f2937;
-  --card-border: #374151;
-  --hover-bg: #1f2937;
+  --card-bg: #17283b;
+  --card-border: #334155;
+  --hover-bg: #335055;
+  --card-highlight-bg: linear-gradient(to bottom right, #1e3a8a, #312e81);
+  --card-highlight-border: #3730a3;
+  --header-bg: #17283b;
+  --header-text: #ffffff;
+}
+
+body.light {
+  background-color: #e0e7ff;
+  color: #1f2937;
+}
+
+body.dark {
+  background-color: #0f172a;
+  color: #f9fafb;
 }

@@ -86,8 +86,8 @@ const MultiInput = forwardRef<HTMLInputElement | HTMLTextAreaElement | HTMLSelec
       sizeClasses[size],
       variantClasses[variant],
       errorClasses,
-      leftIcon && 'pl-10',
-      rightIcon && 'pr-10',
+      leftIcon && 'pl-10' || '',
+      rightIcon && 'pr-10' || '',
       disabled && 'opacity-50 cursor-not-allowed',
       className
     );

@@ -3,13 +3,16 @@ import Input from './Input';
 
 interface InputField {
   key: string;
-  type: 'text';
+  type: 'text' | 'select' | 'number';
   label: string;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
   className?: string;
   width?: string;
+  validation?: {
+    required?: boolean;
+  };
 }
 
 interface DropdownConfig {
@@ -125,7 +128,7 @@ const SearchableForm = ({ title, inputs, values, onValueChange, dropdowns = [], 
               label={input.label}
               placeholder={input.placeholder}
               value={values[input.key] || ''}
-              onChange={(value) => handleInputChange(input.key, value)}
+              onChange={(value: string) => handleInputChange(input.key, value)}
               required={input.required}
               disabled={input.disabled}
             />

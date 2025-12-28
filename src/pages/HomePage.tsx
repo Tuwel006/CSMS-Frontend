@@ -9,7 +9,7 @@ const HomePage = () => {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentData, setPaymentData] = useState<any>(null);
-  const { mutate, isLoading: isRoleUpdating } = useRoleUpdate();
+  const { mutate } = useRoleUpdate();
 
   const freeTrialData = {
     title: "Create 5 Matches Free!",
@@ -74,22 +74,7 @@ const HomePage = () => {
     console.log('Subscribe clicked:', planId, amount);
     
     if (planId === 'free-matches' && amount === 0) {
-      mutate(
-        { role: 'admin' },
-        {
-          onSuccess: () => {
-            setShowFreeModal(false);
-            // If using react-router-dom v6+, use navigate
-            if (typeof window !== 'undefined') {
-              window.location.href = '/dashboard.domain/';
-            }
-          },
-          onError: () => {
-            setShowFreeModal(false);
-            alert('Failed to grant free matches. Please try again.');
-          }
-        }
-      );
+      mutate({ userId: "user123", role: 'admin' });
       return;
     }
     

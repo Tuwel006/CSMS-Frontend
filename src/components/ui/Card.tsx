@@ -1,6 +1,5 @@
 import { type ReactNode } from 'react';
 import { cn } from '../../lib/utils';
-import { useTheme } from '../../context/ThemeContext';
 
 interface CardProps {
   children: ReactNode;
@@ -19,8 +18,6 @@ const Card = ({
   hover = false,
   onClick 
 }: CardProps) => {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
 
   const sizeClasses = {
     sm: 'p-3',
@@ -30,18 +27,10 @@ const Card = ({
   };
 
   const variantClasses = {
-    default: isDark 
-      ? 'bg-gray-800 border border-gray-700' 
-      : 'bg-white border border-gray-200',
-    outlined: isDark
-      ? 'bg-transparent border-2 border-gray-600'
-      : 'bg-transparent border-2 border-gray-300',
-    elevated: isDark
-      ? 'bg-gray-800 shadow-lg border-0'
-      : 'bg-white shadow-lg border-0',
-    gradient: isDark
-      ? 'bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700'
-      : 'bg-gradient-to-br from-white to-gray-50 border border-gray-100'
+    default: 'bg-[var(--card-bg)] border border-[var(--card-border)] shadow-md',
+    outlined: 'bg-transparent border-2 border-[var(--card-border)] shadow-sm',
+    elevated: 'bg-[var(--card-bg)] shadow-lg border border-[var(--card-border)]',
+    gradient: 'bg-[var(--card-bg)] border border-[var(--card-border)] shadow-md'
   };
 
   const hoverClasses = hover ? 'hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer' : '';

@@ -131,7 +131,7 @@ const PaymentGateway = ({ paymentData, onSuccess, onError, onCancel }: PaymentGa
             type="text"
             label="Card Number"
             value={cardNumber}
-            onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardNumber(formatCardNumber(e.target.value))}
             placeholder="1234 5678 9012 3456"
             maxLength={19}
             leftIcon={<CreditCard size={20} />}
@@ -143,7 +143,7 @@ const PaymentGateway = ({ paymentData, onSuccess, onError, onCancel }: PaymentGa
               type="text"
               label="Expiry Date"
               value={expiryDate}
-              onChange={(e) => setExpiryDate(formatExpiryDate(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setExpiryDate(formatExpiryDate(e.target.value))}
               placeholder="MM/YY"
               maxLength={5}
               required
@@ -152,7 +152,7 @@ const PaymentGateway = ({ paymentData, onSuccess, onError, onCancel }: PaymentGa
               type="text"
               label="CVV"
               value={cvv}
-              onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').substring(0, 4))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCvv(e.target.value.replace(/\D/g, '').substring(0, 4))}
               placeholder="123"
               maxLength={4}
               required
@@ -163,7 +163,7 @@ const PaymentGateway = ({ paymentData, onSuccess, onError, onCancel }: PaymentGa
             type="text"
             label="Cardholder Name"
             value={cardName}
-            onChange={(e) => setCardName(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCardName(e.target.value)}
             placeholder="John Doe"
             required
           />

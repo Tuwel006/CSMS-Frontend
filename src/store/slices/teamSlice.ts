@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Team, Player } from '../../types/match';
+import type { Team } from '../../types/match';
+import type { Player } from '../../types/player';
 
 interface TeamState {
   teams: { [key: string]: Team };
@@ -31,7 +32,7 @@ const teamSlice = createSlice({
       const { name, value } = action.payload;
       if (!state.teams[name]) {
         state.teams[name] = {
-          id: name,
+          id: Date.now(),
           name: value,
           players: [],
           playing11: [],
@@ -48,9 +49,21 @@ const teamSlice = createSlice({
       if (state.teams[teamName]) {
         const existingIndex = state.teams[teamName].players.findIndex(p => p.id === player.id);
         if (existingIndex >= 0) {
-          state.teams[teamName].players[existingIndex] = player;
+          if (player.id !== null) {
+            state.teams[teamName].players[existingIndex] = { 
+              ...player, 
+              id: player.id,
+              role: player.role as 'batsman' | 'bowler' | 'allrounder' | 'wicketkeeper'
+            };
+          }
         } else {
-          state.teams[teamName].players.push(player);
+          if (player.id !== null) {
+            state.teams[teamName].players.push({ 
+              ...player, 
+              id: player.id,
+              role: player.role as 'batsman' | 'bowler' | 'allrounder' | 'wicketkeeper'
+            });
+          }
         }
         saveToStorage(state.teams);
       }
@@ -73,9 +86,9 @@ const teamSlice = createSlice({
     deletePlayer: (state, action: PayloadAction<{ teamName: string; playerId: string }>) => {
       const { teamName, playerId } = action.payload;
       if (state.teams[teamName]) {
-        state.teams[teamName].players = state.teams[teamName].players.filter(p => p.id !== playerId);
-        state.teams[teamName].playing11 = state.teams[teamName].playing11.filter(id => id !== playerId);
-        state.teams[teamName].battingOrder = state.teams[teamName].battingOrder.filter(id => id !== playerId);
+        state.teams[teamName].players = state.teams[teamName].players.filter(p => p.id !== null && p.id !== Number(playerId));
+        state.teams[teamName].playing11 = state.teams[teamName].playing11.filter(id => id !== Number(playerId));
+        state.teams[teamName].battingOrder = state.teams[teamName].battingOrder.filter(id => id !== Number(playerId));
         saveToStorage(state.teams);
       }
     },

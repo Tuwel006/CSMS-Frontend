@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Gamepad2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
-import useAuthToken from '../hooks/useAuthToken';
 import Input from '../components/ui/Input';
 import Form from '../components/ui/Form';
 
@@ -13,7 +12,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const { login, signup, loading, error } = useAuth();
-  const { isAuth } = useAuthToken();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -94,7 +92,7 @@ const Login = () => {
                 type="text"
                 label="Username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
                 placeholder="Enter your username"
                 leftIcon={<Mail size={20} />}
                 required
@@ -105,7 +103,7 @@ const Login = () => {
               type="email"
               label="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               placeholder="Enter your email"
               leftIcon={<Mail size={20} />}
               required
@@ -115,7 +113,7 @@ const Login = () => {
               type={showPassword ? 'text' : 'password'}
               label="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               placeholder="Enter your password"
               leftIcon={<Lock size={20} />}
               required
