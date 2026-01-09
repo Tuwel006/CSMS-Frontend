@@ -93,3 +93,15 @@ export interface MatchScoreResponse {
   };
   innings: Innings[];
 }
+
+export interface RecordBallPayload {
+    matchId: string;
+    inningsId: number;
+    ball_type: 'WIDE' | 'NO_BALL' | 'BYE' | 'LEG_BYE' | 'NORMAL';
+    RUNS: number;
+    batsmanId?: number;
+    bowlerId?: number;
+    is_wicket?: boolean;
+    is_boundary?: boolean;
+    extras_enabled?: boolean;
+}

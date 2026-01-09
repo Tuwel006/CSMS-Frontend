@@ -69,7 +69,7 @@ export const MatchService = {
     },
 
     // Record Ball
-    recordBall: async (matchId: string, payload: any): Promise<ApiResponse<any>> => {
+    recordBall: async ({matchId, ...payload} : RecordBallPayload): Promise<ApiResponse<any>> => {
         return apiClient.post(`matches/${matchId}/record-ball`, payload);
     },
 
@@ -91,3 +91,4 @@ export const MatchService = {
         });
     }
 };
+
