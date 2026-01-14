@@ -43,7 +43,7 @@ const PublicLayout = ({ children }: PublicLayoutProps = {}) => {
         isAuth={isAuth}
         onLogout={handleLogout}
       />
-      <main className="p-4">
+      <main className="p-2 sm:p-4">
         {children || <Outlet />}
       </main>
     </div>

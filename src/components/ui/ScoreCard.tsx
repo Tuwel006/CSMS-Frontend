@@ -213,11 +213,11 @@ const MatchCard: React.FC<Props> = ({ match, widthPx = 260, heightPx = 150, debu
                   <img
                     src={row.team.img}
                     alt={row.team.name}
-                    className="w-4 h-4 rounded-sm object-cover flex-shrink-0"
+                    className="w-4 h-4 rounded-xs object-cover flex-shrink-0"
                     onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
                   />
                 ) : (
-                  <div className="w-4 h-4 bg-gray-300 rounded-sm flex-shrink-0" />
+                  <div className="w-4 h-4 bg-gray-300 rounded-xs flex-shrink-0" />
                 )}
 
                 <div className="min-w-0">

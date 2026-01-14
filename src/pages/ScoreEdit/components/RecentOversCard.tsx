@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { ChevronDown } from 'lucide-react';
 import Button from '../../../components/ui/Button';
+import { Box, Stack } from '../../../components/ui/lib';
 
 interface RecentOversCardProps {
   currentInnings: any;
@@ -14,9 +15,7 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, fet
   const currentOver = currentInnings?.currentOver;
   const bowling = currentInnings?.bowling || [];
   const currentBowler = bowling.find((b: any) => b.id === currentOver?.bowlerId);
-  const bowlingTeam = teams?.[currentInnings?.bowlingTeam];
   const isOverComplete = currentOver?.balls?.length === 6;
-  const bowlersWithOvers = bowling.filter((b: any) => parseFloat(b.o) > 0);
   
   const handleBowlerClick = useCallback(() => {
     fetchBowlingTeam();
@@ -29,88 +28,69 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, fet
   };
   
   return (
-    <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-bold text-[var(--text)]">Recent Overs</h3>
-        <span className="text-xs px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded font-medium">
+    <Box p="sm" bg="card" border rounded="sm">
+      <Stack direction="row" align="center" justify="between" className="mb-2">
+        <h3 className="text-xs font-bold text-[var(--text)] uppercase tracking-wide">Bowling</h3>
+        <span className="text-[9px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded font-medium">
           {currentInnings?.bowlingTeam ? 
             (teams?.[currentInnings.bowlingTeam]?.short || teams?.[currentInnings.bowlingTeam]?.name || currentInnings.bowlingTeam) 
-            : 'Team'} Bowling
+            : 'Team'}
         </span>
-      </div>
+      </Stack>
       
-      <div className="mb-2 relative">
+      <div className="mb-2">
         {currentBowler && !isOverComplete ? (
-          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-300 dark:border-orange-700 rounded p-2">
-            <div className="flex items-center justify-between">
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300 dark:border-emerald-700 rounded-xs p-1.5">
+            <Stack direction="row" justify="between" align="center">
               <div>
-                <p className="text-[10px] text-gray-600 dark:text-gray-400 mb-0.5">BOWLING NOW</p>
-                <p className="font-bold text-xs text-[var(--text)]">{currentBowler.n}</p>
+                <p className="text-[8px] text-gray-600 dark:text-gray-400 uppercase tracking-wide">Now Bowling</p>
+                <p className="font-bold text-[10px] text-[var(--text)]">{currentBowler.n}</p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-bold text-[var(--text)]">{currentBowler.o}-{currentBowler.m || 0}-{currentBowler.r}-{currentBowler.w}</p>
-                <p className="text-[10px] text-gray-600 dark:text-gray-400">ER: {currentBowler.eco}</p>
+                <p className="text-[10px] font-bold text-[var(--text)]">{currentBowler.o}-{currentBowler.r}-{currentBowler.w}</p>
+                <p className="text-[8px] text-gray-600 dark:text-gray-400">ER: {currentBowler.eco}</p>
               </div>
-            </div>
+            </Stack>
           </div>
         ) : (
           <Button
             onClick={handleBowlerClick}
             variant="outline"
             size="sm"
-            className="w-full border-dashed border-orange-400 dark:border-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-600 dark:text-orange-400 h-auto py-2"
-            rightIcon={<ChevronDown size={14} />}
+            className="w-full border-dashed border-emerald-400 dark:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[10px] h-8"
+            rightIcon={<ChevronDown size={10} />}
           >
-            <div className="text-left">
-              <p className="text-[10px]">{isOverComplete ? 'Over Complete' : 'Select Bowler'}</p>
-              <p className="font-bold text-xs">{isOverComplete ? 'Choose next bowler' : `Choose from ${bowlingTeam?.name}`}</p>
-            </div>
+            {isOverComplete ? 'Over Complete' : 'Select Bowler'}
           </Button>
         )}
       </div>
       
-      {bowlersWithOvers.length > 0 && (
-        <div className="mb-2">
-          <p className="text-[10px] text-[var(--text-secondary)] mb-1">BOWLERS</p>
-          <div className="space-y-1 max-h-[4.5rem] overflow-y-auto">
-            {bowlersWithOvers.map((bowler: any) => (
-              <div key={bowler.id} className="bg-gray-50 dark:bg-gray-800 rounded p-1.5 flex items-center justify-between">
-                <span className="text-xs font-medium text-[var(--text)] truncate">{bowler.n}</span>
-                <span className="text-xs text-[var(--text-secondary)]">{bowler.o}-{bowler.m || 0}-{bowler.r}-{bowler.w}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      
       <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <p className="text-[10px] text-[var(--text-secondary)]">Current Over {currentOver?.o || 1}</p>
+        <Stack direction="row" justify="between" align="center" className="mb-1">
+          <p className="text-[8px] text-[var(--text-secondary)] uppercase tracking-wide">Over {currentOver?.o || 1}</p>
           {isOverComplete && (
-            <Button
+            <button
               onClick={onOverComplete}
-              variant="primary"
-              size="sm"
-              className="text-[10px] px-2 py-0.5 bg-green-500 hover:bg-green-600"
+              className="text-[8px] px-1.5 py-0.5 bg-green-500 hover:bg-green-600 text-white rounded-xs font-bold"
             >
-              Complete Over
-            </Button>
+              Complete
+            </button>
           )}
-        </div>
-        <div className="flex gap-1.5">
+        </Stack>
+        <div className="flex gap-1">
           {(currentOver?.balls || []).map((ball: any, i: number) => (
-            <div key={i} className={`${getBallColor(ball.r)} text-white w-7 h-7 rounded flex items-center justify-center text-xs font-bold`}>
+            <div key={i} className={`${getBallColor(ball.r)} text-white w-6 h-6 rounded-xs flex items-center justify-center text-[10px] font-bold`}>
               {ball.t === 'WICKET' ? 'W' : ball.t === 'WIDE' ? 'Wd' : ball.t === 'NO_BALL' ? 'Nb' : ball.r}
             </div>
           ))}
           {Array.from({ length: 6 - (currentOver?.balls?.length || 0) }).map((_, i) => (
-            <div key={`empty-${i}`} className="bg-gray-200 dark:bg-gray-700 w-7 h-7 rounded flex items-center justify-center text-xs">
+            <div key={`empty-${i}`} className="bg-gray-200 dark:bg-gray-700 w-6 h-6 rounded-xs flex items-center justify-center text-[10px]">
               •
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </Box>
   );
 });
 

@@ -158,14 +158,14 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 p-2 sm:p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Choose Your Plan</h1>
-          <p className="text-xl text-gray-600">Select the perfect plan for your cricket management needs</p>
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Choose Your Plan</h1>
+          <p className="text-sm sm:text-lg text-gray-600">Select the perfect plan for your cricket management needs</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
           {mockPlans.map((plan) => (
             <PlanCard 
               key={plan.id}

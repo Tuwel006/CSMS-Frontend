@@ -1,11 +1,11 @@
 import { useAuthContexxt } from "@/context/AuthContext";
-import AdminLayout from "./AdminLayout";
+import MobileAdminLayout from "./MobileAdminLayout";
 import PublicLayout from "./PublicLayout";
 
 export default function Layout() {
   const {isAuth, role} = useAuthContexxt();
   if(isAuth && role==='admin') {
-    return <AdminLayout />;
+    return <MobileAdminLayout />;
   }
   else {
     return <PublicLayout />;

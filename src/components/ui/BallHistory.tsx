@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { Edit2 } from 'lucide-react';
+
 interface BallData {
   b: number;
   t: string;
@@ -15,30 +18,27 @@ interface BallHistoryProps {
 }
 
 const BallHistory = ({ overs }: BallHistoryProps) => {
+  const [hoveredBall, setHoveredBall] = useState<string | null>(null);
+
   const getBallStyle = (ball: BallData) => {
-    const baseStyle = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-all";
+    const baseStyle = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-sm transition-all cursor-pointer hover:scale-110";
     
     switch (ball.t) {
       case 'NORMAL':
-        if (ball.r === 4) return `${baseStyle} border-green-500 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300`;
-        if (ball.r === 6) return `${baseStyle} border-green-600 bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200`;
-        return `${baseStyle} border-gray-400 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300`;
-      
+        if (ball.r === 4) return `${baseStyle} bg-gradient-to-br from-green-400 to-green-500 text-white`;
+        if (ball.r === 6) return `${baseStyle} bg-gradient-to-br from-green-500 to-green-600 text-white`;
+        return `${baseStyle} bg-gradient-to-br from-gray-400 to-gray-500 text-white`;
       case 'WICKET':
-        return `${baseStyle} border-red-500 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300`;
-      
+        return `${baseStyle} bg-gradient-to-br from-red-500 to-red-600 text-white`;
       case 'WIDE':
-        return `${baseStyle} border-orange-500 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300`;
-      
+        return `${baseStyle} bg-gradient-to-br from-orange-400 to-orange-500 text-white`;
       case 'NO_BALL':
-        return `${baseStyle} border-purple-500 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300`;
-      
+        return `${baseStyle} bg-gradient-to-br from-purple-400 to-purple-500 text-white`;
       case 'BYE':
       case 'LEG_BYE':
-        return `${baseStyle} border-yellow-500 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300`;
-      
+        return `${baseStyle} bg-gradient-to-br from-yellow-400 to-yellow-500 text-white`;
       default:
-        return `${baseStyle} border-gray-400 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300`;
+        return `${baseStyle} bg-gradient-to-br from-gray-400 to-gray-500 text-white`;
     }
   };
 
@@ -52,38 +52,50 @@ const BallHistory = ({ overs }: BallHistoryProps) => {
   };
 
   return (
-    <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-4">
-      <h3 className="text-lg font-semibold text-[var(--text)] mb-4">Ball History</h3>
+    <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-xs p-3">
+      <h3 className="text-xs font-semibold text-[var(--text)] mb-2">BALL HISTORY</h3>
       
-      <div className="space-y-4 max-h-96 overflow-y-auto">
+      <div className="space-y-2 min-h-16 max-h-56 overflow-y-auto">
         {overs.map((over) => (
-          <div key={over.overNumber} className="border-b border-[var(--card-border)] pb-3 last:border-b-0">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-[var(--text)]">
-                Over {over.overNumber}
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                Bowler: {over.bowler}
-              </span>
-            </div>
+          <div key={over.overNumber} className="flex items-center gap-2">
+            <span className="text-[10px] font-medium text-[var(--text-secondary)] w-12 shrink-0">
+              Over {over.overNumber}
+            </span>
             
-            <div className="flex gap-2 flex-wrap">
-              {over.balls.map((ball, index) => (
-                <div
-                  key={`ball-${over.overNumber}-${index}`}
-                  className={getBallStyle(ball)}
-                  title={`Ball ${ball.b}: ${ball.t} - ${ball.r} runs`}
-                >
-                  {formatBallValue(ball)}
-                </div>
-              ))}
+            <div className="flex gap-1 flex-1 flex-wrap">
+              {over.balls.map((ball, index) => {
+                const ballId = `${over.overNumber}-${index}`;
+                return (
+                  <div
+                    key={ballId}
+                    className="relative group"
+                    onMouseEnter={() => setHoveredBall(ballId)}
+                    onMouseLeave={() => setHoveredBall(null)}
+                  >
+                    <div className={getBallStyle(ball)}>
+                      {formatBallValue(ball)}
+                    </div>
+                    {hoveredBall === ballId && (
+                      <button
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all z-10"
+                        title="Edit ball"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Handle edit
+                        }}
+                      >
+                        <Edit2 size={12} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
               
-              {/* Show remaining balls in current over */}
               {over.balls.length < 6 && (
                 Array.from({ length: 6 - over.balls.length }).map((_, index) => (
                   <div
                     key={`empty-${over.overNumber}-${index}`}
-                    className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600"
+                    className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600 opacity-40"
                   />
                 ))
               )}
@@ -92,17 +104,10 @@ const BallHistory = ({ overs }: BallHistoryProps) => {
         ))}
         
         {overs.length === 0 && (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            <p>No balls bowled yet</p>
+          <div className="text-center py-4 text-[10px] text-gray-500 dark:text-gray-400">
+            No balls bowled yet
           </div>
         )}
-      </div>
-      
-      {/* Edit Ball Button */}
-      <div className="mt-4 pt-3 border-t border-[var(--card-border)]">
-        <button className="text-sm text-blue-500 hover:text-blue-600 transition-colors">
-          Edit Ball
-        </button>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Eye, ChevronDown } from 'lucide-react';
+import { Eye, ChevronUp, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import BallHistory from '../../components/ui/BallHistory';
 import LivePreview from '../../components/ui/LivePreview';
@@ -9,6 +9,7 @@ import WicketModal from '../../components/ui/WicketModal';
 import { MatchService } from '../../services/matchService';
 import { showToast } from '../../utils/toast';
 import { MatchScoreResponse } from '../../types/scoreService';
+import { Box, Stack, GridLayout, IconButton } from '../../components/ui/lib';
 import MatchHeader from './components/MatchHeader';
 import CurrentScoreCard from './components/CurrentScoreCard';
 import RecentOversCard from './components/RecentOversCard';
@@ -199,6 +200,7 @@ const ScoreEdit = () => {
         },
         is_boundary: false
       };
+      console.log('Payload for wicket:', payload);
       const response = await MatchService.recordBall(matchToken!, payload);
       if (response.data?.success) {
         setShowWicketModal(false);
@@ -279,16 +281,16 @@ const ScoreEdit = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <Stack direction="col" align="center" justify="center" className="h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      </Stack>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
+      <Stack direction="col" align="center" justify="center" className="h-screen">
+        <Box p="lg" bg="card" border rounded="md" className="text-center">
           <p className="text-red-500 mb-4">{error}</p>
           <Button 
             onClick={() => {
@@ -299,54 +301,46 @@ const ScoreEdit = () => {
           >
             Retry
           </Button>
-        </div>
-      </div>
+        </Box>
+      </Stack>
     );
   }
 
   if (!matchData) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <Stack direction="col" align="center" justify="center" className="h-screen">
         <p className="text-gray-500">No match data available</p>
-      </div>
+      </Stack>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] overflow-y-auto p-2 sm:p-4 pb-20 lg:pb-4">
-      <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isHeaderCollapsed ? 'h-0 opacity-0' : 'h-auto opacity-100'}`}>
-        <div className="mb-1">
+    <Box p="sm" className="h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] overflow-y-auto pb-20 lg:pb-4">
+      <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isHeaderCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'}`}>
+        <Box p="none" className="mb-2">
           <ActiveSessionHeader matchToken={matchToken} onCancel={() => {}} />
-        </div>
-        <MatchHeader 
-          teams={matchData.teams} 
-          meta={matchData.meta}
-          isCollapsed={isHeaderCollapsed}
-          onToggleCollapse={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
-          onPreview={() => setIsPreviewOpen(true)}
-        />
+        </Box>
+        <MatchHeader teams={matchData.teams} meta={matchData.meta} />
       </div>
 
-      {isHeaderCollapsed && (
-        <div className="h-8 bg-[var(--card-bg)] border-y border-[var(--card-border)] flex items-center justify-between px-3 mb-3">
-          <button
-            onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
-            className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            title="Show Header"
-          >
-            <ChevronDown size={14} />
-          </button>
-          <button
-            onClick={() => setIsPreviewOpen(true)}
-            className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            title="Live Preview"
-          >
-            <Eye size={14} />
-          </button>
-        </div>
-      )}
+      <Stack direction="row" justify="between" align="center" className="mb-3">
+        <IconButton
+          icon={isHeaderCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+          onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+          tooltip={isHeaderCollapsed ? 'Show Header' : 'Hide Header'}
+          variant="ghost"
+          size="sm"
+        />
+        <IconButton
+          icon={<Eye size={18} />}
+          onClick={() => setIsPreviewOpen(true)}
+          tooltip="Live Preview"
+          variant="secondary"
+          size="sm"
+        />
+      </Stack>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+      <GridLayout cols={2} gap="sm" className="mb-3">
         <CurrentScoreCard 
           currentInnings={currentInnings}
           teams={matchData.teams}
@@ -362,7 +356,7 @@ const ScoreEdit = () => {
           fetchBowlingTeam={fetchBowlingTeam}
           onOverComplete={handleOverComplete}
         />
-      </div>
+      </GridLayout>
 
       <BallOutcomes 
         onBallUpdate={handleBallUpdate}
@@ -370,9 +364,9 @@ const ScoreEdit = () => {
         onToggleExtras={toggleExtras}
       />
       
-      <div className="mb-3">
+      <Box p="none" className="mb-3">
         <BallHistory overs={currentInnings?.currentOver ? [{...currentInnings.currentOver, overNumber: currentInnings.currentOver.o || 1, bowler: currentInnings.bowling?.find((b: any) => b.id === currentInnings.currentOver?.bowlerId)?.n || 'Unknown'}] : []} />
-      </div>
+      </Box>
       
       <LivePreview 
         isOpen={isPreviewOpen} 
@@ -425,7 +419,7 @@ const ScoreEdit = () => {
         onConfirm={confirmExtrasChange}
         onCancel={() => setShowExtrasWarning(false)}
       />
-    </div>
+    </Box>
   );
 };
 
