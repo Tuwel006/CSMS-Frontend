@@ -16,6 +16,7 @@ const Dashboard = lazy(() => import("@/pages/ScoreEdit"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const MatchDetail = lazy(() => import("@/pages/MatchDetails"));
 const TeamManagement = lazy(() => import("@/pages/TeamManagement"));
+const TeamManagementRefactored = lazy(() => import("@/pages/TeamManagement/TeamManagementRefactored"));
 const ScoreEditor = lazy(() => import("@/pages/ScoreEditor"));
 const ScoreEditorNew = lazy(() => import("@/pages/ScoreEditorNew"));
 const Game = lazy(() => import("@/pages/Game"));
@@ -48,6 +49,7 @@ export default function AppRoute() {
               <Route path="score-edit" element={<Dashboard />} />
 
               <Route path="team-management" element={<TeamManagement/>} />
+              <Route path="team-management-new" element={<TeamManagementRefactored/>} />
               <Route path="player-management" element={<div>Player Management Page</div>} />
               <Route path="score-updates" element={<ScoreEditor />} />
               <Route path="score-editor" element={<ScoreEditorNew />} />

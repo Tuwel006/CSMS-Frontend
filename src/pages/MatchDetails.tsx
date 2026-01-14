@@ -1,6 +1,6 @@
 // src/pages/MatchDetail.tsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import type { MatchDetails, Innings, PlayerBat, PlayerBowl } from "../types/ViewerMatch";
 import type { Match } from "../context/CurrentMatchContext";
 import defaultMatches from "../utils/DefaultMatchesData.json";
@@ -201,7 +201,16 @@ const MatchDetail: React.FC = () => {
     <div className="p-4 md:p-8 max-w-6xl mx-auto">
       {/* Match Cards Grid */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Active Match</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold">Active Match</h2>
+          <Link 
+            to="/admin/team-management-new" 
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+          >
+            <span>🎯</span>
+            Try New Team Management Flow
+          </Link>
+        </div>
         {loadingMatches ? (
           <Spinner />
         ) : (
