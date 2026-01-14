@@ -15,13 +15,9 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, fet
   const currentOver = currentInnings?.currentOver;
   const bowling = currentInnings?.bowling || [];
   const currentBowler = bowling.find((b: any) => b.id === currentOver?.bowlerId);
-<<<<<<< HEAD
-  const isOverComplete = currentOver?.balls?.length === 6;
-=======
   const bowlingTeam = teams?.[currentInnings?.bowlingTeam];
   const isOverComplete = currentOver?.isOverComplete;
   const bowlersWithOvers = bowling.filter((b: any) => parseFloat(b.o) > 0);
->>>>>>> 92fb5b8 (feat: Refactor score management and ball recording logic in ScoreEdit component)
   
   const handleBowlerClick = useCallback(() => {
     fetchBowlingTeam();
@@ -89,13 +85,8 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, fet
               {ball.t === 'WICKET' ? 'W' : ball.t === 'WIDE' ? 'Wd' : ball.t === 'NO_BALL' ? 'Nb' : ball.r}
             </div>
           ))}
-<<<<<<< HEAD
-          {Array.from({ length: 6 - (currentOver?.balls?.length || 0) }).map((_, i) => (
-            <div key={`empty-${i}`} className="bg-gray-200 dark:bg-gray-700 w-6 h-6 rounded-xs flex items-center justify-center text-[10px]">
-=======
           {Array.from({ length: 6 + currentOver.illegalBallsCount - (currentOver?.balls?.length || 0) }).map((_, i) => (
             <div key={`empty-${i}`} className="bg-gray-200 dark:bg-gray-700 w-7 h-7 rounded flex items-center justify-center text-xs">
->>>>>>> 92fb5b8 (feat: Refactor score management and ball recording logic in ScoreEdit component)
               •
             </div>
           ))}

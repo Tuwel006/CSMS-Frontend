@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { useNavigate } from 'react-router-dom';
 import { Trophy, Users, Calendar } from 'lucide-react';
 import { Box, Stack, Card, Text, Stepper, RadioGroup } from '../../components/ui/lib';
 import Button from '../../components/ui/Button';
+=======
+import { useSearchParams } from 'react-router-dom';
+import { Box, Stack, IconButton } from '../../components/ui/lib';
+import { FileText, Play } from 'lucide-react';
+>>>>>>> 87c46b1 (feat: Add Text and Tooltip components for UI consistency)
 import SingleMatchSetupTab from './SingleMatchSetupTab';
 import MatchStartTab from './MatchStartTab';
 import { MatchService } from '../../services/matchService';
 
+<<<<<<< HEAD
 type MatchType = 'single' | 'tournament';
 type FlowStep = 'select-type' | 'setup-teams' | 'start-match';
 
@@ -16,6 +23,15 @@ const TeamManagementRefactored = () => {
   const [currentStep, setCurrentStep] = useState<FlowStep>('select-type');
   const [matchData, setMatchData] = useState<any>(null);
   const [matchToken, setMatchToken] = useState<string | null>(null);
+=======
+type Tab = 'match-setup' | 'match-start';
+
+const TeamManagement = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get('tab') as Tab) || 'match-setup';
+  const [matchData, setMatchData] = useState<any>(null);
+  const [, setMatchToken] = useState<string | null>(null);
+>>>>>>> 87c46b1 (feat: Add Text and Tooltip components for UI consistency)
   const [key, setKey] = useState(0);
 
   useEffect(() => {
@@ -23,7 +39,10 @@ const TeamManagementRefactored = () => {
     if (savedToken) {
       setMatchToken(savedToken);
       fetchCurrentMatch(savedToken);
+<<<<<<< HEAD
       setCurrentStep('setup-teams');
+=======
+>>>>>>> 87c46b1 (feat: Add Text and Tooltip components for UI consistency)
     }
   }, [key]);
 
@@ -47,17 +66,21 @@ const TeamManagementRefactored = () => {
           },
           matchToken: token
         });
+<<<<<<< HEAD
         
         // Auto-navigate to start-match if scheduled
         if (response.data.status === 'SCHEDULED') {
           setCurrentStep('start-match');
         }
+=======
+>>>>>>> 87c46b1 (feat: Add Text and Tooltip components for UI consistency)
       }
     } catch (error) {
       console.error('Error fetching current match:', error);
     }
   };
 
+<<<<<<< HEAD
   const steps = [
     { label: 'Match Type', description: 'Choose format' },
     { label: 'Setup Teams', description: 'Create teams' },
@@ -190,9 +213,62 @@ const TeamManagementRefactored = () => {
             />
           </Box>
         )}
+=======
+  return (
+    <Box p="none" className="h-full">
+      {/* Tab Navigation */}
+      <Stack direction="row" gap="none" className="border-b border-[var(--card-border)] bg-[var(--card-bg)]">
+        <button
+          onClick={() => setSearchParams({ tab: 'match-setup' })}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 md:py-4 text-sm md:text-base font-medium transition-colors border-b-2 ${
+            activeTab === 'match-setup'
+              ? 'text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+              : 'text-[var(--text-secondary)] border-transparent hover:text-[var(--text)] hover:bg-gray-100 dark:hover:bg-gray-800'
+          }`}
+        >
+          <FileText size={18} />
+          <span className="hidden sm:inline">Match Setup</span>
+          <span className="sm:hidden">Setup</span>
+        </button>
+        <button
+          onClick={() => {
+            if (matchData?.matchDetails?.status === 'SCHEDULED') {
+              setSearchParams({ tab: 'match-start' });
+            }
+          }}
+          disabled={matchData?.matchDetails?.status !== 'SCHEDULED'}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 md:py-4 text-sm md:text-base font-medium transition-colors border-b-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            activeTab === 'match-start'
+              ? 'text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+              : 'text-[var(--text-secondary)] border-transparent hover:text-[var(--text)] hover:bg-gray-100 dark:hover:bg-gray-800'
+          }`}
+        >
+          <Play size={18} />
+          <span className="hidden sm:inline">Match Start</span>
+          <span className="sm:hidden">Start</span>
+        </button>
+      </Stack>
+
+      <Box p="sm" className="md:p-6" key={key}>
+        {activeTab === 'match-start' ?
+          <MatchStartTab 
+            matchData={matchData}
+            onMatchStart={() => setSearchParams({tab: 'match-setup'})}
+            onRefresh={() => setKey(prev => prev + 1)} 
+             /> 
+          : <SingleMatchSetupTab 
+              matchData={matchData} 
+              onRefresh={() => setKey(prev => prev + 1)} 
+              onGoToMatchStart={() => setSearchParams({ tab: 'match-start' })}
+            />}
+>>>>>>> 87c46b1 (feat: Add Text and Tooltip components for UI consistency)
       </Box>
     </Box>
   );
 };
 
+<<<<<<< HEAD
 export default TeamManagementRefactored;
+=======
+export default TeamManagement;
+>>>>>>> 87c46b1 (feat: Add Text and Tooltip components for UI consistency)

@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+<<<<<<< HEAD
 import { Eye, ChevronDown } from 'lucide-react';
+=======
+>>>>>>> 87c46b1 (feat: Add Text and Tooltip components for UI consistency)
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { Eye, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import BallHistory from '../../components/ui/BallHistory';
 import LivePreview from '../../components/ui/LivePreview';
