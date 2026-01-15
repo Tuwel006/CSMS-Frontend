@@ -2,7 +2,7 @@ import apiClient from '../utils/api';
 import { ApiResponse } from '../types/api';
 import { ScheduleMatchPayload, ScheduleMatchResponse } from '../types/matchSchedule';
 import { MatchData, MatchTokenResponse, TeamSetupPayload, TeamSetupResponse, CurrentMatchResponse, DeleteTokenResponse, UpdateTeamPayload, StartMatchPayload, StartMatchResponse } from '../types/matchService';
-import { MatchScoreResponse } from '../types/scoreService';
+import { MatchScoreResponse, RecordBallPayload } from '../types/scoreService';
 
 
 

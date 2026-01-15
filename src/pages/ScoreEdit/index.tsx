@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Eye, ChevronDown } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import Button from '../../components/ui/Button';
 import BallHistory from '../../components/ui/BallHistory';
 import LivePreview from '../../components/ui/LivePreview';
@@ -15,8 +16,12 @@ import RecentOversCard from './components/RecentOversCard';
 import BallOutcomes from './components/BallOutcomes';
 import BallConfirmModal from './components/BallConfirmModal';
 import ExtrasWarningModal from './components/ExtrasWarningModal';
+import { recordBall } from '@/store/score/scoreThunks';
+import { setScore } from '@/store/score/scoreSlice';
 
 const ScoreEdit = () => {
+  const dispatch = useAppDispatch();
+  const scoreData = useAppSelector(state => state.score.data);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [matchData, setMatchData] = useState<MatchScoreResponse | null>(null);
   const [matchToken] = useState(() => localStorage.getItem('activeMatchToken'));
@@ -66,6 +71,7 @@ const ScoreEdit = () => {
       const response = await MatchService.getMatchScore(matchToken);
       if (response?.data) {
         setMatchData(response.data);
+        dispatch(setScore(response.data));
         setError(null);
       } else {
         setError('No match data found');
@@ -76,7 +82,13 @@ const ScoreEdit = () => {
     } finally {
       setLoading(false);
     }
-  }, [matchToken]);
+  }, [matchToken, dispatch]);
+
+  useEffect(() => {
+    if(scoreData) {
+      setMatchData(scoreData);
+    }
+  }, [scoreData]);
 
   useEffect(() => {
     fetchMatchScore();
@@ -145,25 +157,28 @@ const ScoreEdit = () => {
       }
 
       const runs = parseInt(ballRuns) || 0;
+      const getBallType = (): 'WIDE' | 'NO_BALL' | 'BYE' | 'LEG_BYE' | 'NORMAL' => {
+        if (pendingBallType === 'WD') return 'WIDE';
+        if (pendingBallType === 'NB') return 'NO_BALL';
+        if (pendingBallType === 'BYE') return 'BYE';
+        if (pendingBallType === 'LB') return 'LEG_BYE';
+        return 'NORMAL';
+      };
+      
       const payload = {
+        matchId: matchToken!,
         innings_id: currentInnings?.i || 1,
-        ball_type: pendingBallType === 'WD' ? 'WIDE' : pendingBallType === 'NB' ? 'NO_BALL' : pendingBallType === 'BYE' ? 'BYE' : pendingBallType === 'LB' ? 'LEG_BYE' : 'NORMAL',
+        ball_type: getBallType(),
         runs,
-        batsman_id: currentBatsman.id,
-        bowler_id: currentBowler.id,
+        batsman_id: currentBatsman.id!,
+        bowler_id: currentBowler.id!,
         is_wicket: false,
         is_boundary: runs === 4 || runs === 6,
         extras_enabled: extrasEnabled
       };
 
-      const response = await MatchService.recordBall(matchToken!, payload);
-      if (response.data?.success) {
-        const scorecardResponse = await MatchService.getMatchScore(matchToken!);
-        if (scorecardResponse.data) {
-          setMatchData(scorecardResponse.data);
-        }
-        showToast.success('Ball recorded successfully');
-      }
+      await dispatch(recordBall(payload)).unwrap();
+      showToast.success('Ball recorded successfully');
     } catch (error) {
       console.error('Error recording ball:', error);
       showToast.error('Failed to record ball');
@@ -172,7 +187,7 @@ const ScoreEdit = () => {
       setPendingBallType('');
       setBallRuns('0');
     }
-  }, [currentInnings, matchToken, ballRuns, pendingBallType, extrasEnabled]);
+  }, [currentInnings, matchToken, ballRuns, pendingBallType, extrasEnabled, dispatch]);
 
   const handleWicket = useCallback(async (dismissalType: string, fielder?: string, normalRun?: number, byeRuns?: number, outBatsmanId?: string, ballType?: 'NORMAL' | 'WIDE' | 'NO_BALL') => {
     try {
@@ -185,6 +200,7 @@ const ScoreEdit = () => {
       }
 
       const payload: any = {
+        matchId: matchToken!,
         innings_id: currentInnings?.i || 1,
         ball_type: ballType,
         runs: normalRun !== undefined ? normalRun : 0,
@@ -199,7 +215,8 @@ const ScoreEdit = () => {
         },
         is_boundary: false
       };
-      const response = await MatchService.recordBall(matchToken!, payload);
+      console.log('Payload for wicket:', payload);
+      const response = await MatchService.recordBall(payload);
       if (response.data?.success) {
         setShowWicketModal(false);
         const scorecardResponse = await MatchService.getMatchScore(matchToken!);

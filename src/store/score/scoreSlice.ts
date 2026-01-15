@@ -42,3 +42,6 @@ export const scoreSlice = createSlice({
             });
     },
 });
+
+export const { setScore, clearScore } = scoreSlice.actions;
+export default scoreSlice.reducer;

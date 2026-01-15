@@ -8,6 +8,7 @@ export interface Score {
   r: number;
   w: number;
   o: string;
+  b: number;
 }
 
 export interface Batsman {
@@ -51,6 +52,7 @@ export interface Ball {
 export interface CurrentOver {
   bowlerId: number;
   o: number;
+  illegalBallsCount: number;
   balls: Ball[];
 }
 
@@ -66,7 +68,7 @@ export interface Innings {
   dismissed: any[];
   bowling: Bowler[];
   currentOver: CurrentOver;
-  extras?: string;
+  extras: number;
   runRate?: string;
   didNotBat?: string[];
 }
@@ -96,12 +98,18 @@ export interface MatchScoreResponse {
 
 export interface RecordBallPayload {
     matchId: string;
-    inningsId: number;
+    innings_id: number;
     ball_type: 'WIDE' | 'NO_BALL' | 'BYE' | 'LEG_BYE' | 'NORMAL';
-    RUNS: number;
-    batsmanId?: number;
-    bowlerId?: number;
+    runs: number;
+    batsman_id: number;
+    bowler_id: number;
     is_wicket?: boolean;
     is_boundary?: boolean;
     extras_enabled?: boolean;
+    by_runs?: number;
+    wicket?: {
+        wicket_type: string;
+        out_batsman_id: number;
+        filder_id?: number;
+    };
 }
