@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Eye, ChevronUp, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import BallHistory from '../../components/ui/BallHistory';
@@ -41,7 +41,6 @@ const ScoreEdit = () => {
   const [modalLoading, setModalLoading] = useState(false);
   const [showExtrasWarning, setShowExtrasWarning] = useState(false);
   const [pendingExtrasValue, setPendingExtrasValue] = useState(false);
-  const [isByeRun, setIsByeRun] = useState(false);
 
   const toggleExtras = useCallback(() => {
     const newValue = !extrasEnabled;
@@ -126,7 +125,6 @@ const ScoreEdit = () => {
         setBallRuns(ballType);
       } else {
         setBallRuns('0');
-        setIsByeRun(true);
       }
       setShowBallConfirmModal(true);
     }
@@ -147,6 +145,7 @@ const ScoreEdit = () => {
 
       const runs = parseInt(ballRuns) || 0;
       const payload = {
+        matchId: matchToken!,
         innings_id: currentInnings?.i || 1,
         ball_type: pendingBallType === 'WD' ? 'WIDE' : pendingBallType === 'NB' ? 'NO_BALL' : pendingBallType === 'BYE' ? 'BYE' : pendingBallType === 'LB' ? 'LEG_BYE' : 'NORMAL',
         runs,
@@ -157,7 +156,7 @@ const ScoreEdit = () => {
         extras_enabled: extrasEnabled
       };
 
-      const response = await MatchService.recordBall(matchToken!, payload);
+      const response = await MatchService.recordBall(payload);
       if (response.data?.success) {
         const scorecardResponse = await MatchService.getMatchScore(matchToken!);
         if (scorecardResponse.data) {
@@ -186,6 +185,7 @@ const ScoreEdit = () => {
       }
 
       const payload: any = {
+        matchId: matchToken!,
         innings_id: currentInnings?.i || 1,
         ball_type: ballType,
         runs: normalRun !== undefined ? normalRun : 0,
@@ -201,7 +201,7 @@ const ScoreEdit = () => {
         is_boundary: false
       };
       console.log('Payload for wicket:', payload);
-      const response = await MatchService.recordBall(matchToken!, payload);
+      const response = await MatchService.recordBall(payload);
       if (response.data?.success) {
         setShowWicketModal(false);
         const scorecardResponse = await MatchService.getMatchScore(matchToken!);
@@ -320,7 +320,7 @@ const ScoreEdit = () => {
         <Box p="none" className="mb-2">
           <ActiveSessionHeader matchToken={matchToken} onCancel={() => {}} />
         </Box>
-        <MatchHeader teams={matchData.teams} meta={matchData.meta} />
+        <MatchHeader teams={matchData.teams} meta={matchData.meta} isCollapsed={false} onToggleCollapse={() => {}} onPreview={() => {}} />
       </div>
 
       <Stack direction="row" justify="between" align="center" className="mb-3">

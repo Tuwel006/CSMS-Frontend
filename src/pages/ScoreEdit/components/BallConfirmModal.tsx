@@ -42,7 +42,7 @@ const BallConfirmModal = React.memo(({ isOpen, ballType, ballRuns, onRunsChange,
               type="number"
               label={ballType === 'BYE' ? 'Bye Runs' : ballType === 'LB' ? 'Leg Bye Runs' : ballType === 'WD' ? 'Wide Runs' : 'Additional Bye Runs'}
               value={ballRuns}
-              onChange={(value) => {
+              onChange={(value: any) => {
                 const val = parseInt(value) || 0;
                 onRunsChange(Math.max(0, Math.min(6, val)).toString());
               }}

@@ -159,7 +159,7 @@ const LiveScore: React.FC = () => {
               <Box className="bg-gray-100 dark:bg-gray-750 px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200">
                 Batter
               </Box>
-              <Table columns={batsmenColumns} data={allBatsmen} size="xs" />
+              <Table columns={batsmenColumns} data={allBatsmen} />
               
               {/* Extras & Total */}
               <Box className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750 px-4 py-2 text-xs text-gray-700 dark:text-gray-300">
@@ -187,7 +187,7 @@ const LiveScore: React.FC = () => {
               <Box className="bg-gray-100 dark:bg-gray-750 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold text-gray-700 dark:text-gray-200">
                 Bowler
               </Box>
-              <Table columns={bowlerColumns} data={currentInning?.bowling || []} size="xs" />
+              <Table columns={bowlerColumns} data={currentInning?.bowling || []} />
             </Box>
 
             {/* Current Over */}

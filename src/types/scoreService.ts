@@ -99,7 +99,7 @@ export interface MatchScoreResponse {
 export interface RecordBallPayload {
     matchId: string;
     innings_id: number;
-    ball_type: 'WIDE' | 'NO_BALL' | 'BYE' | 'LEG_BYE' | 'NORMAL';
+    ball_type: 'WIDE' | 'NO_BALL' | 'BYE' | 'LEG_BYE' | 'NORMAL' | string;
     runs: number;
     batsman_id: number;
     bowler_id: number;
