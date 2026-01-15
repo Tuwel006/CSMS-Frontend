@@ -1,183 +1,157 @@
 import { useState } from 'react';
-import PremiumModal from '../components/ui/PremiumModal';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
+import { Crown, Zap, Shield, CheckCircle, RefreshCw, AlertCircle } from 'lucide-react';
+import { cn } from '../lib/utils';
+import usePlans from '../hooks/usePlans';
+import useSubscribe from '../hooks/useSubscribe';
 import PaymentGateway from '../components/payment/PaymentGateway';
-import PlanCard from '../components/ui/PlanCard';
-import useSubscribe from '@/hooks/useSubscribe';
-import usePlans from '@/hooks/usePlans';
+import PlanCard from '../components/ui/lib/PlanCard';
 
 const Home = () => {
-  // Track which premium modal is open: 'classic', 'gold', or null
-  const [openPremiumType, setOpenPremiumType] = useState<null | 'classic' | 'gold'>(null);
+  const { theme } = useTheme();
+  const navigate = useNavigate();
+  const isDark = theme === 'dark';
+  const { plans, loading, error, refetch } = usePlans();
+  const { subscribe } = useSubscribe();
+  
   const [showPayment, setShowPayment] = useState(false);
   const [paymentData, setPaymentData] = useState<any>(null);
-  const { subscribe } = useSubscribe();
-  const { plans, loading: plansLoading, error: plansError } = usePlans();
 
-  // Classic (lower level) plan data
-  const classicData = {
-    title: "Classic Plan (Free Trial)",
-    description: "Start with a free trial and basic features. Upgrade anytime for more.",
-    plans: [
-      {
-        id: 'classic-free',
-        name: 'Free Trial',
-        price: 0,
-        period: 'one-time',
-        highlight: true,
-        badge: 'FREE'
-      },
-      {
-        id: 'classic-monthly',
-        name: 'Classic Monthly',
-        price: 4.99,
-        period: 'month'
-      }
-    ],
-    features: [
-      'Host up to 5 matches',
-      'Basic match tracking',
-      'Score management',
-      'Player statistics'
-    ]
-  };
+  console.log('Home render:', { plans, loading, error, plansLength: plans?.length });
 
-  // Gold (premium) plan data
-  const goldData = {
-    title: "Gold Plan",
-    description: "Unlock all premium features, unlimited tournaments, and priority support.",
-    plans: [
-      {
-        id: 'gold-monthly',
-        name: 'Gold Monthly',
-        price: 9.99,
-        period: 'month'
-      },
-      {
-        id: 'gold-yearly',
-        name: 'Gold Yearly',
-        price: 89.99,
-        period: 'year',
-        originalPrice: 119.88,
-        highlight: true,
-        badge: 'BEST VALUE'
-      }
-    ],
-    features: [
-      'Unlimited Tournament Creation',
-      'Advanced Customization Options',
-      'Real-time Match Analytics',
-      'Priority Support',
-      'Exclusive Badges & Emotes',
-      'Ad-Free Experience'
-    ]
-  };
-
-  // Dummy onSubscribe handler
-  const handleSubscribe = (planId: string, amount: number) => {
-    if (openPremiumType === 'gold' && amount !== 0) {
+  const handlePlanSelect = (planId: number) => {
+    const plan = plans.find(p => p.id === planId);
+    if (!plan) return;
+    
+    if (parseFloat(plan.price) === 0) {
+      subscribe({ userId: "user123", role: "admin" });
+      navigate('/admin');
+    } else {
       setPaymentData({
-        amount,
-        currency: '$',
-        description: `Gold Subscription - ${planId}`
+        amount: parseFloat(plan.price),
+        currency: plan.currency,
+        description: `${plan.name} - ${plan.billing_cycle}ly`
       });
       setShowPayment(true);
-      // Don't close modal yet, let PaymentGateway handle it
-    } else {
-      alert(`Subscribe to ${planId} for $${amount}`);
-      subscribe({ userId: "user123", role: "admin" });
-      setOpenPremiumType(null);
     }
   };
 
-  const handlePaymentSuccess = (transactionId: string) => {
-    alert(`Payment successful! Transaction ID: ${transactionId}`);
+  const handlePaymentSuccess = () => {
+    subscribe({ userId: "user123", role: "admin" });
     setShowPayment(false);
-    setOpenPremiumType(null);
+    navigate('/admin');
   };
 
-  const handlePaymentError = (error: string) => {
-    alert(`Payment failed: ${error}`);
-    setShowPayment(false);
-    // Optionally keep modal open for retry
+  const benefits = [
+    { icon: Zap, title: 'Instant Setup', description: 'Get your cricket club running in minutes' },
+    { icon: Crown, title: 'Professional Tools', description: 'Advanced scoring and tournament management' },
+    { icon: Shield, title: 'Secure & Reliable', description: 'Your data is safe with enterprise-grade security' },
+    { icon: CheckCircle, title: 'Proven Success', description: 'Trusted by 500+ cricket clubs worldwide' }
+  ];
+
+  const PlanSkeleton = () => (
+    <div className={cn('p-4 rounded-xs border animate-pulse', isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200')}>
+      <div className="space-y-3">
+        <div className={cn('h-3 rounded w-20 mx-auto', isDark ? 'bg-gray-700' : 'bg-gray-200')} />
+        <div className={cn('h-8 rounded w-16 mx-auto', isDark ? 'bg-gray-700' : 'bg-gray-200')} />
+        <div className="space-y-2">
+          {[1,2,3].map(i => <div key={i} className={cn('h-2 rounded', isDark ? 'bg-gray-700' : 'bg-gray-200')} />)}
+        </div>
+        <div className={cn('h-8 rounded', isDark ? 'bg-gray-700' : 'bg-gray-200')} />
+      </div>
+    </div>
+  );
+
+  const ErrorState = () => (
+    <div className="text-center py-12">
+      <AlertCircle className={cn('w-12 h-12 mx-auto mb-4', isDark ? 'text-red-400' : 'text-red-600')} />
+      <h3 className={cn('text-lg font-semibold mb-2', isDark ? 'text-white' : 'text-gray-900')}>Unable to Load Plans</h3>
+      <p className={cn('text-sm mb-4', isDark ? 'text-gray-400' : 'text-gray-600')}>Please try again</p>
+      <button onClick={refetch} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xs text-sm">
+        <RefreshCw className="w-4 h-4" /> Try Again
+      </button>
+    </div>
+  );
+
+  const EmptyState = () => (
+    <div className="text-center py-12">
+      <Crown className={cn('w-12 h-12 mx-auto mb-4', isDark ? 'text-gray-400' : 'text-gray-600')} />
+      <h3 className={cn('text-lg font-semibold mb-2', isDark ? 'text-white' : 'text-gray-900')}>No Plans Available</h3>
+      <p className={cn('text-sm', isDark ? 'text-gray-400' : 'text-gray-600')}>Check back soon</p>
+    </div>
+  );
+
+  // Render plans section content
+  const renderPlansContent = () => {
+    if (loading) {
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1,2,3].map(i => <PlanSkeleton key={i} />)}
+        </div>
+      );
+    }
+    
+    if (error) {
+      return <ErrorState />;
+    }
+    
+    if (!plans || plans.length === 0) {
+      return <EmptyState />;
+    }
+    
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {plans.map(plan => (
+          <PlanCard key={plan.id} plan={plan} onSelect={handlePlanSelect} />
+        ))}
+      </div>
+    );
   };
-  console.log("Rendering Home Page");
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden" style={{backgroundImage: 'url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80")', backgroundSize: 'cover', backgroundPosition: 'center'}}>
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-6 bg-black/50">
-        {/* Main Content */}
-        <div className="text-center mb-16">
-          <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-            Start Your Game!
+    <div className={cn('min-h-screen relative', isDark ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-white')}>      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Hero Section */}
+        <div className="text-center space-y-4">
+          <h1 className={cn('text-3xl md:text-5xl font-bold bg-gradient-to-r bg-clip-text text-transparent', isDark ? 'from-white to-gray-300' : 'from-gray-900 to-gray-600')}>
+            Choose Your Plan
           </h1>
-          <p className="text-xl text-gray-300 mb-2">Choose your challenge:</p>
-          <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-blue-400 mx-auto rounded"></div>
+          <p className={cn('text-sm max-w-2xl mx-auto', isDark ? 'text-gray-300' : 'text-gray-600')}>
+            Subscribe to create your club and access the admin dashboard
+          </p>
         </div>
 
-        {/* Subscription Plans */}
-        <div className="w-full max-w-7xl mx-auto px-4">
-          {plansLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-              <p className="text-white mt-4">Loading plans...</p>
-            </div>
-          ) : plansError ? (
-            <div className="text-center py-12">
-              <p className="text-red-400">Error: {plansError}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {plans.map((plan) => (
-                <PlanCard 
-                  key={plan.id}
-                  plan={plan}
-                  onSelect={(planId) => {
-                    console.log('Selected plan:', planId);
-                    if (planId <= 2) {
-                      setOpenPremiumType('classic');
-                    } else {
-                      setOpenPremiumType('gold');
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          )}
+        {/* Benefits */}
+        <div className="space-y-4">
+          <div className="text-center">
+            <h2 className={cn('text-xl font-bold', isDark ? 'text-white' : 'text-gray-900')}>Why Choose CSMS?</h2>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {benefits.map((benefit, i) => (
+              <div key={i} className={cn('p-3 rounded-xs text-center', isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200')}>
+                <benefit.icon className={cn('w-6 h-6 mx-auto mb-2', isDark ? 'text-blue-400' : 'text-blue-600')} />
+                <h3 className={cn('text-xs font-semibold mb-1', isDark ? 'text-white' : 'text-gray-900')}>{benefit.title}</h3>
+                <p className={cn('text-[10px]', isDark ? 'text-gray-400' : 'text-gray-600')}>{benefit.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-16 text-center text-gray-500 text-sm">
-          <p>Copyright / A Monisteral Fault .com | Creslient Perfectitis | Privacy Policy | Untadat Features</p>
+        {/* Plans */}
+        <div className="space-y-4">
+          <div className="text-center">
+            <h2 className={cn('text-xl font-bold', isDark ? 'text-white' : 'text-gray-900')}>Subscription Plans</h2>
+          </div>
+          {renderPlansContent()}
         </div>
       </div>
 
-      {/* Render the correct modal based on openPremiumType */}
-      {openPremiumType === 'classic' && (
-        <PremiumModal
-          isOpen={true}
-          onClose={() => setOpenPremiumType(null)}
-          title={classicData.title}
-          description={classicData.description}
-          plans={classicData.plans}
-          features={classicData.features}
-          onSubscribe={handleSubscribe}
-        />
-      )}
-      {openPremiumType === 'gold' && !showPayment && (
-        <PremiumModal
-          isOpen={true}
-          onClose={() => setOpenPremiumType(null)}
-          title={goldData.title}
-          description={goldData.description}
-          plans={goldData.plans}
-          features={goldData.features}
-          onSubscribe={handleSubscribe}
-        />
-      )}
-      {openPremiumType === 'gold' && showPayment && paymentData && (
+      {showPayment && paymentData && (
         <PaymentGateway
           paymentData={paymentData}
           onSuccess={handlePaymentSuccess}
-          onError={handlePaymentError}
+          onError={() => setShowPayment(false)}
           onCancel={() => setShowPayment(false)}
         />
       )}

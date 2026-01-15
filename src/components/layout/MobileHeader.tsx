@@ -39,15 +39,15 @@ const Header = ({ onMenuToggle, isMobileMenuOpen }: MobileHeaderProps) => {
         </Stack>
 
         <Stack direction="row" align="center" gap="xs">
-          <div className="relative">
+          <div className="relative flex items-center">
             <IconButton
-              icon={<Search size={16} />}
+              icon={<Search size={18} />}
               onClick={toggleSearch}
               tooltip="Search"
               className="md:hidden"
               size="sm"
             />
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center">
               <SearchBar
                 isOpen={isSearchOpen}
                 onToggle={toggleSearch}
@@ -61,7 +61,7 @@ const Header = ({ onMenuToggle, isMobileMenuOpen }: MobileHeaderProps) => {
           </div>
 
           <IconButton
-            icon={theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            icon={theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             onClick={toggleTheme}
             tooltip={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             size="sm"

@@ -1,4 +1,3 @@
-import { ReactNode } from 'react';
 import { Box, Stack, Text } from './';
 import { Check } from 'lucide-react';
 

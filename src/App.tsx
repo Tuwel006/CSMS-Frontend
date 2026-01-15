@@ -1,6 +1,6 @@
 import { MatchProvider } from "./context/MatchContext";
 import { CurrentMatchProvider } from "./context/CurrentMatchContext";
-import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import AppRoutes from "./AppRoutes";
 import TestCricketGround from './pages/TestCricketGround';
 import { Route, Routes } from "react-router-dom";
@@ -9,14 +9,38 @@ import GlobalLoader from "./components/GlobalLoader";
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './toastStyles.css';
 
-function App() {
+function AppContent() {
+  const { theme } = useTheme();
+  
   return (
-    <ThemeProvider>
+    <>
       <MatchProvider>
         <CurrentMatchProvider>
           <GlobalLoader />
-          <ToastContainer position="top-right" autoClose={4000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" style={{ top: "80px" }} />
+          <ToastContainer 
+            position="bottom-right" 
+            autoClose={2500} 
+            hideProgressBar
+            closeButton={false}
+            newestOnTop 
+            closeOnClick 
+            pauseOnFocusLoss={false}
+            draggable={false}
+            pauseOnHover={false}
+            theme={theme === 'dark' ? 'dark' : 'light'}
+            limit={3}
+            style={{
+              position: 'fixed',
+              bottom: '16px',
+              right: '16px',
+              top: 'auto',
+              left: 'auto',
+              width: '280px',
+              zIndex: 9999
+            }}
+          />
           <Routes>
             <Route path="/test" element={<TestCricketGround />} />
             <Route path="/game" element={<Game />} />
@@ -24,6 +48,14 @@ function App() {
           <AppRoutes />
         </CurrentMatchProvider>
       </MatchProvider>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
     </ThemeProvider>
   );
 }

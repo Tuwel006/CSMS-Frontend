@@ -191,14 +191,14 @@ const LiveScore: React.FC = () => {
             </Box>
 
             {/* Current Over */}
-            {currentInning?.currentOver?.balls?.length > 0 && (
+            {currentInning?.currentOver?.balls && currentInning.currentOver.balls.length > 0 && (
               <Box className="mt-3">
                 <Box className="bg-gray-100 dark:bg-gray-750 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold text-gray-700 dark:text-gray-200">
                   Current Over
                 </Box>
                 <Box className="p-3 sm:p-4 bg-gray-800 dark:bg-gray-800">
                   <Stack direction="row" gap="sm" wrap>
-                    {currentInning.currentOver.balls.map((ball: any, idx: number) => {
+                    {currentInning!.currentOver.balls.map((ball: any, idx: number) => {
                       const getBallColor = () => {
                         if (ball.t === "WIDE" || ball.t === "NO_BALL") return "bg-red-600 dark:bg-red-600";
                         if (ball.r === 6) return "bg-purple-600 dark:bg-purple-600";

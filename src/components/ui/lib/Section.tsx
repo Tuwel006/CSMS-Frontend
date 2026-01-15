@@ -1,28 +1,62 @@
-import { ReactNode } from 'react';
-import { Box } from './Box';
-import { Stack } from './Stack';
+import React from 'react';
+import { useTheme } from '../../../context/ThemeContext';
+import { cn } from '../../../lib/utils';
 
 interface SectionProps {
   title?: string;
   subtitle?: string;
-  action?: ReactNode;
-  children: ReactNode;
-  noPadding?: boolean;
+  children: React.ReactNode;
+  className?: string;
+  headerClassName?: string;
+  contentClassName?: string;
+  action?: React.ReactNode;
 }
 
-export const Section = ({ title, subtitle, action, children, noPadding = false }: SectionProps) => {
+const Section: React.FC<SectionProps> = ({
+  title,
+  subtitle,
+  children,
+  className,
+  headerClassName,
+  contentClassName,
+  action
+}) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
-    <Box p={noPadding ? 'none' : 'md'} bg="card" border rounded="md" className="w-full">
-      {(title || action) && (
-        <Stack direction="row" justify="between" align="center" className="mb-4">
+    <section className={cn('space-y-4', className)}>
+      {(title || subtitle || action) && (
+        <div className={cn(
+          'flex items-center justify-between',
+          headerClassName
+        )}>
           <div>
-            {title && <h2 className="text-lg md:text-xl font-semibold text-[var(--text)]">{title}</h2>}
-            {subtitle && <p className="text-sm text-[var(--text-secondary)] mt-1">{subtitle}</p>}
+            {title && (
+              <h2 className={cn(
+                'text-xl font-bold',
+                isDark ? 'text-white' : 'text-gray-900'
+              )}>
+                {title}
+              </h2>
+            )}
+            {subtitle && (
+              <p className={cn(
+                'text-sm mt-1',
+                isDark ? 'text-gray-400' : 'text-gray-600'
+              )}>
+                {subtitle}
+              </p>
+            )}
           </div>
           {action && <div>{action}</div>}
-        </Stack>
+        </div>
       )}
-      {children}
-    </Box>
+      <div className={contentClassName}>
+        {children}
+      </div>
+    </section>
   );
 };
+
+export default Section;

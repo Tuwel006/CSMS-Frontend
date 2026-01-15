@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { Eye, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
@@ -45,7 +45,7 @@ const ScoreEdit = () => {
   const [modalLoading, setModalLoading] = useState(false);
   const [showExtrasWarning, setShowExtrasWarning] = useState(false);
   const [pendingExtrasValue, setPendingExtrasValue] = useState(false);
-  const [isByeRun, setIsByeRun] = useState(false);
+  const [_isByeRun, setIsByeRun] = useState(false);
 
   const toggleExtras = useCallback(() => {
     const newValue = !extrasEnabled;

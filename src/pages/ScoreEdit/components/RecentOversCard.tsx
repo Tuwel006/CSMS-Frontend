@@ -15,9 +15,7 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, fet
   const currentOver = currentInnings?.currentOver;
   const bowling = currentInnings?.bowling || [];
   const currentBowler = bowling.find((b: any) => b.id === currentOver?.bowlerId);
-  const bowlingTeam = teams?.[currentInnings?.bowlingTeam];
   const isOverComplete = currentOver?.isOverComplete;
-  const bowlersWithOvers = bowling.filter((b: any) => parseFloat(b.o) > 0);
   
   const handleBowlerClick = useCallback(() => {
     fetchBowlingTeam();

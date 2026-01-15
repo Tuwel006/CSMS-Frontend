@@ -1,6 +1,6 @@
 // src/pages/MatchDetail.tsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import type { MatchDetails, Innings, PlayerBat, PlayerBowl } from "../types/ViewerMatch";
 import type { Match } from "../context/CurrentMatchContext";
 import defaultMatches from "../utils/DefaultMatchesData.json";
