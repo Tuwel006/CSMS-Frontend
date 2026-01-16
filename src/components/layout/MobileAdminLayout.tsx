@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import MobileHeader from './MobileHeader';
 import MobileSidebar from './MobileSidebar';
 import { Home, Users, UserPlus, TrendingUp, BarChart3, Settings, LayoutDashboard } from "lucide-react";
+import ErrorBoundary from "../ErrorBoundary";
 
 const AdminLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,7 +39,9 @@ const AdminLayout = () => {
               color: "var(--text)",
             }}
           >
-            <Outlet />
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
           </main>
         </div>
       </div>

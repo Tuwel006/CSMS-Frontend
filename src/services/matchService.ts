@@ -3,10 +3,20 @@ import { ApiResponse } from '../types/api';
 import { ScheduleMatchPayload, ScheduleMatchResponse } from '../types/matchSchedule';
 import { MatchData, MatchTokenResponse, TeamSetupPayload, TeamSetupResponse, CurrentMatchResponse, DeleteTokenResponse, UpdateTeamPayload, StartMatchPayload, StartMatchResponse } from '../types/matchService';
 import { MatchScoreResponse, RecordBallPayload } from '../types/scoreService';
-
-
+import { MatchDetails } from '../types/scorecard';
+import { PaginatedData } from '../types/pagination';
 
 export const MatchService = {
+    // Get Matches
+    getMatches: async (page: number = 1, limit: number = 10): Promise<ApiResponse<PaginatedData<MatchDetails>>> => {
+        return apiClient.get(`matches?page=${page}&limit=${limit}`);
+    },
+
+    // Get All Matches
+    getAllMatches: async (page: number = 1, limit: number = 10): Promise<ApiResponse<PaginatedData<MatchDetails>>> => {
+        return apiClient.get(`matches/all?page=${page}&limit=${limit}`);
+    },
+
     // Generate Match Token
     generateToken: async (): Promise<ApiResponse<MatchTokenResponse>> => {
         return apiClient.post<MatchTokenResponse>('matches/generate-token', {});

@@ -3,11 +3,14 @@ import { useParams } from "react-router-dom";
 import { MatchService } from "../services/matchService";
 import type { MatchScoreResponse } from "../types/scoreService";
 import { useTheme } from "../context/ThemeContext";
+import { PageLoader, ErrorDisplay } from "../components/ui/loading";
 
 const LiveScore: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [data, setData] = useState<MatchScoreResponse | null>(null);
   const [expandedInning, setExpandedInning] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const isInitialLoad = useRef(true);
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -17,6 +20,7 @@ const LiveScore: React.FC = () => {
     
     const fetchScore = async () => {
       try {
+        setError(null);
         const response = await MatchService.getMatchScore(id);
         if (response.data) {
           setData(response.data);
@@ -25,8 +29,10 @@ const LiveScore: React.FC = () => {
             isInitialLoad.current = false;
           }
         }
-      } catch {
-        // Handle error silently
+      } catch (err) {
+        setError('Failed to load match data');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -46,9 +52,12 @@ const LiveScore: React.FC = () => {
     return batsmen.sort((a, b) => (a.order || 0) - (b.order || 0));
   }, [currentInning]);
 
-  if (!data) return (
-    <div className={`flex items-center justify-center min-h-screen ${isDark ? "bg-gray-900" : "bg-gray-50"}`}>
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+  if (loading) return <PageLoader />;
+  if (error || !data) return (
+    <div className={`min-h-screen ${isDark ? "dark:bg-gray-900 bg-gray-900" : "bg-gray-50"} py-4`}>
+      <div className="max-w-6xl mx-auto px-3">
+        <ErrorDisplay message={error || "No match data available"} onRetry={() => { setLoading(true); setError(null); }} />
+      </div>
     </div>
   );
 

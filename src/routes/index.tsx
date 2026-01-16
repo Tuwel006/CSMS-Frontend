@@ -7,12 +7,16 @@ import PublicLayout from "@/components/layout/PublicLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import ScoreEdit from "@/pages/ScoreEdit";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { PageLoader } from "@/components/ui/loading";
 
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const TestCricketGround = lazy(() => import("@/pages/TestCricketGround"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const Home = lazy(() => import("@/pages/Home"));
+const PublicHome = lazy(() => import("@/pages/PublicHome"));
 const Dashboard = lazy(() => import("@/pages/ScoreEdit"));
+const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const MatchDetail = lazy(() => import("@/pages/MatchDetails"));
 const TeamManagement = lazy(() => import("@/pages/TeamManagement"));
@@ -27,7 +31,8 @@ const SearchableFormExample = lazy(() => import("@/components/ui/SearchableFormE
 export default function AppRoute() {
   const {isAuth, role} = useAuthContexxt();
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+    <ErrorBoundary>
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       {/* Public routes */}
       <Route path="search-form" element={<SearchableFormExample />} />
@@ -36,6 +41,7 @@ export default function AppRoute() {
       </Route>
       <Route element={<PublicLayout />}>
         <Route path="/home" element={<Home />} />
+        <Route path="/matches" element={<PublicHome />} />
         <Route path="/test" element={<TestCricketGround />} />
         <Route path="/game" element={<Game />} />
         <Route path="/matches/match/:id/score" element={<LiveScore />} />
@@ -45,7 +51,7 @@ export default function AppRoute() {
       <Route element={<Layout />}>
         <Route element={<ProtectedRoute allowedRoles={['admin']}/>}>
            <Route path="admin">
-              <Route index element={<MatchDetail />} />
+              <Route index element={<AdminDashboard />} />
               <Route path="score-edit" element={<Dashboard />} />
 
               <Route path="team-management" element={<TeamManagement/>} />
@@ -65,5 +71,6 @@ export default function AppRoute() {
       <Route path="*" element={<NotFound />} />
     </Routes>
     </Suspense>
+    </ErrorBoundary>
   );
 }

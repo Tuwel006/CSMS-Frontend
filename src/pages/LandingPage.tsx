@@ -7,44 +7,34 @@ import Section from '../components/ui/lib/Section';
 import StatsCard from '../components/ui/lib/StatsCard';
 import Grid from '../components/ui/lib/Grid';
 import CompactScoreCard from '../components/ui/lib/CompactScoreCard';
+import { MatchService } from '../services/matchService';
+import { useState, useEffect } from 'react';
+import type { MatchDetails } from '../types/scorecard';
+import { ScoreCardSkeleton } from '../components/ui/loading';
 
 const LandingPage = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const isDark = theme === 'dark';
+  
+  const [matches, setMatches] = useState<MatchDetails[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const featuredMatches = [
-    {
-      teamA: { name: 'Mumbai Indians', short: 'MI', score: '187/4', overs: '20.0' },
-      teamB: { name: 'Chennai Super Kings', short: 'CSK', score: '142/6', overs: '16.3' },
-      status: 'Live',
-      matchType: 'IPL'
-    },
-    {
-      teamA: { name: 'Royal Challengers', short: 'RCB', score: '201/3', overs: '20.0' },
-      teamB: { name: 'Delhi Capitals', short: 'DC', score: '156/8', overs: '18.2' },
-      status: 'Live',
-      matchType: 'IPL'
-    },
-    {
-      teamA: { name: 'Kolkata Knight Riders', short: 'KKR', score: '165/7', overs: '20.0' },
-      teamB: { name: 'Rajasthan Royals', short: 'RR', score: '168/4', overs: '19.1' },
-      status: 'RR won by 6 wickets',
-      matchType: 'IPL'
-    },
-    {
-      teamA: { name: 'Sunrisers Hyderabad', short: 'SRH', score: '145/9', overs: '20.0' },
-      teamB: { name: 'Punjab Kings', short: 'PBKS', score: '149/3', overs: '18.4' },
-      status: 'PBKS won by 7 wickets',
-      matchType: 'IPL'
-    },
-    {
-      teamA: { name: 'Gujarat Titans', short: 'GT', score: '178/6', overs: '20.0' },
-      teamB: { name: 'Lucknow Super Giants', short: 'LSG', score: '162/8', overs: '20.0' },
-      status: 'GT won by 16 runs',
-      matchType: 'IPL'
-    }
-  ];
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const response = await MatchService.getAllMatches(1, 10);
+        if (response.data?.data) {
+          setMatches(response.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load matches:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMatches();
+  }, []);
 
   const features = [
     { icon: Play, title: 'Live Scoring', description: 'Real-time match scoring with ball-by-ball updates' },
@@ -85,13 +75,39 @@ const LandingPage = () => {
         {/* Live Matches - Horizontal Scroll */}
         <Section title="Live Matches" subtitle="Currently happening around the world" className="text-center">
           <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {featuredMatches.map((match, index) => (
-              <CompactScoreCard
-                key={index}
-                {...match}
-                onClick={() => navigate(`/matches/match/${index + 1}/score`)}
-              />
-            ))}
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => <ScoreCardSkeleton key={i} />)
+            ) : matches.length > 0 ? (
+              matches.map((match) => {
+                const teamAInnings = match.innings?.find(i => i.battingTeam === match.teams.A.short);
+                const teamBInnings = match.innings?.find(i => i.battingTeam === match.teams.B.short);
+                
+                return (
+                  <CompactScoreCard
+                    key={match.meta.matchId}
+                    teamA={{
+                      name: match.teams.A.name,
+                      short: match.teams.A.short,
+                      score: teamAInnings ? `${teamAInnings.score.r}/${teamAInnings.score.w}` : '-',
+                      overs: teamAInnings ? String(Math.floor(teamAInnings.score.b / 6) + (teamAInnings.score.b % 6) / 10) : '-'
+                    }}
+                    teamB={{
+                      name: match.teams.B.name,
+                      short: match.teams.B.short,
+                      score: teamBInnings ? `${teamBInnings.score.r}/${teamBInnings.score.w}` : '-',
+                      overs: teamBInnings ? String(Math.floor(teamBInnings.score.b / 6) + (teamBInnings.score.b % 6) / 10) : '-'
+                    }}
+                    status={match.meta.status}
+                    matchType={`${match.meta.format} Overs`}
+                    onClick={() => navigate(`/matches/match/${match.meta.matchId}/score`)}
+                  />
+                );
+              })
+            ) : (
+              <div className={cn('text-center py-8 w-full', isDark ? 'text-gray-400' : 'text-gray-600')}>
+                No matches available
+              </div>
+            )}
           </div>
         </Section>
 

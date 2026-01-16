@@ -18,6 +18,7 @@ import BallConfirmModal from './components/BallConfirmModal';
 import ExtrasWarningModal from './components/ExtrasWarningModal';
 import { recordBall } from '@/store/score/scoreThunks';
 import { setScore } from '@/store/score/scoreSlice';
+import { PageLoader, ErrorDisplay } from '@/components/ui/loading';
 
 const ScoreEdit = () => {
   const dispatch = useAppDispatch();
@@ -294,37 +295,20 @@ const ScoreEdit = () => {
     setShowBowlerModal(true);
   }, [fetchBowlingTeam]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  if (loading) return <PageLoader />;
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <p className="text-red-500 mb-4">{error}</p>
-          <Button 
-            onClick={() => {
-              const token = localStorage.getItem('activeMatchToken');
-              if (token) fetchMatchScore();
-            }}
-            variant="primary"
-          >
-            Retry
-          </Button>
-        </div>
+      <div className="p-4">
+        <ErrorDisplay message={error} onRetry={fetchMatchScore} />
       </div>
     );
   }
 
   if (!matchData) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-500">No match data available</p>
+      <div className="p-4">
+        <ErrorDisplay message="No match data available" />
       </div>
     );
   }
