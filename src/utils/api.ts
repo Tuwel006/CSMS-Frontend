@@ -51,6 +51,137 @@ class ApiClient {
     const response: AxiosResponse<ApiResponse<T>> = await this.instance.patch(path, body);
     return response.data;
   }
+
+  /**
+   * Dynamic Event Stream Handler
+   * @param path - API endpoint path
+   * @param options - Configuration options for the event stream
+   * @returns Object with close method to terminate the stream
+   * 
+   * @example
+   * const stream = apiClient.event('/matches/123/live-score', {
+   *   onMessage: (data) => console.log('Received:', data),
+   *   onError: (error) => console.error('Error:', error),
+   *   onComplete: () => console.log('Stream ended')
+   * });
+   * 
+   * // Later, to close the stream:
+   * stream.close();
+   */
+  event<T = any>(
+    path: string,
+    options: {
+      params?: Record<string, any>;
+      onMessage?: (data: T, rawEvent?: MessageEvent) => void;
+      onError?: (error: { message: string; event?: Event }) => void;
+      onComplete?: () => void;
+      onOpen?: () => void;
+    } = {}
+  ): { close: () => void; eventSource: EventSource } {
+    const { params, onMessage, onError, onComplete, onOpen } = options;
+
+    // Build URL with base URL and query parameters
+    const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+    let url = `${baseURL}${path.startsWith('/') ? path : `/${path}`}`;
+
+    // Add query parameters if provided
+    if (params) {
+      const queryString = new URLSearchParams(
+        Object.entries(params).reduce((acc, [key, value]) => {
+          if (value !== undefined && value !== null) {
+            acc[key] = String(value);
+          }
+          return acc;
+        }, {} as Record<string, string>)
+      ).toString();
+
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+
+    // Add auth token to URL if available
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      const separator = url.includes('?') ? '&' : '?';
+      url += `${separator}token=${encodeURIComponent(token)}`;
+    }
+
+    // Create EventSource
+    const eventSource = new EventSource(url);
+
+    // Handle connection open
+    if (onOpen) {
+      eventSource.addEventListener('open', () => {
+        onOpen();
+      });
+    }
+
+    // Handle incoming messages
+    eventSource.addEventListener('message', (event: MessageEvent) => {
+      if (onMessage) {
+        try {
+          // Try to parse as JSON
+          const data = JSON.parse(event.data) as T;
+          onMessage(data, event);
+        } catch (error) {
+          // If not JSON, pass raw data
+          onMessage(event.data as T, event);
+        }
+      }
+    });
+
+    // Handle custom event types (e.g., 'update', 'score', etc.)
+    // This allows the server to send different event types
+    const customEventHandler = (event: MessageEvent) => {
+      if (onMessage) {
+        try {
+          const data = JSON.parse(event.data) as T;
+          onMessage(data, event);
+        } catch (error) {
+          onMessage(event.data as T, event);
+        }
+      }
+    };
+
+    // Listen for common custom event types
+    ['update', 'score', 'data', 'notification', 'status'].forEach((eventType) => {
+      eventSource.addEventListener(eventType, customEventHandler);
+    });
+
+    // Handle errors
+    eventSource.addEventListener('error', (event: Event) => {
+      if (onError) {
+        const errorMessage = eventSource.readyState === EventSource.CLOSED
+          ? 'Connection closed'
+          : 'Connection error occurred';
+
+        onError({
+          message: errorMessage,
+          event,
+        });
+      }
+
+      // Auto-close on error
+      if (eventSource.readyState === EventSource.CLOSED) {
+        eventSource.close();
+        if (onComplete) {
+          onComplete();
+        }
+      }
+    });
+
+    // Return control object
+    return {
+      close: () => {
+        eventSource.close();
+        if (onComplete) {
+          onComplete();
+        }
+      },
+      eventSource,
+    };
+  }
 }
 
 export const apiClient = new ApiClient();

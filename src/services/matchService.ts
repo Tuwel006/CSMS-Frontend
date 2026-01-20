@@ -79,7 +79,7 @@ export const MatchService = {
     },
 
     // Record Ball
-    recordBall: async ({matchId, ...payload} : RecordBallPayload): Promise<ApiResponse<any>> => {
+    recordBall: async ({ matchId, ...payload }: RecordBallPayload): Promise<ApiResponse<any>> => {
         return apiClient.post(`matches/${matchId}/record-ball`, payload);
     },
 
@@ -99,6 +99,103 @@ export const MatchService = {
                 });
             }, 1000);
         });
-    }
+    },
+
+    // ============================================
+    // EVENT STREAM METHODS
+    // ============================================
+
+    /**
+     * Subscribe to live match score updates
+     * @param matchId - The match ID to subscribe to
+     * @param callbacks - Event handlers for the stream
+     * @returns Object with close method to terminate the stream
+     * 
+     * @example
+     * const stream = MatchService.subscribeLiveScore('match-123', {
+     *   onMessage: (score) => console.log('Score update:', score),
+     *   onError: (error) => console.error('Error:', error)
+     * });
+     * 
+     * // Later, close the stream
+     * stream.close();
+     */
+    subscribeLiveScore: (
+        matchId: string,
+        callbacks: {
+            onMessage?: (data: MatchScoreResponse, rawEvent?: MessageEvent) => void;
+            onError?: (error: { message: string; event?: Event }) => void;
+            onComplete?: () => void;
+            onOpen?: () => void;
+        }
+    ) => {
+        return apiClient.event<MatchScoreResponse>(
+            `matches/${matchId}/live-score`,
+            callbacks
+        );
+    },
+
+    /**
+     * Subscribe to live match events (ball-by-ball updates)
+     * @param matchId - The match ID to subscribe to
+     * @param callbacks - Event handlers for the stream
+     * @returns Object with close method to terminate the stream
+     */
+    subscribeLiveEvents: (
+        matchId: string,
+        callbacks: {
+            onMessage?: (data: any, rawEvent?: MessageEvent) => void;
+            onError?: (error: { message: string; event?: Event }) => void;
+            onComplete?: () => void;
+            onOpen?: () => void;
+        }
+    ) => {
+        return apiClient.event(
+            `matches/${matchId}/live-events`,
+            callbacks
+        );
+    },
+
+    /**
+     * Subscribe to match commentary updates
+     * @param matchId - The match ID to subscribe to
+     * @param callbacks - Event handlers for the stream
+     * @returns Object with close method to terminate the stream
+     */
+    subscribeCommentary: (
+        matchId: string,
+        callbacks: {
+            onMessage?: (data: any, rawEvent?: MessageEvent) => void;
+            onError?: (error: { message: string; event?: Event }) => void;
+            onComplete?: () => void;
+            onOpen?: () => void;
+        }
+    ) => {
+        return apiClient.event(
+            `matches/${matchId}/commentary`,
+            callbacks
+        );
+    },
+
+    /**
+     * Subscribe to match status updates
+     * @param matchId - The match ID to subscribe to
+     * @param callbacks - Event handlers for the stream
+     * @returns Object with close method to terminate the stream
+     */
+    subscribeMatchStatus: (
+        matchId: string,
+        callbacks: {
+            onMessage?: (data: any, rawEvent?: MessageEvent) => void;
+            onError?: (error: { message: string; event?: Event }) => void;
+            onComplete?: () => void;
+            onOpen?: () => void;
+        }
+    ) => {
+        return apiClient.event(
+            `matches/${matchId}/status`,
+            callbacks
+        );
+    },
 };
 
