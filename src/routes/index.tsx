@@ -15,7 +15,6 @@ const TestCricketGround = lazy(() => import("@/pages/TestCricketGround"));
 const Auth = lazy(() => import("@/pages/Auth"));
 const Home = lazy(() => import("@/pages/Home"));
 const PublicHome = lazy(() => import("@/pages/PublicHome"));
-const Dashboard = lazy(() => import("@/pages/ScoreEdit"));
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const MatchDetail = lazy(() => import("@/pages/MatchDetails"));
@@ -26,6 +25,7 @@ const ScoreEditorNew = lazy(() => import("@/pages/ScoreEditorNew"));
 const Game = lazy(() => import("@/pages/Game"));
 const LiveScore = lazy(() => import("@/pages/LiveScore"));
 const SearchableFormExample = lazy(() => import("@/components/ui/SearchableFormExample"));
+const ScoreEditNew = lazy(() => import("@/pages/ScoreEdit/ScoreEditRefactored"));
 
 
 export default function AppRoute() {
@@ -52,7 +52,6 @@ export default function AppRoute() {
         <Route element={<ProtectedRoute allowedRoles={['admin']}/>}>
            <Route path="admin">
               <Route index element={<AdminDashboard />} />
-              <Route path="score-edit" element={<Dashboard />} />
 
               <Route path="team-management" element={<TeamManagement/>} />
               <Route path="team-management-new" element={<TeamManagementRefactored/>} />
@@ -62,6 +61,7 @@ export default function AppRoute() {
               <Route path="score-edit" element={<ScoreEdit />} />
               <Route path="statistics" element={<div>Statistics Page</div>} />
               <Route path="settings" element={<div>Settings Page</div>} />
+              <Route path="score-edit-new" element= {<ScoreEditNew />} />
               {/* Add more admin routes here */}
            </Route>
         </Route>

@@ -168,11 +168,8 @@ const ScoreEdit = () => {
       
       const payload = {
         matchId: matchToken!,
-        innings_id: currentInnings?.i || 1,
         ball_type: getBallType(),
         runs,
-        batsman_id: currentBatsman.id!,
-        bowler_id: currentBowler.id!,
         is_wicket: false,
         is_boundary: runs === 4 || runs === 6,
         extras_enabled: extrasEnabled
@@ -202,12 +199,9 @@ const ScoreEdit = () => {
 
       const payload: any = {
         matchId: matchToken!,
-        innings_id: currentInnings?.i || 1,
         ball_type: ballType,
         runs: normalRun !== undefined ? normalRun : 0,
         by_runs: byeRuns !== undefined ? byeRuns : 0,
-        batsman_id: currentBatsman.id,
-        bowler_id: currentBowler.id,
         is_wicket: true,
         wicket: {
           wicket_type: dismissalType,
@@ -330,20 +324,18 @@ const ScoreEdit = () => {
 
       {isHeaderCollapsed && (
         <div className="h-8 bg-[var(--card-bg)] border-y border-[var(--card-border)] flex items-center justify-between px-3 mb-3">
-          <button
+          <Button
             onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
             className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            title="Show Header"
           >
             <ChevronDown size={14} />
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setIsPreviewOpen(true)}
             className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            title="Live Preview"
           >
             <Eye size={14} />
-          </button>
+          </Button>
         </div>
       )}
 
