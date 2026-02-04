@@ -2,18 +2,13 @@ import { ReactNode, forwardRef } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { cn } from '../../lib/utils';
 
-interface ButtonProps {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-  disabled?: boolean;
   loading?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-  type?: 'button' | 'submit' | 'reset';
-  onClick?: () => void;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(({

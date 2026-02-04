@@ -26,51 +26,52 @@ const Game = lazy(() => import("@/pages/Game"));
 const LiveScore = lazy(() => import("@/pages/LiveScore"));
 const SearchableFormExample = lazy(() => import("@/components/ui/SearchableFormExample"));
 const ScoreEditNew = lazy(() => import("@/pages/ScoreEdit/ScoreEditRefactored"));
+const MatchSetup = lazy(() => import("@/pages/MatchSetup"));
 
 
 export default function AppRoute() {
-  const {isAuth, role} = useAuthContexxt();
+  const { isAuth, role } = useAuthContexxt();
   return (
     <ErrorBoundary>
-    <Suspense fallback={<PageLoader />}>
-    <Routes>
-      {/* Public routes */}
-      <Route path="search-form" element={<SearchableFormExample />} />
-      <Route element={<PublicRoute isAuth={isAuth} role={role} />}>
-        <Route path="login" element={<Auth />} />
-      </Route>
-      <Route element={<PublicLayout />}>
-        <Route path="/home" element={<Home />} />
-        <Route path="/matches" element={<PublicHome />} />
-        <Route path="/test" element={<TestCricketGround />} />
-        <Route path="/game" element={<Game />} />
-        <Route path="/matches/match/:id/score" element={<LiveScore />} />
-        <Route index element={<LandingPage />} />
-      </Route>
-      {/* Protected ROutes */}
-      <Route element={<Layout />}>
-        <Route element={<ProtectedRoute allowedRoles={['admin']}/>}>
-           <Route path="admin">
-              <Route index element={<AdminDashboard />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Public routes */}
+          <Route path="search-form" element={<SearchableFormExample />} />
+          <Route element={<PublicRoute isAuth={isAuth} role={role} />}>
+            <Route path="login" element={<Auth />} />
+          </Route>
+          <Route element={<PublicLayout />}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/matches" element={<PublicHome />} />
+            <Route path="/test" element={<TestCricketGround />} />
+            <Route path="/game" element={<Game />} />
+            <Route path="/matches/match/:id/score" element={<LiveScore />} />
+            <Route index element={<LandingPage />} />
+          </Route>
+          {/* Protected ROutes */}
+          <Route element={<Layout />}>
+            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+              <Route path="admin">
+                <Route index element={<AdminDashboard />} />
+                <Route path="match-setup" element={<MatchSetup />} />
+                <Route path="match-setup/:matchId" element={<TeamManagement />} />
+                <Route path="team-management" element={<TeamManagement />} />
+                <Route path="team-management-new" element={<TeamManagementRefactored />} />
+                <Route path="player-management" element={<div>Player Management Page</div>} />
+                <Route path="score-updates" element={<ScoreEditor />} />
+                <Route path="score-editor" element={<ScoreEditorNew />} />
+                <Route path="score-edit/:matchId" element={<ScoreEdit />} />
+                <Route path="statistics" element={<div>Statistics Page</div>} />
+                <Route path="settings" element={<div>Settings Page</div>} />
+                <Route path="score-edit-new/:matchId" element={<ScoreEditNew />} />
+              </Route>
+            </Route>
+          </Route>
 
-              <Route path="team-management" element={<TeamManagement/>} />
-              <Route path="team-management-new" element={<TeamManagementRefactored/>} />
-              <Route path="player-management" element={<div>Player Management Page</div>} />
-              <Route path="score-updates" element={<ScoreEditor />} />
-              <Route path="score-editor" element={<ScoreEditorNew />} />
-              <Route path="score-edit" element={<ScoreEdit />} />
-              <Route path="statistics" element={<div>Statistics Page</div>} />
-              <Route path="settings" element={<div>Settings Page</div>} />
-              <Route path="score-edit-new" element= {<ScoreEditNew />} />
-              {/* Add more admin routes here */}
-           </Route>
-        </Route>
-      </Route>
-      
-      {/* 404 Catch All */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-    </Suspense>
+          {/* 404 Catch All */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </ErrorBoundary>
   );
 }

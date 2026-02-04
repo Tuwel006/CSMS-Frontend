@@ -5,7 +5,7 @@ import Card from './ui/Card';
 import MultiFieldSearch from './ui/MultiFieldSearch';
 import { TeamService, Team } from '../services/teamService';
 import { PlayerService } from '../services/playerService';
-import { Trash2, Edit2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trash2, Edit2, Eraser, Check, UserPlus, Save } from 'lucide-react';
 import { Player } from '../types/player';
 import { TeamData } from '../types/team';
 
@@ -46,10 +46,6 @@ const TeamSetup = ({
     const [playerSuggestions, setPlayerSuggestions] = useState<any[]>([]);
     const [showPlayerDropdown, setShowPlayerDropdown] = useState(false);
     const [editingPlayerIndex, setEditingPlayerIndex] = useState<number | null>(null);
-
-    // Collapsible states
-    const [showPlayerInput, setShowPlayerInput] = useState(true);
-    const [showPlayerList, setShowPlayerList] = useState(true);
 
     const [isEditingTeam, setIsEditingTeam] = useState(false);
     const searchTeamTimeout = useRef<number | null>(null);
@@ -212,144 +208,145 @@ const TeamSetup = ({
     };
 
     return (
-        <Card size="lg">
-            <h3 className="text-lg font-semibold mb-2">Team {teamNumber}</h3>
-            <p className="text-sm text-gray-600 mb-4">
-                Build your {teamNumber === 1 ? 'first' : 'second'} team
-            </p>
-
+        <Card size="sm" className="border-none shadow-none bg-transparent !p-0">
             {/* Team Input or Saved Team Display */}
             {!savedTeam.name || isEditingTeam ? (
                 // Show input form if team not saved
-                <MultiFieldSearch
-                    fields={[
-                        {
-                            label: 'Name',
-                            placeholder: 'Search by name...',
-                            value: teamName,
-                            onChange: handleTeamNameChange,
-                            className: 'flex-1',
-                        },
-                        {
-                            label: 'Location',
-                            placeholder: 'Search by location...',
-                            value: teamLocation,
-                            onChange: handleTeamLocationChange,
-                            className: 'flex-1',
-                        },
-                        {
-                            label: 'ID',
-                            placeholder: 'Search by ID...',
-                            value: teamId,
-                            onChange: handleTeamIdChange,
-                            className: 'w-20',
-                        },
-                    ]}
-                    suggestions={teamSuggestions}
-                    showDropdown={showTeamDropdown}
-                    onSelect={handleTeamSelect}
-                    renderSuggestion={(team) => `${team.name} - ${team.location} - (${team.id})`}
-                    actions={
-                        <>
-                            <Button variant="secondary" onClick={handleClearTeam}>
-                                Clear
-                            </Button>
-                            <Button variant="primary" onClick={handleSaveTeam}>
-                                Save
-                            </Button>
-                        </>
-                    }
-                />
+                <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <MultiFieldSearch
+                        fields={[
+                            {
+                                label: 'TEAM NAME',
+                                placeholder: 'Search by name...',
+                                value: teamName,
+                                onChange: handleTeamNameChange,
+                                className: 'col-span-12 md:col-span-4',
+                                inputClassName: '!text-[13px] h-9'
+                            },
+                            {
+                                label: 'LOCATION',
+                                placeholder: 'Search by location...',
+                                value: teamLocation,
+                                onChange: handleTeamLocationChange,
+                                className: 'col-span-8 md:col-span-4',
+                                inputClassName: '!text-[13px] h-9'
+                            },
+                            {
+                                label: 'ID',
+                                placeholder: 'ID',
+                                value: teamId,
+                                onChange: handleTeamIdChange,
+                                className: 'col-span-4 md:col-span-2',
+                                inputClassName: '!text-[13px] h-9'
+                            },
+                        ]}
+                        suggestions={teamSuggestions}
+                        showDropdown={showTeamDropdown}
+                        onSelect={handleTeamSelect}
+                        renderSuggestion={(team) => `${team.name} - ${team.location} - (${team.id})`}
+                        actions={
+                            <div className="flex gap-1.5 self-end">
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={handleClearTeam}
+                                    className="h-9 px-3"
+                                    title="Clear team details"
+                                >
+                                    <Eraser size={16} />
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={handleSaveTeam}
+                                    className="text-[11px] uppercase font-bold px-5 h-9 bg-cyan-600 gap-2"
+                                    title="Save Team"
+                                >
+                                    <Save size={16} /> Confirm
+                                </Button>
+                            </div>
+                        }
+                    />
+                </div>
             ) : (
-                // Show saved team with Edit/Delete
-                <div className="rounded-md border border-[var(--card-border)] mb-4 bg-[var(--card-bg)] shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between p-3.5">
+                // Show saved team with Edit/Delete - Premium Slim Look
+                <div className="rounded-sm border border-cyan-500/10 mb-3 bg-cyan-500/5 overflow-hidden animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between px-3 py-2">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className="flex-shrink-0 w-8 h-8 rounded border border-gray-300 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold text-sm">
-                                T{teamNumber}
+                            <div className="flex-shrink-0 w-7 h-7 rounded-full bg-cyan-600 flex items-center justify-center text-white font-black text-[10px] shadow-sm shadow-cyan-500/40">
+                                {teamNumber}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold text-base text-[var(--text)] truncate">{savedTeam.name}</h4>
-                                <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-600 dark:text-gray-400">
+                                <h4 className="font-bold text-xs text-[var(--text)] tracking-tight uppercase">{savedTeam.name}</h4>
+                                <div className="flex items-center gap-2 text-[9px] text-gray-500 font-bold uppercase tracking-widest leading-none mt-0.5">
                                     <span className="truncate">{savedTeam.location}</span>
-                                    {savedTeam.id && (
-                                        <>
-                                            <span className="text-gray-400">•</span>
-                                            <span>ID: {savedTeam.id}</span>
-                                        </>
-                                    )}
+                                    {savedTeam.id && <span className="text-cyan-600/50">#{savedTeam.id}</span>}
                                 </div>
                             </div>
                         </div>
-                        <div className="flex gap-1 ml-2">
+                        <div className="flex gap-1">
                             <button
                                 onClick={handleEditTeamClick}
-                                className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                                title="Edit team"
+                                className="p-1.5 text-gray-400 hover:text-cyan-500 hover:bg-white/50 dark:hover:bg-white/5 rounded transition-colors"
                             >
-                                <Edit2 size={16} />
+                                <Edit2 size={12} />
                             </button>
                             <button
                                 onClick={onDeleteTeam}
-                                className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                                title="Delete team"
+                                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-white/50 dark:hover:bg-white/5 rounded transition-colors"
                             >
-                                <Trash2 size={16} />
+                                <Trash2 size={12} />
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Player Section - Collapsible */}
-            <div className="space-y-4 mt-4 border-t border-[var(--card-border)] pt-4">
-                {/* Player Input Section */}
-                <div>
-                    <button
-                        onClick={() => setShowPlayerInput(!showPlayerInput)}
-                        className="flex items-center justify-between w-full text-left mb-3 hover:bg-gray-50 dark:hover:bg-white/5 p-2 rounded transition-colors"
-                    >
-                        <h4 className="text-md font-semibold text-[var(--text)]">
-                            {editingPlayerIndex !== null ? 'Edit Player' : 'Add Player'}
+            {/* Player Section - Compact */}
+            <div className="space-y-2 pt-1">
+                <div className="p-2 border border-gray-100 dark:border-gray-800 rounded-sm bg-gray-50/30 dark:bg-white/2">
+                    <div className="flex items-center justify-between mb-2 px-1">
+                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                            {editingPlayerIndex !== null ? 'Modify Player' : 'Join Roster'}
                         </h4>
-                        {showPlayerInput ? (
-                            <ChevronUp size={20} className="text-gray-500" />
-                        ) : (
-                            <ChevronDown size={20} className="text-gray-500" />
-                        )}
-                    </button>
+                        <div className="h-[1px] flex-1 mx-3 bg-gray-100 dark:bg-gray-800" />
+                        <span className="text-[10px] font-bold text-cyan-500">{players.length}/11</span>
+                    </div>
 
-                    {showPlayerInput && (
-                        <div className="space-y-3">
-                            {/* Player Name, ID, and Role in one row */}
-                            <div className="relative">
-                                <div className="flex flex-col md:flex-row gap-2 mb-2">
+                    <div className="space-y-2">
+                        <div className="relative">
+                            <div className="grid grid-cols-12 gap-2">
+                                <div className="col-span-8 md:col-span-5">
                                     <Input
                                         type="text"
-                                        label="Player Name"
-                                        placeholder="Search by name..."
+                                        label="NAME"
+                                        placeholder="Full Name"
                                         value={playerName}
                                         onChange={handlePlayerNameChange}
-                                        size="md"
-                                        containerClassName="flex-1"
+                                        size="sm"
+                                        className="!text-[13px] h-9"
                                     />
+                                </div>
+                                <div className="col-span-4 md:col-span-2">
                                     <Input
                                         type="text"
-                                        label="Player ID"
-                                        placeholder="Search by ID..."
+                                        label="ID"
+                                        placeholder="ID"
                                         value={playerId}
                                         onChange={handlePlayerIdChange}
-                                        size="md"
-                                        containerClassName="w-24"
+                                        size="sm"
+                                        className="!text-[13px] h-9"
                                     />
+                                </div>
+                                <div className="col-span-12 md:col-span-5">
                                     <Input
                                         type="select"
-                                        label="Player Role"
-                                        placeholder="Select role..."
+                                        label="ROLE"
                                         value={playerRole}
                                         onChange={handlePlayerRoleChange}
-                                        size="md"
-                                        containerClassName="flex-1"
+                                        size="sm"
+                                        className="!text-[13px] h-9"
+                                        placeholder="Select Role"
                                         options={[
                                             { value: 'batsman', label: 'Batsman' },
                                             { value: 'bowler', label: 'Bowler' },
@@ -358,91 +355,95 @@ const TeamSetup = ({
                                         ]}
                                     />
                                 </div>
-
-                                {/* Suggestions Dropdown */}
-                                {showPlayerDropdown && playerSuggestions.length > 0 && (
-                                    <div className="absolute top-full left-0 right-0 z-50 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md shadow-lg max-h-48 overflow-y-auto">
-                                        {playerSuggestions.map((player: any, index: number) => (
-                                            <div
-                                                key={index}
-                                                className="px-3 py-2 hover:bg-[var(--hover-bg)] cursor-pointer text-sm text-[var(--text)]"
-                                                onClick={() => handlePlayerSelect(player)}
-                                            >
-                                                {player.full_name} - ({player.id})
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
 
-                            {/* Buttons at bottom right */}
-                            <div className="flex gap-2 justify-end">
-                                <Button variant="secondary" onClick={handleClearPlayer}>
-                                    Clear
-                                </Button>
-                                <Button variant="primary" onClick={handleSavePlayer}>
-                                    {editingPlayerIndex !== null ? 'Update' : 'Save'}
-                                </Button>
-                            </div>
+                            {showPlayerDropdown && playerSuggestions.length > 0 && (
+                                <div className="absolute top-full left-0 right-0 z-50 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-sm shadow-xl mt-1 max-h-40 overflow-y-auto">
+                                    {playerSuggestions.map((player: any, index: number) => (
+                                        <div
+                                            key={index}
+                                            className="px-3 py-1.5 hover:bg-cyan-500/5 cursor-pointer text-[11px] text-[var(--text)] border-b last:border-0 border-gray-50 dark:border-gray-800"
+                                            onClick={() => handlePlayerSelect(player)}
+                                        >
+                                            <span className="font-bold">{player.full_name}</span>
+                                            <span className="text-gray-400 ml-2 text-[9px]">#{player.id}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    )}
+
+                        <div className="flex gap-1.5 justify-end mt-2">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={handleClearPlayer}
+                                className="h-9 px-3"
+                                title="Clear form"
+                            >
+                                <Eraser size={16} />
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={handleSavePlayer}
+                                className="text-[11px] uppercase font-bold px-5 h-9 bg-gray-800 dark:bg-cyan-600 gap-2"
+                                title={editingPlayerIndex !== null ? 'Update player details' : 'Add player to team'}
+                            >
+                                {editingPlayerIndex !== null ? (
+                                    <>
+                                        <Check size={16} /> Update
+                                    </>
+                                ) : (
+                                    <>
+                                        <UserPlus size={16} /> Add Player
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Players List - Collapsible */}
+                {/* Players List - High-End Mini List */}
                 {players.length > 0 && (
-                    <div className="border-t border-[var(--card-border)] pt-3">
-                        <button
-                            onClick={() => setShowPlayerList(!showPlayerList)}
-                            className="flex items-center justify-between w-full text-left mb-2 hover:bg-gray-50 dark:hover:bg-white/5 p-2 rounded transition-colors"
-                        >
-                            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                Team {teamNumber} Players ({players.length})
-                            </h4>
-                            {showPlayerList ? (
-                                <ChevronUp size={18} className="text-gray-500" />
-                            ) : (
-                                <ChevronDown size={18} className="text-gray-500" />
-                            )}
-                        </button>
+                    <div className="pt-1">
+                        <div className="flex items-center gap-2 mb-2 px-1">
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Roster List</span>
+                            <div className="h-[1px] flex-1 bg-gray-50 dark:bg-gray-800/50" />
+                        </div>
 
-                        {showPlayerList && (
-                            <div className="space-y-1.5">
-                                {players.map((player, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-center justify-between px-3 py-2 bg-[var(--hover-bg)] rounded-md border border-[var(--card-border)] hover:border-gray-300 dark:hover:border-gray-600 transition-all group"
-                                    >
-                                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                                            <span className="font-medium text-sm text-[var(--text)] truncate">{player.name}</span>
-                                            {player.id && (
-                                                <span className="text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
-                                                    #{player.id}
-                                                </span>
-                                            )}
-                                            <span className="text-xs px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full capitalize">
-                                                {player.role}
-                                            </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            {players.map((player, index) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center justify-between pl-2.5 pr-1.5 py-1.5 bg-white dark:bg-white/2 border border-gray-100 dark:border-gray-800/50 rounded-sm hover:border-cyan-500/30 hover:bg-cyan-500/[0.02] transition-all group"
+                                >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <div className="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-[9px] font-bold text-gray-500">
+                                            {index + 1}
                                         </div>
-                                        <div className="flex gap-1 ml-2">
-                                            <button
-                                                onClick={() => handleEditPlayerClick(index)}
-                                                className="p-1 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors opacity-70 group-hover:opacity-100"
-                                                title="Edit player"
-                                            >
-                                                <Edit2 size={14} />
-                                            </button>
-                                            <button
-                                                onClick={() => onDeletePlayer(index)}
-                                                className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors opacity-70 group-hover:opacity-100"
-                                                title="Delete player"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="font-bold text-[11px] text-[var(--text)] truncate leading-none uppercase tracking-tight">{player.name}</span>
+                                            <span className="text-[8px] font-black text-cyan-500 uppercase mt-0.5 tracking-tighter">{player.role}</span>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() => handleEditPlayerClick(index)}
+                                            className="p-1 text-gray-400 hover:text-cyan-500 rounded transition-colors"
+                                        >
+                                            <Edit2 size={10} />
+                                        </button>
+                                        <button
+                                            onClick={() => onDeletePlayer(index)}
+                                            className="p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
+                                        >
+                                            <Trash2 size={10} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>

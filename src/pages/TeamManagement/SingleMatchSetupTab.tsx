@@ -382,7 +382,7 @@ const SingleMatchSetupTab = ({ matchData: propsMatchData, onRefresh, onGoToMatch
             <TeamCard teamNumber={1} name={matchTeamA?.name} short_name={matchTeamA?.short_name} teamId={matchTeamA?.id?.toString() || 'Pending'} players={matchTeamA?.players || []} onEdit={matchDetails.status === 'LIVE' ? undefined : handleEditTeam1} onDelete={matchDetails.status === 'LIVE' ? undefined : handleDeleteTeam1} showReady={matchDetails.status !== 'LIVE'} isLive={matchDetails.status === 'LIVE'} />
           ) : (team1.name || activeSlot === 1 || isEditingTeam1) ? (
             <div className="flex flex-col gap-2">
-              <TeamSetup teamNumber={1} savedTeam={team1} players={team1Players} onSaveTeam={handleSaveTeam1} onEditTeam={handleEditTeam1} onDeleteTeam={handleDeleteTeam1} onSavePlayer={handleSaveTeam1Player} onEditPlayer={() => {}} onDeletePlayer={handleDeleteTeam1Player} />
+              <TeamSetup teamNumber={1} savedTeam={team1} players={team1Players} onSaveTeam={handleSaveTeam1} onEditTeam={handleEditTeam1} onDeleteTeam={handleDeleteTeam1} onSavePlayer={handleSaveTeam1Player} onEditPlayer={() => { }} onDeletePlayer={handleDeleteTeam1Player} />
               {team1.name && (
                 <div className="flex gap-2">
                   <Button variant="primary" size="md" className="flex-1" onClick={() => handleSubmitTeamToBackend(1)}>{isEditingTeam1 ? 'Update Team 1' : 'Submit Team 1'}</Button>
@@ -404,7 +404,7 @@ const SingleMatchSetupTab = ({ matchData: propsMatchData, onRefresh, onGoToMatch
             <TeamCard teamNumber={2} name={matchTeamB.name} short_name={matchTeamB.short_name} teamId={matchTeamB.id?.toString() || 'Pending'} players={matchTeamB.players || []} onEdit={matchDetails.status === 'LIVE' ? undefined : handleEditTeam2} onDelete={matchDetails.status === 'LIVE' ? undefined : handleDeleteTeam2} showReady={matchDetails.status !== 'LIVE'} isLive={matchDetails.status === 'LIVE'} />
           ) : (team2.name || activeSlot === 2 || isEditingTeam2) ? (
             <div className="flex flex-col gap-2">
-              <TeamSetup teamNumber={2} savedTeam={team2} players={team2Players} onSaveTeam={handleSaveTeam2} onEditTeam={handleEditTeam2} onDeleteTeam={handleDeleteTeam2} onSavePlayer={handleSaveTeam2Player} onEditPlayer={() => {}} onDeletePlayer={handleDeleteTeam2Player} />
+              <TeamSetup teamNumber={2} savedTeam={team2} players={team2Players} onSaveTeam={handleSaveTeam2} onEditTeam={handleEditTeam2} onDeleteTeam={handleDeleteTeam2} onSavePlayer={handleSaveTeam2Player} onEditPlayer={() => { }} onDeletePlayer={handleDeleteTeam2Player} />
               {team2.name && (
                 <div className="flex gap-2">
                   <Button variant="primary" size="md" className="flex-1" onClick={() => handleSubmitTeamToBackend(2)}>{isEditingTeam2 ? 'Update Team 2' : 'Submit Team 2'}</Button>
@@ -456,7 +456,7 @@ const SingleMatchSetupTab = ({ matchData: propsMatchData, onRefresh, onGoToMatch
                 <p>{matchDetails.venue} • {matchDetails.format}</p>
                 <p>{new Date(matchDetails.date).toDateString()} at {matchDetails.time}</p>
               </div>
-              <Button onClick={() => navigate('/admin/score-edit')} className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold text-base rounded shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 mx-auto">
+              <Button onClick={() => navigate(`/admin/score-edit/${matchToken}`)} className="px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold text-base rounded shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 mx-auto">
                 📊 Go to Score Edit Page <ArrowRight size={18} />
               </Button>
             </div>

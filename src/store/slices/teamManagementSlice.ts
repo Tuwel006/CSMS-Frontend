@@ -9,6 +9,7 @@ interface TeamManagementState {
     team1Players: PlayerData[];
     team2: TeamData;
     team2Players: PlayerData[];
+    currentMatch: any | null;
 }
 
 const loadState = (): TeamManagementState => {
@@ -20,6 +21,7 @@ const loadState = (): TeamManagementState => {
                 team1Players: [],
                 team2: { id: null, name: '', location: '' },
                 team2Players: [],
+                currentMatch: null,
             };
         }
         return JSON.parse(serializedState);
@@ -29,6 +31,7 @@ const loadState = (): TeamManagementState => {
             team1Players: [],
             team2: { id: null, name: '', location: '' },
             team2Players: [],
+            currentMatch: null,
         };
     }
 };
@@ -95,6 +98,10 @@ const teamManagementSlice = createSlice({
             state.team2Players = action.payload;
             localStorage.setItem('matchSetup_state', JSON.stringify(state));
         },
+        setCurrentMatch: (state, action: PayloadAction<any>) => {
+            state.currentMatch = action.payload;
+            localStorage.setItem('matchSetup_state', JSON.stringify(state));
+        },
     },
 });
 
@@ -113,6 +120,7 @@ export const {
     resetTeam2Players,
     setTeam1Players,
     setTeam2Players,
+    setCurrentMatch,
 } = teamManagementSlice.actions;
 
 export default teamManagementSlice.reducer;

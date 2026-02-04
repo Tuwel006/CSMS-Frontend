@@ -8,6 +8,7 @@ export interface SearchField {
     onChange: (value: string) => void;
     type?: string;
     className?: string;
+    inputClassName?: string;
 }
 
 interface MultiFieldSearchProps<T> {
@@ -31,8 +32,8 @@ const MultiFieldSearch = <T,>({
 }: MultiFieldSearchProps<T>) => {
     return (
         <div className={`relative ${className}`}>
-            <div className="flex flex-col md:flex-row gap-2 mb-4 items-start md:items-end">
-                {fields.slice(0, -1).map((field, index) => (
+            <div className="grid grid-cols-12 gap-2 items-end mb-4">
+                {fields.map((field, index) => (
                     <Input
                         key={index}
                         type={field.type || 'text'}
@@ -41,31 +42,23 @@ const MultiFieldSearch = <T,>({
                         value={field.value}
                         onChange={field.onChange}
                         size="md"
-                        containerClassName={field.className || "flex-1"}
+                        containerClassName={field.className || "col-span-12 md:col-span-3"}
+                        className={field.inputClassName}
                     />
                 ))}
-                <div className="flex flex-row gap-2 items-end w-full md:w-auto">
-                    {fields.slice(-1).map((field) => (
-                        <Input
-                            key={fields.length - 1}
-                            type={field.type || 'text'}
-                            label={field.label}
-                            placeholder={field.placeholder}
-                            value={field.value}
-                            onChange={field.onChange}
-                            size="md"
-                            containerClassName={field.className || "flex-1"}
-                        />
-                    ))}
-                    {actions && <div className="flex gap-2 mb-[2px]">{actions}</div>}
-                </div>
+                {actions && (
+                    <div className="col-span-12 md:col-span-auto flex items-end justify-end">
+                        {actions}
+                    </div>
+                )}
             </div>
+
             {showDropdown && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 z-50 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md shadow-lg max-h-48 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border border-gray-200 dark:border-gray-800 rounded-lg shadow-2xl mt-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 animate-in fade-in zoom-in-95 duration-200">
                     {suggestions.map((item, index) => (
                         <div
                             key={index}
-                            className="px-3 py-2 hover:bg-[var(--hover-bg)] cursor-pointer text-sm text-[var(--text)]"
+                            className="px-4 py-2.5 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 cursor-pointer text-sm text-[var(--text)] border-b last:border-0 border-gray-100 dark:border-gray-800/50 transition-colors"
                             onClick={() => onSelect(item)}
                         >
                             {renderSuggestion(item)}

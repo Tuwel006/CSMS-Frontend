@@ -17,6 +17,11 @@ export const MatchService = {
         return apiClient.get(`matches/all?page=${page}&limit=${limit}`);
     },
 
+    // Get Tenant Matches (Sessions)
+    getTenantMatches: async (page: number = 1, limit: number = 10): Promise<ApiResponse<PaginatedData<any>>> => {
+        return apiClient.get(`matches/tenant?page=${page}&limit=${limit}&sorted=createdAt&sorted_order=DESC`);
+    },
+
     // Generate Match Token
     generateToken: async (): Promise<ApiResponse<MatchTokenResponse>> => {
         return apiClient.post<MatchTokenResponse>('matches/generate-token', {});

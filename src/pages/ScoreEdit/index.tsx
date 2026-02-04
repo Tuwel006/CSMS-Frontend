@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { Eye, ChevronDown } from 'lucide-react';
 import Button from '../../components/ui/Button';
@@ -21,11 +22,11 @@ import { setScore } from '@/store/score/scoreSlice';
 import { PageLoader, ErrorDisplay } from '@/components/ui/loading';
 
 const ScoreEdit = () => {
+  const { matchId } = useParams<{ matchId: string }>();
   const dispatch = useAppDispatch();
   const scoreData = useAppSelector(state => state.score.data);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [matchData, setMatchData] = useState<MatchScoreResponse | null>(null);
-  const [matchToken] = useState(() => localStorage.getItem('activeMatchToken'));
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +35,7 @@ const ScoreEdit = () => {
     const saved = localStorage.getItem('extrasEnabled');
     return saved !== null ? saved === 'true' : true;
   });
-  
+
   const [showBatsmanModal, setShowBatsmanModal] = useState(false);
   const [showBowlerModal, setShowBowlerModal] = useState(false);
   const [showWicketModal, setShowWicketModal] = useState(false);
@@ -62,14 +63,14 @@ const ScoreEdit = () => {
   }, [pendingExtrasValue]);
 
   const fetchMatchScore = useCallback(async () => {
-    if (!matchToken) {
+    if (!matchId) {
       setLoading(false);
-      setError('No active match token found');
+      setError('No match ID found in URL');
       return;
     }
-    
+
     try {
-      const response = await MatchService.getMatchScore(matchToken);
+      const response = await MatchService.getMatchScore(matchId);
       if (response?.data) {
         setMatchData(response.data);
         dispatch(setScore(response.data));
@@ -83,10 +84,10 @@ const ScoreEdit = () => {
     } finally {
       setLoading(false);
     }
-  }, [matchToken, dispatch]);
+  }, [matchId, dispatch]);
 
   useEffect(() => {
-    if(scoreData) {
+    if (scoreData) {
       setMatchData(scoreData);
     }
   }, [scoreData]);
@@ -96,10 +97,10 @@ const ScoreEdit = () => {
   }, [fetchMatchScore]);
 
   const fetchAvailableBatsmen = useCallback(async () => {
-    if (!matchToken || !matchData) return;
+    if (!matchId || !matchData) return;
     try {
       setModalLoading(true);
-      const response = await MatchService.getAvailableBatsmen(matchToken, 1);
+      const response = await MatchService.getAvailableBatsmen(matchId, 1);
       if (response.data) {
         setAvailableBatsmen(response.data);
       }
@@ -108,13 +109,13 @@ const ScoreEdit = () => {
     } finally {
       setModalLoading(false);
     }
-  }, [matchToken, matchData]);
+  }, [matchId, matchData]);
 
   const fetchBowlingTeam = useCallback(async () => {
-    if (!matchToken || !matchData) return;
+    if (!matchId || !matchData) return;
     try {
       setModalLoading(true);
-      const response = await MatchService.getBowlingTeam(matchToken, 1);
+      const response = await MatchService.getBowlingTeam(matchId, 1);
       if (response.data) {
         setBowlingTeamPlayers(response.data);
       }
@@ -123,7 +124,7 @@ const ScoreEdit = () => {
     } finally {
       setModalLoading(false);
     }
-  }, [matchToken, matchData]);
+  }, [matchId, matchData]);
 
   const currentInnings = useMemo(() => matchData?.innings?.[matchData?.innings?.length ? matchData.innings.length - 1 : 0], [matchData]);
 
@@ -150,7 +151,7 @@ const ScoreEdit = () => {
     try {
       const currentBatsman = currentInnings?.batting?.striker;
       const currentBowler = currentInnings?.bowling?.find((b: any) => b.id === currentInnings?.currentOver?.bowlerId);
-      
+
       if (!currentBatsman || !currentBowler) {
         showToast.error('Please select batsman and bowler first');
         setScoreUpdating(false);
@@ -165,11 +166,14 @@ const ScoreEdit = () => {
         if (pendingBallType === 'LB') return 'LEG_BYE';
         return 'NORMAL';
       };
-      
+
       const payload = {
-        matchId: matchToken!,
+        matchId: matchId!,
+        innings_id: currentInnings?.i || 1,
         ball_type: getBallType(),
         runs,
+        batsman_id: currentBatsman.id,
+        bowler_id: currentBowler.id,
         is_wicket: false,
         is_boundary: runs === 4 || runs === 6,
         extras_enabled: extrasEnabled
@@ -185,23 +189,26 @@ const ScoreEdit = () => {
       setPendingBallType('');
       setBallRuns('0');
     }
-  }, [currentInnings, matchToken, ballRuns, pendingBallType, extrasEnabled, dispatch]);
+  }, [currentInnings, matchId, ballRuns, pendingBallType, extrasEnabled, dispatch]);
 
   const handleWicket = useCallback(async (dismissalType: string, fielder?: string, normalRun?: number, byeRuns?: number, outBatsmanId?: string, ballType?: 'NORMAL' | 'WIDE' | 'NO_BALL') => {
     try {
       const currentBatsman = currentInnings?.batting?.striker;
       const currentBowler = currentInnings?.bowling?.find((b: any) => b.id === currentInnings?.currentOver?.bowlerId);
-      
+
       if (!currentBatsman || !currentBowler) {
         showToast.error('Please select batsman and bowler first');
         return;
       }
 
       const payload: any = {
-        matchId: matchToken!,
-        ball_type: ballType,
+        matchId: matchId!,
+        innings_id: currentInnings?.i || 1,
+        ball_type: ballType || 'NORMAL',
         runs: normalRun !== undefined ? normalRun : 0,
         by_runs: byeRuns !== undefined ? byeRuns : 0,
+        batsman_id: currentBatsman.id,
+        bowler_id: currentBowler.id,
         is_wicket: true,
         wicket: {
           wicket_type: dismissalType,
@@ -214,7 +221,7 @@ const ScoreEdit = () => {
       const response = await MatchService.recordBall(payload);
       if (response.data?.success) {
         setShowWicketModal(false);
-        const scorecardResponse = await MatchService.getMatchScore(matchToken!);
+        const scorecardResponse = await MatchService.getMatchScore(matchId!);
         if (scorecardResponse.data) {
           setMatchData(scorecardResponse.data);
         }
@@ -226,14 +233,14 @@ const ScoreEdit = () => {
       console.error('Error recording wicket:', error);
       showToast.error('Failed to record wicket');
     }
-  }, [currentInnings, matchToken, fetchAvailableBatsmen]);
+  }, [currentInnings, matchId, fetchAvailableBatsmen]);
 
   const handleSelectBatsman = useCallback(async (player: any) => {
     if (player === 'OPEN_MODAL') {
       setShowBatsmanModal(true);
       return;
     }
-    
+
     try {
       const payload = {
         innings_id: currentInnings?.i || 1,
@@ -241,11 +248,11 @@ const ScoreEdit = () => {
         is_striker: true,
         ret_hurt: false
       };
-      
-      const response = await MatchService.setBatsman(matchToken!, payload);
+
+      const response = await MatchService.setBatsman(matchId!, payload);
       if (response.data?.success) {
         setShowBatsmanModal(false);
-        const scorecardResponse = await MatchService.getMatchScore(matchToken!);
+        const scorecardResponse = await MatchService.getMatchScore(matchId!);
         if (scorecardResponse.data) {
           setMatchData(scorecardResponse.data);
         }
@@ -255,24 +262,24 @@ const ScoreEdit = () => {
       console.error('Error selecting batsman:', error);
       showToast.error('Failed to select batsman');
     }
-  }, [matchToken, currentInnings]);
+  }, [matchId, currentInnings]);
 
   const handleSelectBowler = useCallback(async (player: any) => {
     if (player === 'OPEN_MODAL') {
       setShowBowlerModal(true);
       return;
     }
-    
+
     try {
       const payload = {
         innings_id: currentInnings?.i || 1,
         player_id: player.id
       };
-      
-      const response = await MatchService.setBowler(matchToken!, payload);
+
+      const response = await MatchService.setBowler(matchId!, payload);
       if (response.data?.success) {
         setShowBowlerModal(false);
-        const scorecardResponse = await MatchService.getMatchScore(matchToken!);
+        const scorecardResponse = await MatchService.getMatchScore(matchId!);
         if (scorecardResponse.data) {
           setMatchData(scorecardResponse.data);
         }
@@ -282,7 +289,7 @@ const ScoreEdit = () => {
       console.error('Error selecting bowler:', error);
       showToast.error('Failed to select bowler');
     }
-  }, [matchToken, currentInnings]);
+  }, [matchId, currentInnings]);
 
   const handleOverComplete = useCallback(() => {
     fetchBowlingTeam();
@@ -311,10 +318,10 @@ const ScoreEdit = () => {
     <div className="h-[calc(100vh-4rem)] overflow-y-auto p-2 sm:p-4 pb-20 lg:pb-4">
       <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isHeaderCollapsed ? 'h-0 opacity-0' : 'h-auto opacity-100'}`}>
         <div className="mb-1">
-          <ActiveSessionHeader matchToken={matchToken} onCancel={() => {}} />
+          <ActiveSessionHeader matchToken={matchId || ''} onCancel={() => { }} />
         </div>
-        <MatchHeader 
-          teams={matchData.teams} 
+        <MatchHeader
+          teams={matchData.teams}
           meta={matchData.meta}
           isCollapsed={isHeaderCollapsed}
           onToggleCollapse={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
@@ -340,7 +347,7 @@ const ScoreEdit = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
-        <CurrentScoreCard 
+        <CurrentScoreCard
           currentInnings={currentInnings}
           teams={matchData.teams}
           onSelectBatsman={handleSelectBatsman}
@@ -348,7 +355,7 @@ const ScoreEdit = () => {
           scoreUpdating={scoreUpdating}
           fetchAvailableBatsmen={fetchAvailableBatsmen}
         />
-        <RecentOversCard 
+        <RecentOversCard
           currentInnings={currentInnings}
           teams={matchData.teams}
           onSelectBowler={handleSelectBowler}
@@ -357,22 +364,22 @@ const ScoreEdit = () => {
         />
       </div>
 
-      <BallOutcomes 
+      <BallOutcomes
         onBallUpdate={handleBallUpdate}
         extrasEnabled={extrasEnabled}
         onToggleExtras={toggleExtras}
       />
-      
+
       <div className="mb-3">
-        <BallHistory overs={currentInnings?.currentOver ? [{...currentInnings.currentOver, overNumber: currentInnings.currentOver.o || 1, bowler: currentInnings.bowling?.find((b: any) => b.id === currentInnings.currentOver?.bowlerId)?.n || 'Unknown'}] : []} />
+        <BallHistory overs={currentInnings?.currentOver ? [{ ...currentInnings.currentOver, overNumber: currentInnings.currentOver.o || 1, bowler: currentInnings.bowling?.find((b: any) => b.id === currentInnings.currentOver?.bowlerId)?.n || 'Unknown' }] : []} />
       </div>
-      
-      <LivePreview 
-        isOpen={isPreviewOpen} 
+
+      <LivePreview
+        isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
         matchData={matchData}
       />
-      
+
       <PlayerSelectionModal
         isOpen={showBatsmanModal}
         onClose={() => setShowBatsmanModal(false)}
@@ -381,7 +388,7 @@ const ScoreEdit = () => {
         title="Select Next Batsman"
         loading={modalLoading}
       />
-      
+
       <PlayerSelectionModal
         isOpen={showBowlerModal}
         onClose={() => setShowBowlerModal(false)}
@@ -390,7 +397,7 @@ const ScoreEdit = () => {
         title="Select Bowler"
         loading={modalLoading}
       />
-      
+
       <WicketModal
         isOpen={showWicketModal}
         onClose={() => setShowWicketModal(false)}
@@ -398,7 +405,7 @@ const ScoreEdit = () => {
         bowlingTeamPlayers={bowlingTeamPlayers}
         currentBatsmen={currentInnings?.batting}
       />
-      
+
       <BallConfirmModal
         isOpen={showBallConfirmModal}
         ballType={pendingBallType}

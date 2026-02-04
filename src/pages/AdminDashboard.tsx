@@ -14,11 +14,11 @@ const MatchesPage: React.FC = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  
+
   const [matches, setMatches] = useState<MatchDetails[]>([]);
   const [matchesLoading, setMatchesLoading] = useState(true);
   const [matchesError, setMatchesError] = useState<string | null>(null);
-  
+
   const [tournaments, setTournaments] = useState<any[]>([]);
   const [tournamentsLoading, setTournamentsLoading] = useState(true);
   const [tournamentsError, setTournamentsError] = useState<string | null>(null);
@@ -87,18 +87,16 @@ const MatchesPage: React.FC = () => {
           {stats.map((stat, idx) => (
             <Card key={idx} className="p-3 sm:p-4">
               <Stack gap="xs">
-                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-sm flex items-center justify-center ${
-                  stat.color === 'cyan' ? 'bg-cyan-100 dark:bg-cyan-900/20' :
-                  stat.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/20' :
-                  stat.color === 'green' ? 'bg-green-100 dark:bg-green-900/20' :
-                  'bg-orange-100 dark:bg-orange-900/20'
-                }`}>
-                  <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                    stat.color === 'cyan' ? 'text-cyan-600 dark:text-cyan-400' :
-                    stat.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                    stat.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                    'text-orange-600 dark:text-orange-400'
-                  }`} />
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-sm flex items-center justify-center ${stat.color === 'cyan' ? 'bg-cyan-100 dark:bg-cyan-900/20' :
+                    stat.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/20' :
+                      stat.color === 'green' ? 'bg-green-100 dark:bg-green-900/20' :
+                        'bg-orange-100 dark:bg-orange-900/20'
+                  }`}>
+                  <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.color === 'cyan' ? 'text-cyan-600 dark:text-cyan-400' :
+                      stat.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                        stat.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                          'text-orange-600 dark:text-orange-400'
+                    }`} />
                 </div>
                 <div>
                   <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -124,8 +122,8 @@ const MatchesPage: React.FC = () => {
                   {matches.length} matches found
                 </p>
               </div>
-              <button 
-                onClick={() => navigate('/admin/team-management-new')}
+              <button
+                onClick={() => navigate('/admin/match-setup')}
                 className="px-3 py-1.5 text-xs sm:text-sm bg-cyan-600 hover:bg-cyan-700 text-white rounded-sm font-medium transition-colors"
               >
                 New Match
@@ -147,8 +145,8 @@ const MatchesPage: React.FC = () => {
                 <p className={`text-xs sm:text-sm mb-3 sm:mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   Create your first match to get started
                 </p>
-                <button 
-                  onClick={() => navigate('/admin/team-management-new')}
+                <button
+                  onClick={() => navigate('/admin/match-setup')}
                   className="px-4 py-2 text-xs sm:text-sm bg-cyan-600 hover:bg-cyan-700 text-white rounded-sm font-medium transition-colors"
                 >
                   Create Match
@@ -179,7 +177,7 @@ const MatchesPage: React.FC = () => {
                   {tournaments.length} tournaments active
                 </p>
               </div>
-              <button 
+              <button
                 className="px-3 py-1.5 text-xs sm:text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-sm font-medium transition-colors"
               >
                 New Tournament
@@ -201,7 +199,7 @@ const MatchesPage: React.FC = () => {
                 <p className={`text-xs sm:text-sm mb-3 sm:mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   Create your first tournament
                 </p>
-                <button 
+                <button
                   className="px-4 py-2 text-xs sm:text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-sm font-medium transition-colors"
                 >
                   Create Tournament
