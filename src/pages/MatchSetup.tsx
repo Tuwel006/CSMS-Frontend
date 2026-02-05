@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, Calendar, Clipboard, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, Calendar, Clipboard, User, MapPin, AlertCircle } from 'lucide-react';
 import { MatchService } from '../services/matchService';
 import { showToast } from '../utils/toast';
 import Button from '../components/ui/Button';
+import { Box, Stack, Card as LibCard, Grid, Text } from '../components/ui/lib';
+import { useBreadcrumbs } from '../context/BreadcrumbContext';
+import Modal from '../components/ui/Modal';
+
+interface UserType {
+  id: number;
+  username: string;
+  email: string;
+}
 
 interface MatchTokenItem {
   id: string;
@@ -12,14 +21,26 @@ interface MatchTokenItem {
   venue: string | null;
   teamA?: { name: string };
   teamB?: { name: string };
+  user?: UserType;
 }
 
 const MatchSetupPage: React.FC = () => {
   const navigate = useNavigate();
+  const { setPageMeta } = useBreadcrumbs();
 
   const [matches, setMatches] = useState<MatchTokenItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Modal State
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+
+  // Set Page Meta
+  useEffect(() => {
+    setPageMeta({
+      description: "Manage your fixtures & scoring tokens"
+    });
+  }, [setPageMeta]);
 
   const fetchMatches = async () => {
     setIsLoading(true);
@@ -32,7 +53,8 @@ const MatchSetupPage: React.FC = () => {
           match_date: m.match_date,
           venue: m.venue,
           teamA: m.teamA,
-          teamB: m.teamB
+          teamB: m.teamB,
+          user: m.user
         }));
         setMatches(sortedMatches);
       }
@@ -65,9 +87,11 @@ const MatchSetupPage: React.FC = () => {
     }
   };
 
-  const handleDeleteToken = async (e: React.MouseEvent, tokenId: string) => {
-    e.stopPropagation();
-    if (!window.confirm('Are you sure you want to delete this match session?')) return;
+  const confirmDelete = async () => {
+    if (!sessionToDelete) return;
+
+    const tokenId = sessionToDelete;
+    setSessionToDelete(null); // Close modal
 
     const toastId = showToast.loading("Deleting Session...");
     try {
@@ -78,134 +102,209 @@ const MatchSetupPage: React.FC = () => {
       }
     } catch (error) {
       showToast.handleResponse(toastId, error);
-    } finally {
     }
   };
 
+  const handleDeleteToken = (e: React.MouseEvent, tokenId: string) => {
+    e.stopPropagation();
+    setSessionToDelete(tokenId);
+  };
+
   return (
-    <div className="max-w-5xl mx-auto p-3 space-y-4 animate-in fade-in duration-700 min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 via-gray-100 to-gray-200 dark:from-slate-900 dark:via-[#0a0a0a] dark:to-black">
+    <Box className="max-w-7xl mx-auto p-4 space-y-6 animate-in fade-in duration-700 bg-transparent">
 
-      {/* Premium Header - Compact */}
-      <div className="flex items-end justify-between pb-3 border-b border-gray-200/50 dark:border-white/5">
+      {/* Small Refined Header */}
+      <div className="flex items-center justify-between pb-3 md:pb-4 border-b border-gray-200 dark:border-white/5">
         <div>
-          <h1 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600 dark:from-cyan-400 dark:to-blue-500 tracking-tighter uppercase mb-0.5">
-            Match Sessions
-          </h1>
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">
-            Manage your fixtures & scoring tokens
-          </p>
+          <h2 className="text-[10px] md:text-sm font-black uppercase tracking-widest text-[var(--text)]">
+            Active Sessions
+          </h2>
         </div>
-
         <Button
           variant="primary"
           onClick={handleGenerateToken}
           disabled={isGenerating}
-          className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-[10px] font-black uppercase tracking-widest px-4 h-8 rounded shadow-lg shadow-cyan-500/20 flex items-center gap-1.5 transition-all transform hover:-translate-y-0.5 hover:shadow-cyan-500/30"
+          className="h-7 md:h-8 px-3 md:px-4 text-[8px] md:text-[10px] font-black uppercase tracking-wider bg-cyan-600 hover:bg-cyan-700 text-white rounded shadow-sm flex items-center gap-1.5 md:gap-2 transition-all"
         >
-          <Plus size={14} strokeWidth={3} />
-          Create Session
+          <Plus size={14} strokeWidth={3} className="w-3 h-3 md:w-3.5 md:h-3.5" />
+          {isGenerating ? 'Generating...' : 'Create Session'}
         </Button>
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-32 rounded-lg bg-white/50 dark:bg-white/5 animate-pulse" />
+        <Grid cols={{ default: 1, sm: 2, md: 3, lg: 4, xl: 5 }} gap={3}>
+          {[1, 2, 3, 4, 5].map(i => (
+            <div key={i} className="h-32 rounded-sm bg-[var(--card-bg)] border border-[var(--card-border)] animate-pulse" />
           ))}
-        </div>
+        </Grid>
       ) : matches.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center space-y-3 border-2 border-dashed border-gray-200 dark:border-white/10 rounded-xl bg-white/50 dark:bg-white/5">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center animate-bounce-slow">
-            <Clipboard size={20} className="text-cyan-500" />
-          </div>
-          <div>
-            <h3 className="text-sm font-black text-[var(--text)] uppercase tracking-tight">No Active Sessions</h3>
-            <p className="text-[10px] text-gray-400 font-medium mt-0.5">Generate a new token to begin setup</p>
-          </div>
-        </div>
+        <LibCard className="py-12 text-center border-dashed">
+          <Stack align="center" justify="center" gap="sm">
+            <Box className="w-10 h-10 rounded-sm bg-cyan-100 dark:bg-cyan-900/20 flex items-center justify-center">
+              <Clipboard size={18} className="text-cyan-600 dark:text-cyan-400" />
+            </Box>
+            <div>
+              <h3 className="text-sm font-bold text-[var(--text)] uppercase tracking-tight">No Active Sessions</h3>
+              <Text className="text-[10px] text-[var(--text-secondary)] font-medium mt-0.5">Generate a new token to begin setup</Text>
+            </div>
+          </Stack>
+        </LibCard>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <Grid cols={{ default: 1, sm: 2, md: 3, lg: 4, xl: 5 }} gap={3}>
           {matches.map((match) => (
-            <div
+            <LibCard
               key={match.id}
               onClick={() => navigate(`/admin/match-setup/${match.id}`)}
-              className="group relative cursor-pointer bg-white dark:bg-[#0f0f0f] border border-gray-100 dark:border-white/5 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10 hover:-translate-y-1"
+              className="group cursor-pointer border border-[var(--card-border)] hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/5 transition-all duration-300 relative overflow-hidden"
+              p="sm"
             >
-              {/* Decorative Elements - Scaled Down */}
-              <div className="absolute top-0 right-0 w-16 h-16 bg-cyan-500/5 rounded-full -mr-6 -mt-6 blur-lg group-hover:bg-cyan-500/10 transition-all" />
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent group-hover:via-cyan-500/50 transition-all" />
+              {/* Subtle top indicator based on status */}
+              <div className={`absolute top-0 left-0 right-0 h-[3px] opacity-70 ${match.status.toUpperCase() === 'LIVE' ? 'bg-red-500' :
+                match.status.toUpperCase() === 'SCHEDULED' ? 'bg-green-500' : 'bg-cyan-500'
+                }`} />
 
-              <div className="p-3">
-                {/* Card Top: Status & Delete */}
-                <div className="flex justify-between items-start mb-3">
-                  <div className={`text-[8px] font-black uppercase tracking-[0.15em] px-1.5 py-0.5 rounded bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 ${match.status.toUpperCase() === 'LIVE' ? 'text-red-500 border-red-500/20 bg-red-500/5' :
-                      match.status.toUpperCase() === 'SCHEDULED' ? 'text-green-500 border-green-500/20 bg-green-500/5' :
-                        'text-cyan-500'
+              <Stack gap="xs">
+                {/* Header: Status & Delete */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${match.status.toUpperCase() === 'LIVE'
+                    ? 'bg-red-500/10 text-red-500'
+                    : match.status.toUpperCase() === 'SCHEDULED'
+                      ? 'bg-green-500/10 text-green-500'
+                      : 'bg-cyan-500/10 text-cyan-500'
                     }`}>
+                    <span className={`w-1 h-1 rounded-full ${match.status.toUpperCase() === 'LIVE' ? 'bg-red-500 animate-pulse' :
+                      match.status.toUpperCase() === 'SCHEDULED' ? 'bg-green-500' : 'bg-cyan-500'
+                      }`} />
                     {match.status}
                   </div>
                   <button
                     onClick={(e) => handleDeleteToken(e, match.id)}
-                    className="text-gray-300 hover:text-red-500 transition-colors p-1 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-full"
+                    className="text-gray-300 hover:text-red-500 hover:bg-red-500/10 p-1 rounded-sm transition-all"
                   >
-                    <Trash2 size={12} />
+                    <Trash2 size={11} />
                   </button>
                 </div>
 
-                {/* Teams Display - Compact */}
-                <div className="flex items-center justify-between gap-1.5 mb-3">
+                {/* Body: Teams VS */}
+                <div className="relative py-2 px-1 flex items-center justify-between">
                   {/* Team A */}
-                  <div className="flex flex-col items-center flex-1 min-w-0">
-                    <div className="w-8 h-8 mb-1.5 rounded bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-inner">
-                      <span className="text-xs font-black text-gray-400 dark:text-gray-500">
+                  <div className="flex flex-col items-center flex-1 min-w-0 z-10">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-white/10 flex items-center justify-center mb-1 shadow-sm group-hover:border-cyan-500/30 transition-colors">
+                      <span className="text-xs font-black text-gray-400 group-hover:text-cyan-600 transition-colors">
                         {match.teamA?.name?.[0] || 'A'}
                       </span>
                     </div>
-                    <h3 className="text-[10px] font-bold text-[var(--text)] uppercase tracking-tight truncate w-full text-center leading-tight">
-                      {match.teamA?.name || 'TBA'}
-                    </h3>
+                    <span className="text-[10px] font-black text-[var(--text)] truncate w-full text-center uppercase tracking-tighter leading-none">
+                      {match.teamA?.name || 'TEAM A'}
+                    </span>
                   </div>
 
-                  {/* VS */}
-                  <div className="flex flex-col items-center px-1">
-                    <span className="text-[8px] font-black italic text-gray-300 dark:text-gray-700">VS</span>
+                  {/* VS Badge */}
+                  <div className="flex flex-col items-center px-1 z-10">
+                    <div className="px-1.5 py-0.5 rounded-sm bg-white dark:bg-black border border-gray-100 dark:border-white/5 shadow-sm">
+                      <span className="text-[7px] font-black italic text-gray-400">VS</span>
+                    </div>
                   </div>
 
                   {/* Team B */}
-                  <div className="flex flex-col items-center flex-1 min-w-0">
-                    <div className="w-8 h-8 mb-1.5 rounded bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-inner">
-                      <span className="text-xs font-black text-gray-400 dark:text-gray-500">
+                  <div className="flex flex-col items-center flex-1 min-w-0 z-10">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-white/10 flex items-center justify-center mb-1 shadow-sm group-hover:border-cyan-500/30 transition-colors">
+                      <span className="text-xs font-black text-gray-400 group-hover:text-cyan-600 transition-colors">
                         {match.teamB?.name?.[0] || 'B'}
                       </span>
                     </div>
-                    <h3 className="text-[10px] font-bold text-[var(--text)] uppercase tracking-tight truncate w-full text-center leading-tight">
-                      {match.teamB?.name || 'TBA'}
-                    </h3>
+                    <span className="text-[10px] font-black text-[var(--text)] truncate w-full text-center uppercase tracking-tighter leading-none">
+                      {match.teamB?.name || 'TEAM B'}
+                    </span>
                   </div>
                 </div>
 
-                {/* Footer Info - Compact */}
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-white/5">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-1 text-[9px] font-bold text-gray-400 group-hover:text-cyan-600 transition-colors">
-                      <Calendar size={10} />
-                      <span>{match.match_date ? new Date(match.match_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'No Date'}</span>
+                {/* Details: Venue & Date */}
+                <div className="mt-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1 rounded-sm bg-gray-50 dark:bg-white/5">
+                      <MapPin size={10} className="text-cyan-500" />
                     </div>
-                    <div className="text-[8px] font-mono text-gray-300 dark:text-gray-600 pl-3.5">
-                      {match.id.substring(0, 8)}...
-                    </div>
+                    <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 truncate tracking-tight">
+                      {match.venue || 'Venue TBD'}
+                    </span>
                   </div>
-
-                  <div className="w-5 h-5 rounded-full bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-x-1 group-hover:translate-x-0 transition-all duration-300">
-                    <CheckCircle2 size={10} strokeWidth={3} />
+                  <div className="flex items-center gap-2">
+                    <div className="p-1 rounded-sm bg-gray-50 dark:bg-white/5">
+                      <Calendar size={10} className="text-blue-500" />
+                    </div>
+                    <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 truncate tracking-tight">
+                      {match.match_date ? new Date(match.match_date).toLocaleDateString(undefined, {
+                        weekday: 'short', month: 'short', day: 'numeric'
+                      }) : 'Date Pending'}
+                    </span>
                   </div>
                 </div>
-              </div>
-            </div>
+
+                {/* Footer: User & ID */}
+                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded-full bg-cyan-600/10 flex items-center justify-center">
+                      <User size={8} className="text-cyan-600" />
+                    </div>
+                    <span className="text-[8px] font-bold text-gray-400 dark:text-gray-500 truncate max-w-[60px]">
+                      {match.user?.username || 'System'}
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-mono font-bold text-gray-400 dark:text-gray-600 uppercase tracking-tight">
+                    #{match.id.toUpperCase()}
+                  </span>
+                </div>
+              </Stack>
+            </LibCard>
           ))}
-        </div>
+        </Grid>
       )}
-    </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!sessionToDelete}
+        onClose={() => setSessionToDelete(null)}
+        title="Delete Session"
+        maxWidth="sm"
+        footer={
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 font-bold uppercase tracking-widest text-[10px]"
+              onClick={() => setSessionToDelete(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              className="flex-1 font-bold uppercase tracking-widest text-[10px]"
+              onClick={confirmDelete}
+              leftIcon={<Trash2 size={14} />}
+            >
+              Delete Session
+            </Button>
+          </div>
+        }
+      >
+        <div className="flex flex-col items-center py-4 text-center">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4 border border-red-500/20">
+            <AlertCircle size={32} className="text-red-500" />
+          </div>
+          <h3 className="text-base font-bold text-[var(--text)] uppercase tracking-wider">Permanent Action</h3>
+          <p className="text-[var(--text-secondary)] text-xs mt-2 leading-relaxed">
+            Are you sure you want to delete this match session? This will permanently remove all associated tokens and setup progress.
+          </p>
+          {sessionToDelete && (
+            <div className="mt-4 px-4 py-2 bg-gray-50 dark:bg-white/5 rounded-sm border border-gray-100 dark:border-white/5">
+              <span className="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-500">
+                {sessionToDelete.toUpperCase()}
+              </span>
+            </div>
+          )}
+        </div>
+      </Modal>
+    </Box>
   );
 };
 

@@ -41,21 +41,21 @@ const ScoreEditor: React.FC = () => {
 
   return (
     <ScoreProvider>
-        <div id="ScoreEditorPage" className="p-4 space-y-6 dark:bg-gray-900 bg-gray-100 min-h-screen">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TeamScoreCard />
-        <OpponentTeam />
-      </div>
+      <div id="ScoreEditorPage" className="p-4 space-y-6 bg-transparent">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TeamScoreCard />
+          <OpponentTeam />
+        </div>
 
-      <OverTracker />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BattingList batters={battingPlayers} teamName="India" initialMode="normal" />
-        <BattingList batters={opponentPlayers} teamName="Australia" initialMode="hidden" />
-      </div>
+        <OverTracker />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BattingList batters={battingPlayers} teamName="India" initialMode="normal" />
+          <BattingList batters={opponentPlayers} teamName="Australia" initialMode="hidden" />
+        </div>
 
-      <BowlerList />
-      <OverOptionsAccordion />
-    </div>
+        <BowlerList />
+        <OverOptionsAccordion />
+      </div>
     </ScoreProvider>
   );
 };

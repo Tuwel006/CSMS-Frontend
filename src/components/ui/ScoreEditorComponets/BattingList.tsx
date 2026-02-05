@@ -26,25 +26,25 @@ const BattingList: React.FC<BattingListProps> = ({ batters, teamName, initialMod
   const visibleBatters = mode === "grow"
     ? batters
     : mode === "normal"
-    ? batters
+      ? batters
         .filter((_, index) => index < 2)
         .sort((a, b) => (b.isStriker ? 1 : 0) - (a.isStriker ? 1 : 0))
-    : [];
+      : [];
 
   return (
-    <div id="BattingList" className="w-full max-w-md mx-auto p-2 bg-white dark:bg-gray-800 rounded-md shadow">
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-semibold dark:text-white text-gray-800">{teamName} Batting</h2>
+    <div id="BattingList" className="w-full p-3 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-sm shadow-sm">
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--text)]">{teamName} Batting</h2>
         <button
           onClick={toggleMode}
-          className="text-sm text-blue-500 hover:underline"
+          className="text-[10px] font-bold uppercase tracking-widest text-cyan-600 hover:text-cyan-700 transition-colors"
         >
           {mode === "grow" ? "Collapse" : "Expand"}
         </button>
       </div>
       {mode !== "hidden" ? (
-        <table className="w-full text-sm text-left">
-          <thead className="text-gray-500 dark:text-gray-300">
+        <table className="w-full text-left">
+          <thead className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-secondary)] border-b border-[var(--card-border)]">
             <tr>
               <th className="p-1">Batter</th>
               <th className="p-1 text-right">R</th>

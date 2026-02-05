@@ -11,7 +11,7 @@ const MatchSlider: React.FC<Props> = ({ matches }) => {
       {/* Horizontal Scroll Belt */}
       <div className="flex space-x-4 overflow-x-auto p-4 scrollbar-hide">
         {matches.map((match, idx) => (
-          <MatchCard key={idx} match={match} />
+          <MatchCard key={idx} match={match as any} />
         ))}
       </div>
 

@@ -2,8 +2,8 @@
 const BowlerList = () => {
   // Placeholder component
   return (
-    <div className="text-sm text-gray-700 dark:text-gray-300">
-      <p>Bowler list will be displayed here with overs, wickets and economy.</p>
+    <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] bg-[var(--card-bg)] p-4 border border-[var(--card-border)] rounded-sm">
+      <p>Bowler list details (Overs, Wickets, Economy) will appear here.</p>
     </div>
   );
 };

@@ -34,7 +34,7 @@ const OverTracker = () => {
         })}
       </div>
 
-      <div className="text-sm text-gray-600 dark:text-gray-300 flex justify-between">
+      <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)] flex justify-between items-center py-2 border-y border-[var(--card-border)]">
         <span>
           Over {activeOverIndex + 1} of {overs.length}
         </span>
@@ -44,15 +44,15 @@ const OverTracker = () => {
               activeOverIndex === overs.length - 1 ? 0 : activeOverIndex + 1
             )
           }
-          className="text-blue-500 hover:underline"
+          className="text-cyan-600 hover:text-cyan-700 transition-colors"
         >
-          {activeOverIndex === overs.length - 1 ? "Go to first over" : "Next over"}
+          {activeOverIndex === overs.length - 1 ? "First Over" : "Next Over"}
         </button>
       </div>
 
       {showAction && (
         <OverActionAccordion
-        
+
         />
       )}
     </div>

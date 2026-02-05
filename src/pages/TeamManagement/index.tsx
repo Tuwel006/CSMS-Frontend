@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Users,
   Settings,
   PlayCircle,
   CheckCircle2,
@@ -27,6 +26,7 @@ import TeamSetup from '../../components/TeamSetup';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import MatchStartTab from './MatchStartTab';
+import { useBreadcrumbs } from '../../context/BreadcrumbContext';
 
 type Step = 'team-a' | 'team-b' | 'match-details' | 'match-start';
 
@@ -34,6 +34,7 @@ const TeamManagement = () => {
   const { matchId } = useParams<{ matchId: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { setPageMeta } = useBreadcrumbs();
 
   const [currentStep, setCurrentStep] = useState<Step>('team-a');
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,27 @@ const TeamManagement = () => {
   const { team1, team2, team1Players, team2Players, currentMatch } = useSelector(
     (state: RootState) => state.teamManagement
   );
+
+  // Set Page Meta
+  useEffect(() => {
+    setPageMeta({
+      description: `Setup teams and match logistics for session: ${matchId?.substring(0, 8).toUpperCase()}`,
+      actions: (
+        <div className="flex items-center gap-2">
+          <div className="px-3 py-1 rounded-sm bg-[var(--card-bg)] border border-[var(--card-border)] shadow-sm flex items-center gap-2">
+            <span className="text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">Session</span>
+            <span className="text-xs font-mono font-bold text-cyan-600 tracking-wider">{matchId?.substring(0, 8).toUpperCase()}</span>
+          </div>
+          <div className={`px-2.5 py-1 rounded-sm text-[9px] font-bold uppercase tracking-widest border ${currentMatch?.status === 'LIVE'
+            ? 'bg-red-500/5 border-red-500/20 text-red-500'
+            : 'bg-cyan-500/5 border-cyan-500/20 text-cyan-500'
+            }`}>
+            {currentMatch?.status || 'INIT'}
+          </div>
+        </div>
+      )
+    });
+  }, [setPageMeta, matchId, currentMatch?.status]);
 
   const steps: { key: Step; label: string; icon: any }[] = [
     { key: 'team-a', label: 'Team A Setup', icon: Shield },
@@ -202,33 +224,7 @@ const TeamManagement = () => {
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto p-1.5 sm:p-3 space-y-2 animate-in fade-in duration-500 min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900/50 dark:via-gray-900 dark:to-black">
-      {/* Header - Compact & Clean */}
-      <div className="flex items-center justify-between pb-2 border-b border-gray-200/50 dark:border-gray-800/50">
-        <button
-          onClick={() => navigate('/admin/match-setup')}
-          className="group flex items-center gap-1.5 text-[10px] font-bold text-gray-400 hover:text-cyan-600 transition-colors uppercase tracking-widest"
-        >
-          <div className="p-1 rounded-full bg-gray-100 dark:bg-gray-800 group-hover:bg-cyan-500/10 transition-colors">
-            <ChevronLeft size={12} />
-          </div>
-          Back to Setup
-        </button>
-
-        <div className="flex items-center gap-2">
-          <div className="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-2">
-            <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider">Session</span>
-            <span className="text-xs font-mono font-bold text-cyan-600 tracking-wider">{matchId?.substring(0, 8).toUpperCase()}</span>
-          </div>
-          <div className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${currentMatch?.status === 'LIVE'
-            ? 'bg-red-500/5 border-red-500/20 text-red-500'
-            : 'bg-cyan-500/5 border-cyan-500/20 text-cyan-500'
-            }`}>
-            {currentMatch?.status || 'INIT'}
-          </div>
-        </div>
-      </div>
-
+    <div className="max-w-[1200px] mx-auto p-1.5 sm:p-3 space-y-2 animate-in fade-in duration-500 bg-transparent">
       {/* Advanced Slim Stepper - Minimal Vertical Gap */}
       <div className="py-2">
         <div className="relative flex justify-between items-start max-w-2xl mx-auto px-4 z-0">
@@ -258,7 +254,7 @@ const TeamManagement = () => {
                 >
                   {isCompleted ? <CheckCircle2 size={14} /> : <Icon size={14} />}
                 </div>
-                <span className={`text-[9px] font-black uppercase tracking-[0.15em] transition-colors duration-300 ${isActive ? 'text-cyan-600' : isCompleted ? 'text-emerald-500' : 'text-gray-400'
+                <span className={`text-[9px] font-bold uppercase tracking-widest transition-colors duration-300 ${isActive ? 'text-cyan-600' : isCompleted ? 'text-emerald-500' : 'text-gray-400'
                   }`}>
                   {step.label.split(' ')[0]}
                 </span>
@@ -274,7 +270,7 @@ const TeamManagement = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center pb-2 border-b border-gray-50 dark:border-gray-800">
               <div>
-                <h2 className="text-lg font-black tracking-tight">TEAM A <span className="text-cyan-600">SETUP</span></h2>
+                <h2 className="text-lg font-bold tracking-tight">TEAM A <span className="text-cyan-600 uppercase font-black">SETUP</span></h2>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest">Configure first team roster</p>
               </div>
               {currentMatch?.teamA && (
@@ -319,7 +315,7 @@ const TeamManagement = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center pb-2 border-b border-gray-50 dark:border-gray-800">
               <div>
-                <h2 className="text-lg font-black tracking-tight">TEAM B <span className="text-cyan-600">SETUP</span></h2>
+                <h2 className="text-lg font-bold tracking-tight">TEAM B <span className="text-cyan-600 uppercase font-black">SETUP</span></h2>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest">Configure rival team roster</p>
               </div>
               {currentMatch?.teamB && (

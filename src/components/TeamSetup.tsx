@@ -273,12 +273,12 @@ const TeamSetup = ({
                 <div className="rounded-sm border border-cyan-500/10 mb-3 bg-cyan-500/5 overflow-hidden animate-in fade-in duration-300">
                     <div className="flex items-center justify-between px-3 py-2">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className="flex-shrink-0 w-7 h-7 rounded-full bg-cyan-600 flex items-center justify-center text-white font-black text-[10px] shadow-sm shadow-cyan-500/40">
+                            <div className="flex-shrink-0 w-7 h-7 rounded-full bg-cyan-600 flex items-center justify-center text-white font-bold text-[10px] shadow-sm shadow-cyan-500/40">
                                 {teamNumber}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h4 className="font-bold text-xs text-[var(--text)] tracking-tight uppercase">{savedTeam.name}</h4>
-                                <div className="flex items-center gap-2 text-[9px] text-gray-500 font-bold uppercase tracking-widest leading-none mt-0.5">
+                                <div className="flex items-center gap-2 text-[9px] text-[var(--text-secondary)] font-bold uppercase tracking-widest leading-none mt-0.5">
                                     <span className="truncate">{savedTeam.location}</span>
                                     {savedTeam.id && <span className="text-cyan-600/50">#{savedTeam.id}</span>}
                                 </div>
@@ -304,12 +304,12 @@ const TeamSetup = ({
 
             {/* Player Section - Compact */}
             <div className="space-y-2 pt-1">
-                <div className="p-2 border border-gray-100 dark:border-gray-800 rounded-sm bg-gray-50/30 dark:bg-white/2">
+                <div className="p-2 border border-[var(--card-border)] rounded-sm bg-[var(--card-bg)]">
                     <div className="flex items-center justify-between mb-2 px-1">
-                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                        <h4 className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">
                             {editingPlayerIndex !== null ? 'Modify Player' : 'Join Roster'}
                         </h4>
-                        <div className="h-[1px] flex-1 mx-3 bg-gray-100 dark:bg-gray-800" />
+                        <div className="h-[1px] flex-1 mx-3 bg-[var(--card-border)]" />
                         <span className="text-[10px] font-bold text-cyan-500">{players.length}/11</span>
                     </div>
 
@@ -366,7 +366,7 @@ const TeamSetup = ({
                                             onClick={() => handlePlayerSelect(player)}
                                         >
                                             <span className="font-bold">{player.full_name}</span>
-                                            <span className="text-gray-400 ml-2 text-[9px]">#{player.id}</span>
+                                            <span className="text-[var(--text-secondary)] ml-2 text-[9px]">#{player.id}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -408,23 +408,23 @@ const TeamSetup = ({
                 {players.length > 0 && (
                     <div className="pt-1">
                         <div className="flex items-center gap-2 mb-2 px-1">
-                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Roster List</span>
-                            <div className="h-[1px] flex-1 bg-gray-50 dark:bg-gray-800/50" />
+                            <span className="text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">Roster List</span>
+                            <div className="h-[1px] flex-1 bg-[var(--card-border)]" />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                             {players.map((player, index) => (
                                 <div
                                     key={index}
-                                    className="flex items-center justify-between pl-2.5 pr-1.5 py-1.5 bg-white dark:bg-white/2 border border-gray-100 dark:border-gray-800/50 rounded-sm hover:border-cyan-500/30 hover:bg-cyan-500/[0.02] transition-all group"
+                                    className="flex items-center justify-between pl-2.5 pr-1.5 py-1.5 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-sm hover:border-cyan-500/30 hover:bg-cyan-500/[0.02] transition-all group"
                                 >
                                     <div className="flex items-center gap-2 min-w-0">
-                                        <div className="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-[9px] font-bold text-gray-500">
+                                        <div className="w-5 h-5 rounded-full bg-[var(--hover-bg)] flex items-center justify-center text-[9px] font-bold text-[var(--text-secondary)]">
                                             {index + 1}
                                         </div>
                                         <div className="flex flex-col min-w-0">
                                             <span className="font-bold text-[11px] text-[var(--text)] truncate leading-none uppercase tracking-tight">{player.name}</span>
-                                            <span className="text-[8px] font-black text-cyan-500 uppercase mt-0.5 tracking-tighter">{player.role}</span>
+                                            <span className="text-[8px] font-bold text-cyan-500 uppercase mt-0.5 tracking-wider">{player.role}</span>
                                         </div>
                                     </div>
                                     <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">

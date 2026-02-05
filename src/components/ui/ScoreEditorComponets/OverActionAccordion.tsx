@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTheme } from "../../../context/ThemeContext";
 import ConfirmDialog from "../ConfirmDialog";
 
 type BallOption = {
@@ -22,7 +21,6 @@ const ballOptions: BallOption[] = [
 ];
 
 const OverOptionsAccordion = () => {
-  const { theme } = useTheme();
   const [expanded, setExpanded] = useState<boolean>(true);
   const [selected, setSelected] = useState<BallOption | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -42,13 +40,13 @@ const OverOptionsAccordion = () => {
   };
 
   return (
-    <div className={`rounded-xl shadow-md p-4 my-4 transition-all ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"}`}>
+    <div className="rounded-sm shadow-sm p-4 my-4 transition-all bg-[var(--card-bg)] border border-[var(--card-border)]">
       <button
-        className="w-full flex justify-between items-center text-lg font-semibold mb-2"
+        className="w-full flex justify-between items-center text-xs font-bold uppercase tracking-widest text-[var(--text)] mb-3"
         onClick={() => setExpanded(!expanded)}
       >
         Over Options
-        <span>{expanded ? "▲" : "▼"}</span>
+        <span className="text-cyan-600">{expanded ? "▲" : "▼"}</span>
       </button>
       {expanded && (
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">

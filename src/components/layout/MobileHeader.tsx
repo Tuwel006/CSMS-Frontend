@@ -25,7 +25,7 @@ const Header = ({ onMenuToggle, isMobileMenuOpen }: MobileHeaderProps) => {
   return (
     <header className="h-12 md:h-14 bg-[var(--header-bg)] border-b border-[var(--card-border)] sticky top-0 z-40">
       <Stack direction="row" justify="between" align="center" className="h-full px-2 md:px-4">
-        <Stack direction="row" align="center" gap="xs">
+        <Stack direction="row" align="center" gap="xs" className="min-w-0 flex-1">
           <IconButton
             icon={isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             onClick={onMenuToggle}
@@ -33,12 +33,12 @@ const Header = ({ onMenuToggle, isMobileMenuOpen }: MobileHeaderProps) => {
             className="lg:hidden"
             size="sm"
           />
-          <h1 className="text-sm md:text-lg font-bold text-[var(--header-text)] truncate">
-            Cricket Score
+          <h1 className="text-sm md:text-base font-bold text-[var(--header-text)] truncate min-w-0 uppercase tracking-widest">
+            Cricket <span className="text-cyan-600">Score</span>
           </h1>
         </Stack>
 
-        <Stack direction="row" align="center" gap="xs">
+        <Stack direction="row" align="center" gap="xs" className="flex-shrink-0">
           <div className="relative flex items-center">
             <IconButton
               icon={<Search size={18} />}

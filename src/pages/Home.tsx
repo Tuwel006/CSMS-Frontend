@@ -4,7 +4,6 @@ import { useTheme } from '../context/ThemeContext';
 import { Crown, Zap, Shield, CheckCircle, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import usePlans from '../hooks/usePlans';
-import useSubscribe from '../hooks/useSubscribe';
 import { useTenantDashboard } from '../hooks/useTenantDashboard';
 import PaymentGateway from '../components/payment/PaymentGateway';
 import PlanCard from '../components/ui/lib/PlanCard';
@@ -18,11 +17,15 @@ const Home = () => {
   const navigate = useNavigate();
   const isDark = theme === 'dark';
   const { plans, loading, error, refetch } = usePlans();
-  const { subscribe } = useSubscribe();
   const { tenantData, loading: tenantLoading, refetch: refetchTenant } = useTenantDashboard();
-  
+
   const [showPayment, setShowPayment] = useState(false);
-  const [paymentData, setPaymentData] = useState<any>(null);
+  const [paymentData] = useState<any>(null);
+
+  const handlePaymentSuccess = () => {
+    setShowPayment(false);
+    refetchTenant();
+  };
   const [showOrgNameModal, setShowOrgNameModal] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   const [orgName, setOrgName] = useState('');
@@ -32,7 +35,7 @@ const Home = () => {
   const handlePlanSelect = (planId: number) => {
     const plan = plans.find(p => p.id === planId);
     if (!plan) return;
-    
+
     setSelectedPlanId(planId);
     setShowOrgNameModal(true);
   };
@@ -48,7 +51,7 @@ const Home = () => {
         organizationName: orgName,
         planId: selectedPlanId
       });
-      
+
       showToast.success('Organization created successfully!');
       setShowOrgNameModal(false);
       refetchTenant();
@@ -71,7 +74,7 @@ const Home = () => {
         <div className={cn('h-3 rounded w-20 mx-auto', isDark ? 'bg-gray-700' : 'bg-gray-200')} />
         <div className={cn('h-8 rounded w-16 mx-auto', isDark ? 'bg-gray-700' : 'bg-gray-200')} />
         <div className="space-y-2">
-          {[1,2,3].map(i => <div key={i} className={cn('h-2 rounded', isDark ? 'bg-gray-700' : 'bg-gray-200')} />)}
+          {[1, 2, 3].map(i => <div key={i} className={cn('h-2 rounded', isDark ? 'bg-gray-700' : 'bg-gray-200')} />)}
         </div>
         <div className={cn('h-8 rounded', isDark ? 'bg-gray-700' : 'bg-gray-200')} />
       </div>
@@ -102,19 +105,19 @@ const Home = () => {
     if (loading) {
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1,2,3].map(i => <PlanSkeleton key={i} />)}
+          {[1, 2, 3].map(i => <PlanSkeleton key={i} />)}
         </div>
       );
     }
-    
+
     if (error) {
       return <ErrorState />;
     }
-    
+
     if (!plans || plans.length === 0) {
       return <EmptyState />;
     }
-    
+
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {plans.map(plan => (
@@ -125,7 +128,7 @@ const Home = () => {
   };
 
   return (
-    <div className={cn('min-h-screen relative', isDark ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-white')}>      
+    <div className={cn('min-h-screen relative', isDark ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-blue-50 to-white')}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Hero Section */}
         <div className="text-center space-y-4">
@@ -143,7 +146,7 @@ const Home = () => {
         ) : tenantData ? (
           <div className="space-y-6">
             <ActivePlanCard tenantData={tenantData} onUpgrade={refetchTenant} />
-            
+
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <button
@@ -154,7 +157,7 @@ const Home = () => {
                 <h3 className={cn('text-sm font-bold mb-0.5', isDark ? 'text-white' : 'text-gray-900')}>Admin Dashboard</h3>
                 <p className={cn('text-[10px]', isDark ? 'text-gray-400' : 'text-gray-600')}>Manage organization</p>
               </button>
-              
+
               <button
                 onClick={() => navigate('/matches')}
                 className={cn('p-4 rounded-xs border transition-all hover:scale-[1.02] hover:shadow-md', isDark ? 'bg-gray-800 border-gray-700 hover:border-blue-500' : 'bg-white border-gray-200 hover:border-blue-500')}
@@ -163,7 +166,7 @@ const Home = () => {
                 <h3 className={cn('text-sm font-bold mb-0.5', isDark ? 'text-white' : 'text-gray-900')}>Matches</h3>
                 <p className={cn('text-[10px]', isDark ? 'text-gray-400' : 'text-gray-600')}>View & manage</p>
               </button>
-              
+
               <button
                 onClick={() => navigate('/teams')}
                 className={cn('p-4 rounded-xs border transition-all hover:scale-[1.02] hover:shadow-md', isDark ? 'bg-gray-800 border-gray-700 hover:border-blue-500' : 'bg-white border-gray-200 hover:border-blue-500')}

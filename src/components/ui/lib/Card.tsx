@@ -8,6 +8,7 @@ interface CardProps {
   bodyClassName?: string;
   onClick?: () => void;
   variant?: 'default' | 'primary' | 'success';
+  p?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
 const Card: React.FC<CardProps> = ({
@@ -17,10 +18,20 @@ const Card: React.FC<CardProps> = ({
   headerClassName = '',
   bodyClassName = '',
   onClick,
-  variant = 'default'
+  variant = 'default',
+  p = 'none'
 }) => {
+  const paddings = {
+    none: 'p-0',
+    xs: 'p-1',
+    sm: 'p-2',
+    md: 'p-4',
+    lg: 'p-6',
+    xl: 'p-8'
+  };
+
   const variantClasses = {
-    default: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+    default: 'bg-[var(--card-bg)] border-[var(--card-border)]',
     primary: 'bg-cyan-600 dark:bg-cyan-700 border-cyan-600 dark:border-cyan-700 text-white',
     success: 'bg-emerald-600 dark:bg-emerald-700 border-emerald-600 dark:border-emerald-700 text-white'
   };
@@ -31,11 +42,11 @@ const Card: React.FC<CardProps> = ({
       onClick={onClick}
     >
       {title && (
-        <div className={`px-2 sm:px-3 py-1 sm:py-1.5 font-semibold text-xs sm:text-sm border-b border-gray-200 dark:border-gray-700 ${headerClassName}`}>
+        <div className={`px-2 sm:px-3 py-1 sm:py-1.5 font-semibold text-xs sm:text-sm border-b border-[var(--card-border)] ${headerClassName}`}>
           {title}
         </div>
       )}
-      <div className={bodyClassName}>
+      <div className={`${paddings[p]} ${bodyClassName}`}>
         {children}
       </div>
     </div>

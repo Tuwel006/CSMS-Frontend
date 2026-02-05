@@ -5,6 +5,8 @@ import MobileHeader from './MobileHeader';
 import MobileSidebar from './MobileSidebar';
 import { Home, Users, UserPlus, TrendingUp, BarChart3, Settings, LayoutDashboard } from "lucide-react";
 import ErrorBoundary from "../ErrorBoundary";
+import PageHeader from "./PageHeader";
+import { BreadcrumbProvider } from "../../context/BreadcrumbContext";
 
 const AdminLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -20,32 +22,39 @@ const AdminLayout = () => {
   ];
 
   return (
-    <SearchProvider>
-      <div className="min-h-screen flex flex-col">
-        <MobileHeader 
-          onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          isMobileMenuOpen={isMobileMenuOpen}
-        />
-        <div className="flex flex-1">
-          <MobileSidebar 
-            links={links} 
-            isMobileOpen={isMobileMenuOpen}
-            onClose={() => setIsMobileMenuOpen(false)}
+    <BreadcrumbProvider>
+      <SearchProvider>
+        <div className="h-screen flex flex-col overflow-hidden bg-[var(--bg)]">
+          <MobileHeader
+            onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            isMobileMenuOpen={isMobileMenuOpen}
           />
-          <main
-            className="flex-1 lg:ml-0 transition-all duration-300 overflow-x-hidden pb-16 lg:pb-0"
-            style={{
-              backgroundColor: "var(--bg)",
-              color: "var(--text)",
-            }}
-          >
-            <ErrorBoundary>
-              <Outlet />
-            </ErrorBoundary>
-          </main>
+          <div className="flex flex-1 overflow-hidden relative">
+            <MobileSidebar
+              links={links}
+              isMobileOpen={isMobileMenuOpen}
+              onClose={() => setIsMobileMenuOpen(false)}
+            />
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+              <main
+                className="flex-1 transition-all duration-300 overflow-x-hidden overflow-y-auto pb-20 lg:pb-0"
+                style={{
+                  backgroundColor: "var(--bg)",
+                  color: "var(--text)",
+                }}
+              >
+                <PageHeader />
+                <div className="max-w-full">
+                  <ErrorBoundary>
+                    <Outlet />
+                  </ErrorBoundary>
+                </div>
+              </main>
+            </div>
+          </div>
         </div>
-      </div>
-    </SearchProvider>
+      </SearchProvider>
+    </BreadcrumbProvider>
   );
 };
 

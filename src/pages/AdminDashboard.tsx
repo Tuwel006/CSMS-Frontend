@@ -6,14 +6,19 @@ import { PageLoader, ErrorDisplay, ScoreCardSkeleton } from "../components/ui/lo
 import { Stack } from "../components/ui/lib/Stack";
 import { Box } from "../components/ui/lib/Box";
 import Card from "../components/ui/lib/Card";
-import { useTheme } from "../context/ThemeContext";
 import type { MatchDetails } from "../types/scorecard";
 import { Trophy, Calendar, TrendingUp, Users } from "lucide-react";
+import { useBreadcrumbs } from "../context/BreadcrumbContext";
 
 const MatchesPage: React.FC = () => {
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const { setPageMeta } = useBreadcrumbs();
+
+  useEffect(() => {
+    setPageMeta({
+      description: "Manage your cricket matches and tournaments"
+    });
+  }, [setPageMeta]);
 
   const [matches, setMatches] = useState<MatchDetails[]>([]);
   const [matchesLoading, setMatchesLoading] = useState(true);
@@ -74,35 +79,27 @@ const MatchesPage: React.FC = () => {
   return (
     <Box p="sm" className="max-w-7xl mx-auto">
       <Stack gap="md">
-        <Box p="xs">
-          <h1 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Dashboard
-          </h1>
-          <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-            Manage your cricket matches and tournaments
-          </p>
-        </Box>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {stats.map((stat, idx) => (
             <Card key={idx} className="p-3 sm:p-4">
               <Stack gap="xs">
                 <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-sm flex items-center justify-center ${stat.color === 'cyan' ? 'bg-cyan-100 dark:bg-cyan-900/20' :
-                    stat.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/20' :
-                      stat.color === 'green' ? 'bg-green-100 dark:bg-green-900/20' :
-                        'bg-orange-100 dark:bg-orange-900/20'
+                  stat.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/20' :
+                    stat.color === 'green' ? 'bg-green-100 dark:bg-green-900/20' :
+                      'bg-orange-100 dark:bg-orange-900/20'
                   }`}>
                   <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.color === 'cyan' ? 'text-cyan-600 dark:text-cyan-400' :
-                      stat.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                        stat.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                          'text-orange-600 dark:text-orange-400'
+                    stat.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                      stat.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                        'text-orange-600 dark:text-orange-400'
                     }`} />
                 </div>
                 <div>
-                  <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <div className="text-xs text-[var(--text-secondary)]">
                     {stat.label}
                   </div>
-                  <div className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  <div className="text-xl sm:text-2xl font-bold text-[var(--text)]">
                     {stat.value}
                   </div>
                 </div>
@@ -115,10 +112,10 @@ const MatchesPage: React.FC = () => {
           <Card className="p-3 sm:p-4">
             <Stack direction="row" justify="between" align="center" className="mb-3">
               <div>
-                <h2 className={`text-base sm:text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <h2 className="text-base sm:text-lg font-bold text-[var(--text)]">
                   Recent Matches
                 </h2>
-                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className="text-xs text-[var(--text-secondary)]">
                   {matches.length} matches found
                 </p>
               </div>
@@ -138,11 +135,11 @@ const MatchesPage: React.FC = () => {
               <ErrorDisplay message={matchesError} onRetry={fetchMatches} />
             ) : matches.length === 0 ? (
               <Box p="lg" className="text-center">
-                <Calendar className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
-                <div className={`text-sm sm:text-base font-semibold mb-1 sm:mb-2 ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>
+                <Calendar className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-[var(--text-secondary)]" />
+                <div className="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-[var(--text)]">
                   No matches yet
                 </div>
-                <p className={`text-xs sm:text-sm mb-3 sm:mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-[var(--text-secondary)]">
                   Create your first match to get started
                 </p>
                 <button
@@ -170,10 +167,10 @@ const MatchesPage: React.FC = () => {
           <Card className="p-3 sm:p-4">
             <Stack direction="row" justify="between" align="center" className="mb-3">
               <div>
-                <h2 className={`text-base sm:text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <h2 className="text-base sm:text-lg font-bold text-[var(--text)]">
                   Tournaments
                 </h2>
-                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className="text-xs text-[var(--text-secondary)]">
                   {tournaments.length} tournaments active
                 </p>
               </div>
@@ -192,11 +189,11 @@ const MatchesPage: React.FC = () => {
               <ErrorDisplay message={tournamentsError} onRetry={fetchTournaments} />
             ) : tournaments.length === 0 ? (
               <Box p="lg" className="text-center">
-                <Trophy className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
-                <div className={`text-sm sm:text-base font-semibold mb-1 sm:mb-2 ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>
+                <Trophy className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-[var(--text-secondary)]" />
+                <div className="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-[var(--text)]">
                   No tournaments yet
                 </div>
-                <p className={`text-xs sm:text-sm mb-3 sm:mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-[var(--text-secondary)]">
                   Create your first tournament
                 </p>
                 <button
@@ -209,7 +206,7 @@ const MatchesPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
                 {tournaments.map((tournament) => (
                   <Card key={tournament.id} className="p-4">
-                    <div className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    <div className="text-sm font-semibold text-[var(--text)]">
                       {tournament.name}
                     </div>
                   </Card>

@@ -32,40 +32,56 @@ const MultiFieldSearch = <T,>({
 }: MultiFieldSearchProps<T>) => {
     return (
         <div className={`relative ${className}`}>
-            <div className="grid grid-cols-12 gap-2 items-end mb-4">
-                {fields.map((field, index) => (
-                    <Input
-                        key={index}
-                        type={field.type || 'text'}
-                        label={field.label}
-                        placeholder={field.placeholder}
-                        value={field.value}
-                        onChange={field.onChange}
-                        size="md"
-                        containerClassName={field.className || "col-span-12 md:col-span-3"}
-                        className={field.inputClassName}
-                    />
-                ))}
+            <div className="grid grid-cols-12 gap-2 items-end">
+                <div className="col-span-12 md:col-span-10 grid grid-cols-10 gap-2 relative">
+                    {fields.map((field, index) => {
+                        // Dynamically calculate grid columns based on original intent (4+4+2 = 10)
+                        const gridClass = field.className?.includes('md:col-span-4')
+                            ? 'md:col-span-4'
+                            : field.className?.includes('md:col-span-2')
+                                ? 'md:col-span-2'
+                                : 'md:col-span-3';
+
+                        return (
+                            <Input
+                                key={index}
+                                type={field.type || 'text'}
+                                label={field.label}
+                                placeholder={field.placeholder}
+                                value={field.value}
+                                onChange={field.onChange}
+                                size="md"
+                                containerClassName={`${field.className?.split(' ')[0] || "col-span-12"} ${gridClass}`}
+                                className={field.inputClassName}
+                            />
+                        );
+                    })}
+
+                    {/* Dropdown - Anchored only to the input fields grid */}
+                    {showDropdown && suggestions.length > 0 && (
+                        <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-[60] bg-[var(--card-bg)]/95 backdrop-blur-xl border border-[var(--card-border)] rounded-sm shadow-[0_10px_30px_rgba(0,0,0,0.3)] max-h-60 overflow-y-auto no-scrollbar animate-in fade-in slide-in-from-top-2 duration-300">
+                            {suggestions.map((item, index) => (
+                                <div
+                                    key={index}
+                                    className="px-4 py-3 hover:bg-cyan-500/10 cursor-pointer text-[12px] font-bold uppercase tracking-wider text-[var(--text)] border-b last:border-0 border-[var(--card-border)] transition-all flex items-center justify-between group"
+                                    onClick={() => onSelect(item)}
+                                >
+                                    <span>{renderSuggestion(item)}</span>
+                                    <div className="w-4 h-4 rounded-full bg-cyan-500/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
                 {actions && (
-                    <div className="col-span-12 md:col-span-auto flex items-end justify-end">
+                    <div className="col-span-12 md:col-span-2 flex items-end justify-end pb-0.5">
                         {actions}
                     </div>
                 )}
             </div>
-
-            {showDropdown && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border border-gray-200 dark:border-gray-800 rounded-lg shadow-2xl mt-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 animate-in fade-in zoom-in-95 duration-200">
-                    {suggestions.map((item, index) => (
-                        <div
-                            key={index}
-                            className="px-4 py-2.5 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 cursor-pointer text-sm text-[var(--text)] border-b last:border-0 border-gray-100 dark:border-gray-800/50 transition-colors"
-                            onClick={() => onSelect(item)}
-                        >
-                            {renderSuggestion(item)}
-                        </div>
-                    ))}
-                </div>
-            )}
         </div>
     );
 };

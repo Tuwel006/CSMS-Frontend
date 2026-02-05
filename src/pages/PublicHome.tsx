@@ -5,7 +5,7 @@ import { Calendar } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { MatchService } from '../services/matchService';
 import MatchCard from '../components/ui/ScoreCard';
-import { PageLoader, ErrorDisplay, ScoreCardSkeleton } from '../components/ui/loading';
+import { PageLoader, ErrorDisplay } from '../components/ui/loading';
 import { Stack } from '../components/ui/lib/Stack';
 import { Box } from '../components/ui/lib/Box';
 import Card from '../components/ui/lib/Card';
@@ -15,7 +15,7 @@ const PublicHome = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const isDark = theme === 'dark';
-  
+
   const [matches, setMatches] = useState<MatchDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

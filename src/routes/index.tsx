@@ -17,7 +17,7 @@ const Home = lazy(() => import("@/pages/Home"));
 const PublicHome = lazy(() => import("@/pages/PublicHome"));
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
-const MatchDetail = lazy(() => import("@/pages/MatchDetails"));
+// const MatchDetail = lazy(() => import("@/pages/MatchDetails"));
 const TeamManagement = lazy(() => import("@/pages/TeamManagement"));
 const TeamManagementRefactored = lazy(() => import("@/pages/TeamManagement/TeamManagementRefactored"));
 const ScoreEditor = lazy(() => import("@/pages/ScoreEditor"));

@@ -1,9 +1,11 @@
 import Sidebar from "./Sidebar";
 import { useTheme } from "../../context/ThemeContext";
 import { SearchProvider } from "../../context/SearchContext";
+import { BreadcrumbProvider } from "../../context/BreadcrumbContext";
 import { Outlet } from "react-router-dom";
-import Header from './Header'
+import Header from './Header';
 import { LayoutDashboard, Home, Settings, Users, UserPlus, BarChart3, TrendingUp } from "lucide-react";
+import PageHeader from "./PageHeader";
 
 
 const AdminLayout = () => {
@@ -18,24 +20,28 @@ const AdminLayout = () => {
   ];
   const { theme } = useTheme();
   return (
-    <SearchProvider>
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <div className="flex flex-1">
-          <Sidebar links={links} />
-          <main
-            key={theme}
-            className="flex-1 ml-16 lg:ml-0 transition-all duration-300 overflow-x-hidden"
-            style={{
-              backgroundColor: "var(--bg)",
-              color: "var(--text)",
-            }}
-          >
-            <Outlet />
-          </main>
+    <BreadcrumbProvider>
+      <SearchProvider>
+        <div className="min-h-screen flex flex-col">
+          <Header />
+
+          <div className="flex flex-1">
+            <Sidebar links={links} />
+            <main
+              key={theme}
+              className="flex-1 ml-16 lg:ml-0 transition-all duration-300 overflow-x-hidden"
+              style={{
+                backgroundColor: "var(--bg)",
+                color: "var(--text)",
+              }}
+            >
+              <PageHeader />
+              <Outlet />
+            </main>
+          </div>
         </div>
-      </div>
-    </SearchProvider>
+      </SearchProvider>
+    </BreadcrumbProvider>
   );
 };
 

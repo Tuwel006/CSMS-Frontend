@@ -44,7 +44,7 @@ const Header = () => {
         </div>
         <button
           onClick={toggleTheme}
-          className="p-2 rounded hover:bg-gray-200 dark:hover:bg-white/10 text-[var(--header-text)]"
+          className="p-2 rounded hover:bg-[var(--hover-bg)] text-[var(--header-text)]"
           aria-label="Toggle Theme"
         >
           {theme === 'dark' ? (
@@ -62,9 +62,8 @@ const Header = () => {
               {user?.email?.charAt(0).toUpperCase()}
             </div>
             <ChevronDown
-              className={`text-[var(--header-text)] transition-transform ${
-                isProfileOpen ? 'rotate-180' : ''
-              }`}
+              className={`text-[var(--header-text)] transition-transform ${isProfileOpen ? 'rotate-180' : ''
+                }`}
               size={16}
             />
           </button>

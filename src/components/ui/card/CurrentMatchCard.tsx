@@ -8,7 +8,7 @@ interface Props {
 
 const MatchCard: React.FC<Props> = ({ match }) => (
   <div className="w-80 mx-2">
-    <ScoreCard match={match} />
+    <ScoreCard match={match as any} />
   </div>
 );
 

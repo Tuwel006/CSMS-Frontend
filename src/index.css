@@ -1,6 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv05', 'cv08', 'cv11', 'ss01', 'tnum';
+  letter-spacing: -0.015em;
+  /* Sharper tracking for Inter */
+}
+
+/* Precision sharpening */
+* {
+  box-sizing: border-box;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.dark {
+  /* Prevent font-weight "glow" in dark mode which makes it look fat */
+  -webkit-font-smoothing: subpixel-antialiased;
+}
 
 html,
 body,
@@ -8,43 +31,64 @@ body,
   min-height: 100vh;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.03em;
+  /* Tighter for display fonts */
+  font-weight: 700;
+}
+
 button {
   cursor: pointer;
+  letter-spacing: 0.05em;
+  /* Open up button text for clarity */
+  font-weight: 600;
 }
 
 /* Theme Variables */
 body.light {
-  --bg: #dfeeec;
-  --text: #1f2937;
-  --text-secondary: #6b7280;
-  --card-bg: #f4ffff;
-  --card-border: #dee4fa;
-  --hover-bg: #f3f4f6;
-  --card-highlight-bg: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
-  --card-highlight-border: #bfdbfe;
-  --header-bg: #f4ffff;
-  --header-text: #1f2937;
+  --bg: #f8f9fa;
+  --text: #334155;
+  /* Soft Slate Charcoal */
+  --text-secondary: #64748b;
+  /* Muted Slate Gray */
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --hover-bg: #eff2f5;
+  --card-highlight-bg: linear-gradient(to bottom right, #f0f9ff, #e0f2fe);
+  --card-highlight-border: #bae6fd;
+  --header-bg: #ffffff;
+  --header-text: #475569;
+  /* Soft Slate for Headers */
 }
 
 body.dark {
-  --bg: #110f2a;
-  --text: #f9fafb;
-  --text-secondary: #9ca3af;
+  --bg: #111e2c;
+  --text: #cbd5e1;
+  /* Soft Silvery Gray */
+  --text-secondary: #94a3b8;
+  /* Balanced Muted Gray */
   --card-bg: #17283b;
   --card-border: #334155;
   --hover-bg: #335055;
   --card-highlight-bg: linear-gradient(to bottom right, #1e3a8a, #312e81);
   --card-highlight-border: #3730a3;
   --header-bg: #17283b;
-  --header-text: #ffffff;
+  --header-text: #e2e8f0;
+  /* Off-White Silver */
 }
 
 body.light {
-  background-color: #e0e7ff;
-  color: #1f2937;
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 body.dark {
-  background-color: #0f172a;
-  color: #f9fafb;
+  background-color: var(--bg);
+  color: var(--text);
 }
