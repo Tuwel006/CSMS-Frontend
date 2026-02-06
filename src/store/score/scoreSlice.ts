@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { BallEvent, ScoreType } from "./scoreTypes";
+import { ScoreType } from "./scoreTypes";
 import { ScoreState } from "./score.state";
 import { recordBall } from "./scoreThunks";
 import { applyBallEvent } from "./applyBallEvent";
@@ -30,10 +30,10 @@ export const scoreSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(recordBall.fulfilled, (state, action: PayloadAction<BallEvent>) => {
+            .addCase(recordBall.fulfilled, (state, action) => {
                 state.loading = false;
-                if(state.data) {
-                    applyBallEvent(state.data, action.payload);
+                if (state.data) {
+                    applyBallEvent(state.data, action.payload.data);
                 }
             })
             .addCase(recordBall.rejected, (state, action) => {

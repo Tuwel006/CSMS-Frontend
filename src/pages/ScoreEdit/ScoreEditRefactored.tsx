@@ -87,7 +87,7 @@ const ScoreEdit = () => {
     if (!matchId || !matchData) return;
     try {
       setModalLoading(true);
-      const response = await MatchService.getAvailableBatsmen(matchId, 1);
+      const response = await MatchService.getAvailableBatsmen(matchId);
       if (response.data) {
         setAvailableBatsmen(response.data);
       }
@@ -102,7 +102,7 @@ const ScoreEdit = () => {
     if (!matchId || !matchData) return;
     try {
       setModalLoading(true);
-      const response = await MatchService.getBowlingTeam(matchId, 1);
+      const response = await MatchService.getBowlingTeam(matchId);
       if (response.data) {
         setBowlingTeamPlayers(response.data);
       }
@@ -163,11 +163,11 @@ const ScoreEdit = () => {
         if (scorecardResponse.data) {
           setMatchData(scorecardResponse.data);
         }
-        showToast.success('Ball recorded successfully');
+        showToast.success(response.message || 'Ball recorded successfully');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error recording ball:', error);
-      showToast.error('Failed to record ball');
+      showToast.error(error?.response?.data?.message || error?.message || 'Failed to record ball');
     } finally {
       setScoreUpdating(false);
       setPendingBallType('');
@@ -209,13 +209,13 @@ const ScoreEdit = () => {
         if (scorecardResponse.data) {
           setMatchData(scorecardResponse.data);
         }
-        showToast.success('Wicket recorded successfully');
+        showToast.success(response.message || 'Wicket recorded successfully');
         fetchAvailableBatsmen();
         setShowBatsmanModal(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error recording wicket:', error);
-      showToast.error('Failed to record wicket');
+      showToast.error(error?.response?.data?.message || error?.message || 'Failed to record wicket');
     }
   }, [currentInnings, matchId, fetchAvailableBatsmen]);
 
@@ -240,11 +240,11 @@ const ScoreEdit = () => {
         if (scorecardResponse.data) {
           setMatchData(scorecardResponse.data);
         }
-        showToast.success('Batsman selected successfully');
+        showToast.success(response.message || 'Batsman selected successfully');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error selecting batsman:', error);
-      showToast.error('Failed to select batsman');
+      showToast.error(error?.response?.data?.message || error?.message || 'Failed to select batsman');
     }
   }, [matchId, currentInnings]);
 
@@ -267,11 +267,11 @@ const ScoreEdit = () => {
         if (scorecardResponse.data) {
           setMatchData(scorecardResponse.data);
         }
-        showToast.success('Bowler selected successfully');
+        showToast.success(response.message || 'Bowler selected successfully');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error selecting bowler:', error);
-      showToast.error('Failed to select bowler');
+      showToast.error(error?.response?.data?.message || error?.message || 'Failed to select bowler');
     }
   }, [matchId, currentInnings]);
 
@@ -279,6 +279,12 @@ const ScoreEdit = () => {
     fetchBowlingTeam();
     setShowBowlerModal(true);
   }, [fetchBowlingTeam]);
+
+  useEffect(() => {
+    if (currentInnings?.currentOver?.isOverComplete) {
+      handleOverComplete();
+    }
+  }, [currentInnings?.currentOver?.isOverComplete, handleOverComplete]);
 
   if (loading) {
     return (

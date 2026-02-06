@@ -126,9 +126,9 @@ const TeamManagement = () => {
           setCurrentStep('team-a');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching match:', error);
-      showToast.error('Failed to load match data');
+      showToast.error(error?.response?.data?.message || 'Failed to load match data');
     } finally {
       setLoading(false);
     }
@@ -175,12 +175,10 @@ const TeamManagement = () => {
         response = await MatchService.teamSetup(payload);
       }
 
+      showToast.handleResponse(toastId, response);
       if (response.status >= 200 && response.status < 300) {
-        showToast.success(`Team ${teamNum === 1 ? 'A' : 'B'} ${existingTeam?.id ? 'updated' : 'saved'} successfully`);
         await fetchMatchData();
         setCurrentStep(teamNum === 1 ? 'team-b' : 'match-details');
-      } else {
-        showToast.handleResponse(toastId, response);
       }
     } catch (error) {
       showToast.handleResponse(toastId, error);
@@ -204,8 +202,8 @@ const TeamManagement = () => {
         umpire_2: matchDetails.umpire_2
       };
       const response = await MatchService.scheduleMatch(matchId!, payload);
+      showToast.handleResponse(toastId, response);
       if (response.status >= 200 && response.status < 300) {
-        showToast.success('Match scheduled successfully');
         await fetchMatchData();
         setCurrentStep('match-start');
       }

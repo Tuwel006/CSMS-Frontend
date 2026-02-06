@@ -53,8 +53,8 @@ export const MatchService = {
     },
 
     // Get Available Batsmen
-    getAvailableBatsmen: async (matchId: string, inningsNumber: number): Promise<ApiResponse<any>> => {
-        return apiClient.get(`matches/${matchId}/innings/${inningsNumber}/available-batsmen`);
+    getAvailableBatsmen: async (matchId: string): Promise<ApiResponse<any>> => {
+        return apiClient.get(`matches/${matchId}/available-batsmen`);
     },
 
     // Set Bowler
@@ -63,8 +63,8 @@ export const MatchService = {
     },
 
     // Get Bowling Team
-    getBowlingTeam: async (matchId: string, inningsNumber: number): Promise<ApiResponse<any>> => {
-        return apiClient.get(`matches/${matchId}/innings/${inningsNumber}/bowling-team`);
+    getBowlingTeam: async (matchId: string): Promise<ApiResponse<any>> => {
+        return apiClient.get(`matches/${matchId}/bowling-team`);
     },
 
     // Update Team

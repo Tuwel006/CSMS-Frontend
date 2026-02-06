@@ -25,7 +25,7 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
   loading = false
 }) => {
   if (!isOpen) return null;
-
+  console.log("players", players);
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-4 max-w-md w-full mx-4 max-h-96 overflow-y-auto shadow-2xl">
@@ -35,14 +35,14 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
             <X size={20} />
           </button>
         </div>
-        
+
         {loading ? (
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : (
           <div className="space-y-2">
-            {players.map((player) => (
+            {players?.map((player) => (
               <button
                 key={player.id}
                 onClick={() => onSelect(player)}

@@ -58,9 +58,9 @@ const MatchSetupPage: React.FC = () => {
         }));
         setMatches(sortedMatches);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching matches:', error);
-      showToast.error('Failed to load match sessions');
+      showToast.error(error?.response?.data?.message || 'Failed to load match sessions');
     } finally {
       setIsLoading(false);
     }
@@ -75,8 +75,8 @@ const MatchSetupPage: React.FC = () => {
     const toastId = showToast.loading("Generating New Match Token...");
     try {
       const response = await MatchService.generateToken();
+      showToast.handleResponse(toastId, response);
       if (response.data && response.data.id) {
-        showToast.success('Match token generated successfully!');
         navigate(`/admin/match-setup/${response.data.id}`);
       }
     } catch (error) {
@@ -96,8 +96,8 @@ const MatchSetupPage: React.FC = () => {
     const toastId = showToast.loading("Deleting Session...");
     try {
       const response = await MatchService.deleteToken(tokenId);
+      showToast.handleResponse(toastId, response);
       if (response.status >= 200 && response.status < 300) {
-        showToast.success('Session deleted');
         setMatches(prev => prev.filter(m => m.id !== tokenId));
       }
     } catch (error) {

@@ -52,6 +52,7 @@ export interface Ball {
 export interface CurrentOver {
   bowlerId: number;
   o: number;
+  isOverComplete: boolean;
   illegalBallsCount: number;
   balls: Ball[];
 }
@@ -75,6 +76,7 @@ export interface Innings {
 
 export interface Meta {
   matchId: string;
+  currentInningsId: number;
   format: string;
   status: string;
   lastUpdated: string;
@@ -97,19 +99,19 @@ export interface MatchScoreResponse {
 }
 
 export interface RecordBallPayload {
-    matchId: string;
-    innings_id: number;
-    ball_type: 'WIDE' | 'NO_BALL' | 'BYE' | 'LEG_BYE' | 'NORMAL' | string;
-    runs: number;
-    batsman_id: number;
-    bowler_id: number;
-    is_wicket?: boolean;
-    is_boundary?: boolean;
-    extras_enabled?: boolean;
-    by_runs?: number;
-    wicket?: {
-        wicket_type: string;
-        out_batsman_id: number;
-        filder_id?: number;
-    };
+  matchId: string;
+  innings_id: number;
+  ball_type: 'WIDE' | 'NO_BALL' | 'BYE' | 'LEG_BYE' | 'NORMAL' | string;
+  runs: number;
+  batsman_id: number;
+  bowler_id: number;
+  is_wicket?: boolean;
+  is_boundary?: boolean;
+  extras_enabled?: boolean;
+  by_runs?: number;
+  wicket?: {
+    wicket_type: string;
+    out_batsman_id: number;
+    filder_id?: number;
+  };
 }
