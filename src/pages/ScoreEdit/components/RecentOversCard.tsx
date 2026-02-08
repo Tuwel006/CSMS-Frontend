@@ -47,8 +47,10 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, fet
                 <p className="font-bold text-[10px] text-[var(--text)]">{currentBowler.n}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-[var(--text)]">{currentBowler.o}-{currentBowler.r}-{currentBowler.w}</p>
-                <p className="text-[8px] text-gray-600 dark:text-gray-400">ER: {currentBowler.eco}</p>
+                <p className="text-[10px] font-bold text-[var(--text)]">{Math.floor(currentBowler.b / 6)}.{currentBowler.b % 6}-{currentBowler.r}-{currentBowler.w}</p>
+                <p className="text-[8px] text-gray-600 dark:text-gray-400">ER: {currentBowler.b > 0
+                  ? (currentBowler.r / (currentBowler.b / 6.0)).toFixed(2)
+                  : "0.00"}</p>
               </div>
             </Stack>
           </div>

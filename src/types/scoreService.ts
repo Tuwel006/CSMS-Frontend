@@ -32,6 +32,7 @@ export interface Batsman {
 export interface Bowler {
   id: number;
   n: string;
+  b: number;
   o: string | number;
   m?: number;
   r: number;

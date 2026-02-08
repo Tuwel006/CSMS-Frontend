@@ -17,19 +17,19 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, l
   const batting = currentInnings?.batting || [];
   const striker = batting.striker;
   const nonStriker = batting.nonStriker;
-  
+
   const handleBatsmanClick = useCallback(() => {
     fetchAvailableBatsmen();
     onSelectBatsman('OPEN_MODAL');
   }, [fetchAvailableBatsmen, onSelectBatsman]);
-  
+
   return (
     <Box p="sm" bg="card" border rounded="sm">
       <Stack direction="row" align="center" justify="between" className="mb-2">
         <h3 className="text-xs font-bold text-[var(--text)] uppercase tracking-wide">Batting</h3>
         <span className="text-[9px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded font-medium">
-          {currentInnings?.battingTeam ? 
-            (teams?.[currentInnings.battingTeam]?.short || teams?.[currentInnings.battingTeam]?.name || currentInnings.battingTeam) 
+          {currentInnings?.battingTeam ?
+            (teams?.[currentInnings.battingTeam]?.short || teams?.[currentInnings.battingTeam]?.name || currentInnings.battingTeam)
             : 'Team'}
         </span>
       </Stack>
@@ -38,8 +38,8 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, l
           <div className="flex items-center justify-center py-3">
             <div className="flex space-x-1">
               <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce"></div>
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
             </div>
           </div>
         ) : (
@@ -48,22 +48,22 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, l
               {score.r}/{score.w}
             </div>
             <div className="text-[9px] text-[var(--text-secondary)] mt-0.5">
-              Overs: {score.o}
+              Overs: {Math.floor(score.b / 6)}.{score.b % 6}
             </div>
             {scoreUpdating && (
               <div className="absolute top-1 right-1 flex space-x-0.5">
                 <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"></div>
-                <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
               </div>
             )}
           </>
         )}
       </div>
-      
+
       <Stack direction="col" gap="xs" className="mt-1.5">
         <p className="text-[8px] font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Now Batting</p>
-        
+
         {striker ? (
           <div className="bg-green-50 dark:bg-green-900/20 rounded-xs p-1">
             <div className="flex items-center justify-between">
@@ -87,7 +87,7 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, l
             Select Striker
           </Button>
         )}
-        
+
         {nonStriker ? (
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xs p-1">
             <div className="flex items-center justify-between">

@@ -11,7 +11,7 @@ interface LivePreviewProps {
 const LivePreview = ({ isOpen, onClose, matchData }: LivePreviewProps) => {
   const [isBattingExpanded, setIsBattingExpanded] = useState(true);
   const currentInning = matchData?.innings?.[matchData.innings.length - 1];
-  
+
   const allBatsmen = useMemo(() => {
     if (!currentInning) return [];
     const batsmen = [];
@@ -20,11 +20,10 @@ const LivePreview = ({ isOpen, onClose, matchData }: LivePreviewProps) => {
     if (currentInning.dismissed) batsmen.push(...currentInning.dismissed.map((b: { id: number; n: string; r: number; b: number; order?: number }) => ({ ...b, isStriker: false })));
     return batsmen.sort((a, b) => (a.order || 0) - (b.order || 0));
   }, [currentInning]);
-  
+
   return (
-    <div className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 z-50 transform transition-transform duration-300 overflow-y-auto ${
-      isOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}>
+    <div className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 z-50 transform transition-transform duration-300 overflow-y-auto ${isOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}>
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Live Preview</h2>
@@ -35,7 +34,7 @@ const LivePreview = ({ isOpen, onClose, matchData }: LivePreviewProps) => {
             <X size={20} className="text-gray-900 dark:text-gray-100" />
           </button>
         </div>
-        
+
         {matchData && currentInning ? (
           <>
             {/* Match Info */}
@@ -47,7 +46,7 @@ const LivePreview = ({ isOpen, onClose, matchData }: LivePreviewProps) => {
                 <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                   {currentInning.score.r}/{currentInning.score.w}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{currentInning.score.o} overs</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{Math.floor(currentInning.score.b / 6)}.{currentInning.score.b % 6} overs</div>
               </div>
             </div>
 
@@ -62,7 +61,7 @@ const LivePreview = ({ isOpen, onClose, matchData }: LivePreviewProps) => {
                 </h4>
                 {isBattingExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
-              
+
               {!isBattingExpanded ? (
                 <div className="px-3 pb-3 space-y-2">
                   {currentInning.batting.striker && (
@@ -106,7 +105,7 @@ const LivePreview = ({ isOpen, onClose, matchData }: LivePreviewProps) => {
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-900 dark:text-gray-100">{currentBowler.n}</span>
                       <span className="text-gray-900 dark:text-gray-100">
-                        {currentBowler.w}/{currentBowler.r} ({currentBowler.o})
+                        {currentBowler.w}/{currentBowler.r} ({Math.floor(currentBowler.b / 6)}.{currentBowler.b % 6})
                       </span>
                     </div>
                   ) : null;
@@ -122,7 +121,7 @@ const LivePreview = ({ isOpen, onClose, matchData }: LivePreviewProps) => {
                   {currentInning.bowling.map((bowler, idx) => (
                     <div key={idx} className="flex justify-between text-sm py-1.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
                       <span className="text-gray-900 dark:text-gray-100">{bowler.n}</span>
-                      <span className="text-gray-900 dark:text-gray-100">{bowler.w}/{bowler.r} ({bowler.o})</span>
+                      <span className="text-gray-900 dark:text-gray-100">{bowler.w}/{bowler.r} ({Math.floor(bowler.b / 6)}.{bowler.b % 6})</span>
                     </div>
                   ))}
                 </div>
@@ -142,7 +141,7 @@ const LivePreview = ({ isOpen, onClose, matchData }: LivePreviewProps) => {
                       if (ball.r === 0) return 'bg-gray-100 dark:bg-gray-700';
                       return 'bg-blue-100 dark:bg-blue-900';
                     };
-                    
+
                     return (
                       <span key={idx} className={`w-8 h-8 ${getBallStyle()} rounded flex items-center justify-center text-xs font-medium`}>
                         {ball.t === 'WIDE' ? 'WD' : ball.t === 'NO_BALL' ? 'NB' : ball.r}
