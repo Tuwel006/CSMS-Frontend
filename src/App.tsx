@@ -13,19 +13,19 @@ import './toastStyles.css';
 
 function AppContent() {
   const { theme } = useTheme();
-  
+
   return (
     <>
       <MatchProvider>
         <CurrentMatchProvider>
           <GlobalLoader />
-          <ToastContainer 
-            position="bottom-right" 
-            autoClose={2500} 
-            hideProgressBar
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            hideProgressBar={true}
             closeButton={false}
-            newestOnTop 
-            closeOnClick 
+            newestOnTop
+            closeOnClick
             pauseOnFocusLoss={false}
             draggable={false}
             pauseOnHover={false}

@@ -296,11 +296,11 @@ const ScoreEdit = () => {
     setShowBowlerModal(true);
   }, [fetchBowlingTeam]);
 
-  useEffect(() => {
-    if (currentInnings?.currentOver?.isOverComplete) {
-      handleOverComplete();
-    }
-  }, [currentInnings?.currentOver?.isOverComplete, handleOverComplete]);
+  // useEffect(() => {
+  //   if (currentInnings?.currentOver?.isOverComplete) {
+  //     handleOverComplete();
+  //   }
+  // }, [currentInnings?.currentOver?.isOverComplete, handleOverComplete]);
 
   if (loading) return <PageLoader />;
 
