@@ -49,6 +49,7 @@ export const MatchService = {
 
     // Set Batsman
     setBatsman: async (matchId: string, payload: any): Promise<ApiResponse<any>> => {
+        console.log("payload", payload);
         return apiClient.post(`matches/${matchId}/set-batsman`, payload);
     },
 

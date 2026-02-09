@@ -83,7 +83,7 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, fet
               {ball.t === 'WICKET' ? 'W' : ball.t === 'WIDE' ? 'Wd' : ball.t === 'NO_BALL' ? 'Nb' : ball.r}
             </div>
           ))}
-          {Array.from({ length: 6 + currentOver.illegalBallsCount - (currentOver?.balls?.length || 0) }).map((_, i) => (
+          {Array.from({ length: 6 + (currentOver?.illegalBallsCount || 0) - (currentOver?.balls?.length || 0) }).map((_, i) => (
             <div key={`empty-${i}`} className="bg-gray-200 dark:bg-gray-700 w-7 h-7 rounded flex items-center justify-center text-xs">
               •
             </div>
