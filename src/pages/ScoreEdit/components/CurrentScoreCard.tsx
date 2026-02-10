@@ -17,6 +17,8 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, l
   const batting = currentInnings?.batting || [];
   const striker = batting.striker;
   const nonStriker = batting.nonStriker;
+  console.log("Is striker present: ", striker)
+  console.log("Is nonStriker present: ", nonStriker)
 
   const handleBatsmanClick = useCallback(() => {
     fetchAvailableBatsmen();
@@ -105,6 +107,7 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, l
           <Button
             onClick={handleBatsmanClick}
             variant="outline"
+            disabled={!striker}
             size="sm"
             className="w-full border-dashed border-gray-400 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-900/20 text-gray-600 dark:text-gray-400 text-[10px] h-8"
             rightIcon={<ChevronDown size={10} />}

@@ -146,7 +146,7 @@ const ScoreEdit = () => {
       setShowBallConfirmModal(true);
     }
   }, []);
-
+  console.log("current innings: ", currentInnings);
   const handleConfirmBall = useCallback(async () => {
     setShowBallConfirmModal(false);
     setScoreUpdating(true);
@@ -217,7 +217,7 @@ const ScoreEdit = () => {
         wicket: {
           wicket_type: dismissalType,
           out_batsman_id: outBatsmanId ? parseInt(outBatsmanId) : currentBatsman.id,
-          filder_id: fielder ? parseInt(fielder) : undefined
+          fielder_id: fielder ? parseInt(fielder) : undefined
         },
         is_boundary: false
       };
@@ -236,6 +236,7 @@ const ScoreEdit = () => {
   }, [currentInnings, matchId, fetchAvailableBatsmen]);
 
   const handleSelectBatsman = useCallback(async (player: any) => {
+    console.log("player", player);
     if (player === 'OPEN_MODAL') {
       setShowBatsmanModal(true);
       return;
@@ -250,12 +251,9 @@ const ScoreEdit = () => {
       };
 
       const response = await MatchService.setBatsman(matchId!, payload);
-      if (response.data?.success) {
+      if (response.data) {
         setShowBatsmanModal(false);
-        const scorecardResponse = await MatchService.getMatchScore(matchId!);
-        if (scorecardResponse.data) {
-          setMatchData(scorecardResponse.data);
-        }
+        await fetchMatchScore();
         showToast.success(response.message || 'Batsman selected successfully');
       }
     } catch (error: any) {
@@ -277,12 +275,9 @@ const ScoreEdit = () => {
       };
 
       const response = await MatchService.setBowler(matchId!, payload);
-      if (response.data?.success) {
+      if (response.data) {
         setShowBowlerModal(false);
-        const scorecardResponse = await MatchService.getMatchScore(matchId!);
-        if (scorecardResponse.data) {
-          setMatchData(scorecardResponse.data);
-        }
+        await fetchMatchScore();
         showToast.success(response.message || 'Bowler selected successfully');
       }
     } catch (error: any) {
