@@ -203,7 +203,7 @@ export const ReconnectingStreamExample = ({ matchId }: { matchId: string }) => {
                     const delay = Math.min(1000 * Math.pow(2, reconnectCount), 30000); // Exponential backoff
                     console.log(`Reconnecting in ${delay}ms... (Attempt ${reconnectCount + 1}/${maxReconnectAttempts})`);
 
-                    reconnectTimeoutRef.current = setTimeout(() => {
+                    reconnectTimeoutRef.current = window.setTimeout(() => {
                         setReconnectCount((prev) => prev + 1);
                         connectStream();
                     }, delay);
@@ -220,7 +220,7 @@ export const ReconnectingStreamExample = ({ matchId }: { matchId: string }) => {
         return () => {
             streamRef.current?.close();
             if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
+                window.clearTimeout(reconnectTimeoutRef.current);
             }
         };
     }, [matchId]);
@@ -272,7 +272,7 @@ export const useEventStream = <T,>(
 
                 if (options?.autoReconnect && reconnectCount < maxAttempts) {
                     const delay = Math.min(1000 * Math.pow(2, reconnectCount), 30000);
-                    reconnectTimeoutRef.current = setTimeout(() => {
+                    reconnectTimeoutRef.current = window.setTimeout(() => {
                         setReconnectCount((prev) => prev + 1);
                         connect();
                     }, delay);
@@ -290,7 +290,7 @@ export const useEventStream = <T,>(
         return () => {
             streamRef.current?.close();
             if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
+                window.clearTimeout(reconnectTimeoutRef.current);
             }
         };
     }, [path]);
@@ -298,7 +298,7 @@ export const useEventStream = <T,>(
     const close = () => {
         streamRef.current?.close();
         if (reconnectTimeoutRef.current) {
-            clearTimeout(reconnectTimeoutRef.current);
+            window.clearTimeout(reconnectTimeoutRef.current);
         }
     };
 
