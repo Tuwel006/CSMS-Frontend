@@ -6,13 +6,15 @@ interface ToggleProps {
   onChange: () => void;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  disabled?: boolean;
 }
 
 const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(({
   checked,
   onChange,
   size = 'md',
-  className
+  className,
+  disabled
 }, ref) => {
   const sizes = {
     sm: { container: 'h-4 w-7', thumb: 'h-3 w-3', translate: 'translate-x-3.5' },
@@ -24,11 +26,13 @@ const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(({
     <button
       ref={ref}
       type="button"
+      disabled={disabled}
       onClick={onChange}
       className={cn(
         'relative inline-flex items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
         sizes[size].container,
         checked ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600',
+        disabled && 'opacity-50 cursor-not-allowed grayscale',
         className
       )}
     >

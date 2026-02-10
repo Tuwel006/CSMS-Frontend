@@ -13,6 +13,7 @@ export interface ScoreType {
 
 export interface BallEvent {
   innings: number;
+  is_innings_over?: boolean;
   totalRuns: number;
   totalWickets: number;
   totalBalls: number;
@@ -32,11 +33,12 @@ export interface BallEvent {
     o: number;
     isOverComplete: boolean;
     bowlerId: number;
+    ballsCount: number;
     illegalBallsCount: number;
     balls: Array<{
       b: number;
       t: string;
-      r: number;
+      r: number | string;
     }>;
   };
   timestamp: string;

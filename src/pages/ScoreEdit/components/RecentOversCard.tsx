@@ -28,8 +28,8 @@ const RecentOversCard = React.memo(({ currentInnings, teams, onSelectBowler, fet
   };
 
   return (
-    <Box p="sm" bg="card" border rounded="sm">
-      <Stack direction="row" align="center" justify="between" className="mb-2">
+    <Box p="sm" bg="card" border rounded="sm" className="!p-1.5 sm:!p-2.5">
+      <Stack direction="row" align="center" justify="between" className="mb-1.5 sm:mb-2">
         <h3 className="text-xs font-bold text-[var(--text)] uppercase tracking-wide">Bowling</h3>
         <span className="text-[9px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded font-medium">
           {currentInnings?.bowlingTeam ?

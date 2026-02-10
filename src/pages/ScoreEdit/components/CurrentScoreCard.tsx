@@ -24,8 +24,8 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, l
   }, [fetchAvailableBatsmen, onSelectBatsman]);
 
   return (
-    <Box p="sm" bg="card" border rounded="sm">
-      <Stack direction="row" align="center" justify="between" className="mb-2">
+    <Box p="sm" bg="card" border rounded="sm" className="!p-1.5 sm:!p-2.5">
+      <Stack direction="row" align="center" justify="between" className="mb-1.5 sm:mb-2">
         <h3 className="text-xs font-bold text-[var(--text)] uppercase tracking-wide">Batting</h3>
         <span className="text-[9px] px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded font-medium">
           {currentInnings?.battingTeam ?
@@ -33,31 +33,35 @@ const CurrentScoreCard = React.memo(({ currentInnings, teams, onSelectBatsman, l
             : 'Team'}
         </span>
       </Stack>
-      <div className="text-center py-1.5 relative">
+      <div className="text-center py-2 relative">
         {loading ? (
-          <div className="flex items-center justify-center py-3">
-            <div className="flex space-x-1">
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce"></div>
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          <div className="flex items-center justify-center py-4">
+            <div className="flex space-x-2">
+              <div className="w-2.5 h-2.5 bg-blue-600 dark:bg-blue-500 rounded-full animate-bounce" style={{ animationDuration: '0.8s' }}></div>
+              <div className="w-2.5 h-2.5 bg-blue-600 dark:bg-blue-500 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '0.15s' }}></div>
+              <div className="w-2.5 h-2.5 bg-blue-600 dark:bg-blue-500 rounded-full animate-bounce" style={{ animationDuration: '0.8s', animationDelay: '0.3s' }}></div>
             </div>
           </div>
         ) : (
-          <>
-            <div className="text-2xl md:text-3xl font-black text-blue-600 dark:text-blue-400">
-              {score.r}/{score.w}
+          <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center justify-center min-h-[70px]">
+              <div className={`text-3xl md:text-4xl font-black text-blue-600 dark:text-blue-400 drop-shadow-sm transition-all duration-300 ${scoreUpdating ? 'scale-95 opacity-70' : 'scale-100 opacity-100'}`}>
+                {score.r}/{score.w}
+              </div>
+              <div className="h-4 flex items-center justify-center mt-1">
+                {scoreUpdating && (
+                  <div className="flex space-x-2">
+                    <div className="w-2.5 h-2.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDuration: '0.6s' }}></div>
+                    <div className="w-2.5 h-2.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDuration: '0.6s', animationDelay: '0.1s' }}></div>
+                    <div className="w-2.5 h-2.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{ animationDuration: '0.6s', animationDelay: '0.2s' }}></div>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="text-[9px] text-[var(--text-secondary)] mt-0.5">
+            <div className="text-[10px] font-bold text-[var(--text-secondary)] mt-1 px-3 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full">
               Overs: {Math.floor(score.b / 6)}.{score.b % 6}
             </div>
-            {scoreUpdating && (
-              <div className="absolute top-1 right-1 flex space-x-0.5">
-                <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"></div>
-                <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              </div>
-            )}
-          </>
+          </div>
         )}
       </div>
 

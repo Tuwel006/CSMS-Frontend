@@ -47,7 +47,7 @@ export interface Bowler {
 export interface Ball {
   b: number;
   t: string;
-  r: number;
+  r: number | string;
 }
 
 export interface CurrentOver {
@@ -60,6 +60,9 @@ export interface CurrentOver {
 
 export interface Innings {
   i: number;
+  is_innings_over?: boolean;
+  is_completed?: boolean;
+  innings_number?: number;
   battingTeam: string;
   bowlingTeam: string;
   score: Score;

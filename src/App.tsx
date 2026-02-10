@@ -31,15 +31,6 @@ function AppContent() {
             pauseOnHover={false}
             theme={theme === 'dark' ? 'dark' : 'light'}
             limit={3}
-            style={{
-              position: 'fixed',
-              bottom: '16px',
-              right: '16px',
-              top: 'auto',
-              left: 'auto',
-              width: '280px',
-              zIndex: 9999
-            }}
           />
           <Routes>
             <Route path="/test" element={<TestCricketGround />} />
