@@ -55,6 +55,7 @@ export interface CurrentOver {
   o: number;
   isOverComplete: boolean;
   illegalBallsCount: number;
+  ballsCount: number;
   balls: Ball[];
 }
 

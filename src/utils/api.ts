@@ -108,17 +108,19 @@ class ApiClient {
     }
 
     // Create EventSource
-    const eventSource = new EventSource(url);
+    const eventSource = new EventSource(url, { withCredentials: true });
 
     // Handle connection open
     if (onOpen) {
       eventSource.addEventListener('open', () => {
+        console.log('[SSE Debug] EventSource opened:', url);
         onOpen();
       });
     }
 
     // Handle incoming messages
     eventSource.addEventListener('message', (event: MessageEvent) => {
+      console.log('[SSE Debug] Standard message received:', event.data);
       if (onMessage) {
         try {
           // Try to parse as JSON
@@ -145,12 +147,21 @@ class ApiClient {
     };
 
     // Listen for common custom event types
-    ['update', 'score', 'data', 'notification', 'status'].forEach((eventType) => {
-      eventSource.addEventListener(eventType, customEventHandler);
+    ['update', 'score', 'data', 'notification', 'status', 'live-score', 'match-update'].forEach((eventType) => {
+      eventSource.addEventListener(eventType, (event) => {
+        console.log(`[SSE Debug] Received Custom Event (${eventType}):`, event.data);
+        customEventHandler(event);
+      });
     });
+
+    // Add a general message listener log
+    eventSource.onmessage = (event) => {
+      console.log('[SSE Debug] onmessage handler triggered:', event.data);
+    };
 
     // Handle errors
     eventSource.addEventListener('error', (event: Event) => {
+      console.error('[SSE Debug] SSE Error Event:', event);
       if (onError) {
         const errorMessage = eventSource.readyState === EventSource.CLOSED
           ? 'Connection closed'
@@ -183,6 +194,17 @@ class ApiClient {
     };
   }
 }
+
+/**
+ * Route helper for SSE endpoints
+ * @param matchId - The match ID
+ * @returns The SSE endpoint path
+ */
+export const routes = {
+  sse: {
+    liveScore: (matchId: string) => `/sse/score/${matchId}`,
+  },
+};
 
 export const apiClient = new ApiClient();
 export default apiClient;

@@ -34,12 +34,12 @@ export interface BallEvent {
     isOverComplete: boolean;
     bowlerId: number;
     ballsCount: number;
-    illegalBallsCount: number;
-    balls: Array<{
+    isInLegalBall: boolean;
+    ball: {
       b: number;
       t: string;
       r: number | string;
-    }>;
+    };
   };
   timestamp: string;
 }

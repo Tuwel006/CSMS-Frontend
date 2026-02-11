@@ -11,7 +11,12 @@ export const applyBallEvent = (state: ScoreType, event: BallEvent) => {
     if (event.totalExtras !== undefined) innings.extras = event.totalExtras;
 
     if (event.currentOver) {
-        innings.currentOver = event.currentOver;
+        innings.currentOver.o = event.currentOver.o;
+        innings.currentOver.isOverComplete = event.currentOver.isOverComplete;
+        innings.currentOver.bowlerId = event.currentOver.bowlerId;
+        innings.currentOver.ballsCount = event.currentOver.ballsCount;
+        innings.currentOver.illegalBallsCount += event.currentOver.isInLegalBall ? 1 : 0;
+        innings.currentOver.balls.push(event.currentOver.ball);
     }
 
     if (innings.batting?.striker) {
