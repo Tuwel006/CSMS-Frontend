@@ -20,15 +20,13 @@ export const InningsHeader: React.FC<InningsHeaderProps> = ({
     const isExpanded = expandedInning === idx;
 
     return (
-        <Box className="mb-1">
+        <Box className={isExpanded ? "mb-0" : "mb-1"}>
             <Stack
                 direction="row"
                 align="center"
                 justify="between"
-                className={`cursor-pointer transition-colors rounded-sm px-3 sm:px-4 py-2 ${isExpanded
-                    ? (isDark ? "bg-cyan-700" : "bg-cyan-600") + " text-white"
-                    : (isDark ? "bg-gray-800 text-gray-200 hover:bg-gray-750" : "bg-white text-gray-900 hover:bg-gray-50 shadow-sm")
-                    }`}
+                className={`cursor-pointer transition-colors px-3 sm:px-4 py-2 ${isDark ? "bg-cyan-800 text-white hover:bg-cyan-700" : "bg-cyan-600 text-white hover:bg-cyan-700 shadow-sm"
+                    } ${isExpanded ? "rounded-t-sm" : "rounded-sm"}`}
                 onClick={() => setExpandedInning(isExpanded ? null : idx)}
             >
                 <Text weight="bold" size="sm">{inn.battingTeam}</Text>
@@ -37,9 +35,10 @@ export const InningsHeader: React.FC<InningsHeaderProps> = ({
                         {inn.score.r}-{inn.score.w}
                     </Text>
                     <Text size="xs" className="opacity-80">({inn.score.o} Ov)</Text>
-                    <Text size="xs">{isExpanded ? '▲' : '▼'}</Text>
+                    <Text size="xs" className="transition-transform duration-300" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</Text>
                 </Stack>
             </Stack>
         </Box>
     );
+
 };

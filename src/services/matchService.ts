@@ -49,7 +49,6 @@ export const MatchService = {
 
     // Set Batsman
     setBatsman: async (matchId: string, payload: any): Promise<ApiResponse<any>> => {
-        console.log("payload", payload);
         return apiClient.post(`matches/${matchId}/set-batsman`, payload);
     },
 
@@ -87,6 +86,11 @@ export const MatchService = {
     // Record Ball
     recordBall: async ({ matchId, ...payload }: RecordBallPayload): Promise<ApiResponse<any>> => {
         return apiClient.post(`matches/${matchId}/record-ball`, payload);
+    },
+
+    // Switch to Next Innings
+    nextInnings: async (matchId: string, isFollowOn: boolean = false): Promise<ApiResponse<any>> => {
+        return apiClient.post(`matches/${matchId}/next-innings`, { isFollowOn });
     },
 
     create: async (data: MatchData) => {

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Button from '../../../components/ui/Button';
 import { Activity } from 'lucide-react';
 
@@ -6,7 +6,8 @@ interface InningsCompleteModalProps {
     isOpen: boolean | undefined;
     currentInnings: any;
     teams: any;
-    onStartNext: () => void;
+    matchData?: any;
+    onStartNext: (isFollowOn: boolean) => void;
     onViewScorecard: () => void;
 }
 
@@ -14,14 +15,24 @@ const InningsCompleteModal: React.FC<InningsCompleteModalProps> = ({
     isOpen,
     currentInnings,
     teams,
+    matchData,
     onStartNext,
     onViewScorecard,
 }) => {
+    const [isFollowOn, setIsFollowOn] = useState(false);
+
     if (!isOpen) return null;
 
     const battingTeam = teams?.[currentInnings?.battingTeam];
     const bowlingTeam = teams?.[currentInnings?.bowlingTeam];
     const score = currentInnings?.score;
+
+    // Check if this is the 2nd innings complete (starting 3rd innings)
+    const isSecondInningsComplete = useMemo(() => {
+        const inningsCount = matchData?.innings?.length || 0;
+        const currentInningsNumber = currentInnings?.innings_number || currentInnings?.i || 0;
+        return inningsCount === 2 || currentInningsNumber === 2;
+    }, [matchData?.innings, currentInnings]);
 
     const oversDisplay = useMemo(() => {
         const balls = score?.b || 0;
@@ -138,10 +149,36 @@ const InningsCompleteModal: React.FC<InningsCompleteModalProps> = ({
                             </div>
                         )}
 
+                        {/* Follow-on Switch - Only show when 2nd innings is complete */}
+                        {isSecondInningsComplete && (
+                            <div className="border-t border-[var(--card-border)] pt-3 space-y-2">
+                                <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl border border-blue-200 dark:border-blue-800">
+                                    <div className="flex-1">
+                                        <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                                            Follow-on
+                                        </p>
+                                        <p className="text-[8px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                            Enforce follow-on for next innings
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsFollowOn(!isFollowOn)}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isFollowOn ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                                            }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isFollowOn ? 'translate-x-6' : 'translate-x-1'
+                                                }`}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Classic Row Buttons */}
                         <div className="flex gap-2 pt-2">
                             <Button
-                                onClick={onStartNext}
+                                onClick={() => onStartNext(isFollowOn)}
                                 className="flex-1 h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[9px] rounded-xl uppercase tracking-widest"
                             >
                                 CONTINUE NEXT

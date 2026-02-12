@@ -1,23 +1,34 @@
 import React from "react";
-import { Stack, Box, Text, Table, Card } from "../../ui/lib";
+import { Stack, Box, Text, Table } from "../../ui/lib";
 import { useTheme } from "../../../context/ThemeContext";
 import { BallCircle } from "./BallCircle";
-import { Innings, Batsman } from "@/types/scoreService";
+import { Innings } from "@/types/scoreService";
 
 interface InningsDetailsProps {
     inn: Innings;
-    allBatsmen: Batsman[];
 }
 
-export const InningsDetails: React.FC<InningsDetailsProps> = ({ inn, allBatsmen }) => {
+export const InningsDetails: React.FC<InningsDetailsProps> = ({ inn }) => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
+
+    const allBatsmen = React.useMemo(() => {
+        if (!inn) return [];
+        const batsmen: any[] = [];
+        if (inn.batting?.striker) batsmen.push({ ...inn.batting.striker, isStriker: true });
+        if (inn.batting?.nonStriker) batsmen.push({ ...inn.batting.nonStriker, isStriker: false });
+        if (inn.dismissed) {
+            batsmen.push(...inn.dismissed.map((b: any) => ({ ...b, isStriker: false })));
+        }
+        return batsmen.sort((a, b) => (a.order || 0) - (b.order || 0));
+    }, [inn]);
+
 
     const getDismissalText = (batsman: any) => {
         if (!batsman.w) return batsman.status || (batsman.isStriker !== undefined && batsman.b > 0 ? "batting" : "");
 
-        const wicketType = batsman.w.wicket_type;
-        const by = batsman.w.by;
+        const wicketType = batsman.w.wicket_type || batsman.w.type;
+        const by = batsman.w.fielder || batsman.w.by;
         const bowler = batsman.w.bowler;
 
         let text = "";
@@ -96,65 +107,67 @@ export const InningsDetails: React.FC<InningsDetailsProps> = ({ inn, allBatsmen 
     ];
 
     return (
-        <Card p="none" className="mt-2 sm:mt-3 border">
-            <Box className="p-2 sm:p-3">
-                {/* Batting Table */}
-                <Box className="mb-3">
-                    <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-3 sm:px-4 py-1.5 sm:py-2 rounded-t-sm`}>
-                        <Text weight="semibold" size="xs" className={isDark ? "text-gray-200" : "text-gray-700"}>Batter</Text>
-                    </Box>
-                    <Table columns={battingColumns} data={allBatsmen} />
+        <Box className="mb-3">
+            <Box className={`border-x border-b ${isDark ? "border-[var(--card-border)] bg-[var(--card-bg)]" : "border-gray-200 bg-white shadow-sm"} rounded-b-sm overflow-hidden`}>
+                <Box className="p-2 sm:p-3">
+                    {/* Batting Table */}
+                    <Box className="mb-3">
+                        <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-3 sm:px-4 py-1.5 sm:py-2 rounded-t-sm`}>
+                            <Text weight="semibold" size="xs" className={isDark ? "text-gray-200" : "text-gray-700"}>Batter</Text>
+                        </Box>
+                        <Table columns={battingColumns} data={allBatsmen} />
 
-                    {/* Extras & Total */}
-                    <Box className={`border-t ${isDark ? "border-gray-700 bg-gray-750" : "border-gray-200 bg-gray-50"} px-4 py-2`}>
-                        <Text size="xs" className={isDark ? "text-gray-300" : "text-gray-700"}>
-                            <Text weight="semibold">Extras</Text>
-                            <Text className="ml-2">{inn?.extras || "0 (b 0, lb 0, w 0, nb 0, p 0)"}</Text>
-                        </Text>
-                    </Box>
-
-                    <Box className={`border-t ${isDark ? "border-gray-700 bg-cyan-900" : "border-gray-200 bg-cyan-50"} px-4 py-2`}>
-                        <Text size="xs" weight="bold" className={isDark ? "text-cyan-200" : "text-cyan-900"}>
-                            <Text>Total</Text>
-                            <Text className="ml-4">{inn?.score.r}-{inn?.score.w} ({inn?.score.o} Overs, RR: {inn?.runRate || "0.00"})</Text>
-                        </Text>
-                    </Box>
-
-                    {/* Did not Bat */}
-                    {inn?.didNotBat && inn.didNotBat.length > 0 && (
-                        <Box className={`border-t ${isDark ? "border-gray-700" : "border-gray-200"} px-4 py-2`}>
-                            <Text size="xs" weight="semibold" className={isDark ? "text-gray-300" : "text-gray-700"}>Did not Bat</Text>
-                            <Text size="xs" className={`ml-2 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
-                                {inn.didNotBat.join(", ")}
+                        {/* Extras & Total */}
+                        <Box className={`border-t ${isDark ? "border-gray-700 bg-gray-750" : "border-gray-200 bg-gray-50"} px-4 py-2`}>
+                            <Text size="xs" className={isDark ? "text-gray-300" : "text-gray-700"}>
+                                <Text weight="semibold">Extras</Text>
+                                <Text className="ml-2">{inn?.extras || "0 (b 0, lb 0, w 0, nb 0, p 0)"}</Text>
                             </Text>
+                        </Box>
+
+                        <Box className={`border-t ${isDark ? "border-gray-700 bg-cyan-900" : "border-gray-200 bg-cyan-50"} px-4 py-2`}>
+                            <Text size="xs" weight="bold" className={isDark ? "text-cyan-200" : "text-cyan-900"}>
+                                <Text>Total</Text>
+                                <Text className="ml-4">{inn?.score.r}-{inn?.score.w} ({inn?.score.o} Overs, RR: {inn?.runRate || "0.00"})</Text>
+                            </Text>
+                        </Box>
+
+                        {/* Did not Bat */}
+                        {inn?.didNotBat && inn.didNotBat.length > 0 && (
+                            <Box className={`border-t ${isDark ? "border-gray-700" : "border-gray-200"} px-4 py-2`}>
+                                <Text size="xs" weight="semibold" className={isDark ? "text-gray-300" : "text-gray-700"}>Did not Bat</Text>
+                                <Text size="xs" className={`ml-2 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
+                                    {inn.didNotBat.join(", ")}
+                                </Text>
+                            </Box>
+                        )}
+                    </Box>
+
+                    {/* Bowling Table */}
+                    <Box className="mb-3">
+                        <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-3 sm:px-4 py-1.5 sm:py-2 rounded-t-sm`}>
+                            <Text weight="semibold" size="xs" className={isDark ? "text-gray-200" : "text-gray-700"}>Bowler</Text>
+                        </Box>
+                        <Table columns={bowlingColumns} data={inn?.bowling || []} />
+                    </Box>
+
+                    {/* Current Over */}
+                    {inn?.currentOver && inn.currentOver.balls && inn.currentOver.balls.length > 0 && (
+                        <Box className="mt-3">
+                            <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-3 sm:px-4 py-1.5 sm:py-2 rounded-t-sm`}>
+                                <Text weight="semibold" size="xs" className={isDark ? "text-gray-200" : "text-gray-700"}>Current Over</Text>
+                            </Box>
+                            <Box p="md" className={isDark ? "bg-gray-800" : "bg-white"}>
+                                <Stack direction="row" gap="sm" wrap>
+                                    {inn.currentOver.balls.map((ball: any, idx: number) => (
+                                        <BallCircle key={idx} ball={ball} />
+                                    ))}
+                                </Stack>
+                            </Box>
                         </Box>
                     )}
                 </Box>
-
-                {/* Bowling Table */}
-                <Box className="mb-3">
-                    <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-3 sm:px-4 py-1.5 sm:py-2 rounded-t-sm`}>
-                        <Text weight="semibold" size="xs" className={isDark ? "text-gray-200" : "text-gray-700"}>Bowler</Text>
-                    </Box>
-                    <Table columns={bowlingColumns} data={inn?.bowling || []} />
-                </Box>
-
-                {/* Current Over */}
-                {inn?.currentOver && inn.currentOver.balls && inn.currentOver.balls.length > 0 && (
-                    <Box className="mt-3">
-                        <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-3 sm:px-4 py-1.5 sm:py-2 rounded-t-sm`}>
-                            <Text weight="semibold" size="xs" className={isDark ? "text-gray-200" : "text-gray-700"}>Current Over</Text>
-                        </Box>
-                        <Box p="md" className={isDark ? "bg-gray-800" : "bg-white"}>
-                            <Stack direction="row" gap="sm" wrap>
-                                {inn.currentOver.balls.map((ball: any, idx: number) => (
-                                    <BallCircle key={idx} ball={ball} />
-                                ))}
-                            </Stack>
-                        </Box>
-                    </Box>
-                )}
             </Box>
-        </Card>
+        </Box>
     );
 };

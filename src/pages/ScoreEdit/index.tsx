@@ -18,9 +18,11 @@ import BallOutcomes from './components/BallOutcomes';
 import BallConfirmModal from './components/BallConfirmModal';
 import ExtrasWarningModal from './components/ExtrasWarningModal';
 import InningsCompleteModal from './components/InningsCompleteModal';
+import MatchResultModal from './components/MatchResultModal';
 import { recordBall } from '@/store/score/scoreThunks';
 import { setScore } from '@/store/score/scoreSlice';
 import { PageLoader, ErrorDisplay } from '@/components/ui/loading';
+import { Trophy } from 'lucide-react';
 
 const ScoreEdit = () => {
   const { matchId } = useParams<{ matchId: string }>();
@@ -50,6 +52,7 @@ const ScoreEdit = () => {
   const [showExtrasWarning, setShowExtrasWarning] = useState(false);
   const [pendingExtrasValue, setPendingExtrasValue] = useState(false);
   const [_isByeRun, setIsByeRun] = useState(false);
+  const [showMatchResult, setShowMatchResult] = useState(false);
 
   const toggleExtras = useCallback(() => {
     const newValue = !extrasEnabled;
@@ -130,6 +133,11 @@ const ScoreEdit = () => {
 
   const currentInnings = useMemo(() => matchData?.innings?.length ? matchData.innings.find((innings: Innings) => innings.i === matchData.meta.currentInningsId) : null, [matchData]);
 
+  // Check if match is completed
+  const isMatchCompleted = useMemo(() => {
+    return (matchData?.meta as any)?.is_completed || (matchData as any)?.is_completed || false;
+  }, [matchData]);
+
   const handleBallUpdate = useCallback(async (ballType: string, runs?: string) => {
     if (ballType === 'W') {
       setShowWicketModal(true);
@@ -183,6 +191,9 @@ const ScoreEdit = () => {
 
       const result = await dispatch(recordBall(payload)).unwrap();
       showToast.success(result.message);
+
+      // Fetch updated score to check if match is completed
+      await fetchMatchScore();
     } catch (error: any) {
       console.error('Error recording ball:', error);
       showToast.error(error || 'Failed to record ball');
@@ -225,8 +236,18 @@ const ScoreEdit = () => {
       const response = await dispatch(recordBall(payload)).unwrap();
       setShowWicketModal(false);
       showToast.success(response.message || 'Wicket recorded successfully');
-      fetchAvailableBatsmen();
-      setShowBatsmanModal(true);
+
+      // Fetch updated score to check if match is completed
+      await fetchMatchScore();
+
+      // Only show batsman modal if match is not completed
+      const updatedData = await MatchService.getMatchScore(matchId!);
+      const isCompleted = (updatedData?.data?.meta as any)?.is_completed || (updatedData?.data as any)?.is_completed;
+
+      if (!isCompleted) {
+        fetchAvailableBatsmen();
+        setShowBatsmanModal(true);
+      }
     } catch (error: any) {
       console.error('Error recording wicket:', error);
       showToast.error(error?.response?.data?.message || error?.message || 'Failed to record wicket');
@@ -292,6 +313,7 @@ const ScoreEdit = () => {
   }, [fetchBowlingTeam]);
 
   const isInningsOver = useMemo(() => currentInnings?.is_innings_over || currentInnings?.is_completed, [currentInnings]);
+  console.log("is innings over", isInningsOver);
 
   useEffect(() => {
     if (currentInnings?.is_innings_over) {
@@ -299,14 +321,31 @@ const ScoreEdit = () => {
     }
   }, [currentInnings?.is_innings_over, fetchMatchScore]);
 
-  const handleStartNextInnings = useCallback(async () => {
-    // This function will handle moving to the next innings
-    // For now, we'll just refresh the score, but this could call a specific API
-    setLoading(true);
-    await fetchMatchScore();
-    setLoading(false);
-    showToast.success('Moved to next innings');
-  }, [fetchMatchScore]);
+  // Auto-open Match Result modal when match is completed
+  useEffect(() => {
+    if (isMatchCompleted) {
+      setShowMatchResult(true);
+    }
+  }, [isMatchCompleted]);
+
+  const handleStartNextInnings = useCallback(async (isFollowOn: boolean = false) => {
+    if (!matchId) return;
+
+    try {
+      setLoading(true);
+      const response = await MatchService.nextInnings(matchId, isFollowOn);
+
+      if (response.data) {
+        await fetchMatchScore();
+        showToast.success(response.message || 'Moved to next innings');
+      }
+    } catch (error: any) {
+      console.error('Error starting next innings:', error);
+      showToast.error(error?.response?.data?.message || error?.message || 'Failed to start next innings');
+    } finally {
+      setLoading(false);
+    }
+  }, [matchId, fetchMatchScore]);
 
   if (loading) return <PageLoader />;
 
@@ -384,7 +423,7 @@ const ScoreEdit = () => {
             onBallUpdate={handleBallUpdate}
             extrasEnabled={extrasEnabled}
             onToggleExtras={toggleExtras}
-            disabled={isInningsOver || scoreUpdating}
+            disabled={isInningsOver || scoreUpdating || isMatchCompleted}
           />
         </div>
 
@@ -445,13 +484,32 @@ const ScoreEdit = () => {
         />
       </div>
 
+      {/* Floating Match Result Button - Only show when match is completed */}
+      {isMatchCompleted && (
+        <button
+          onClick={() => setShowMatchResult(true)}
+          className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 w-14 h-14 bg-gradient-to-br from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 z-30 animate-bounce"
+          title="View Match Result"
+        >
+          <Trophy size={24} className="text-white" />
+        </button>
+      )}
+
       {/* InningsCompleteModal stays fixed relative to THIS div, which doesn't cover sidebar */}
       <InningsCompleteModal
-        isOpen={isInningsOver}
+        isOpen={isInningsOver && !isMatchCompleted}
         currentInnings={currentInnings}
         teams={matchData?.teams}
+        matchData={matchData}
         onStartNext={handleStartNextInnings}
         onViewScorecard={() => setIsPreviewOpen(true)}
+      />
+
+      {/* Match Result Modal */}
+      <MatchResultModal
+        isOpen={showMatchResult}
+        matchData={matchData}
+        onClose={() => setShowMatchResult(false)}
       />
     </div>
   );

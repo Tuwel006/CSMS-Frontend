@@ -13,6 +13,7 @@ export interface ScoreType {
 
 export interface BallEvent {
   innings: number;
+  is_match_completed?: boolean;
   is_innings_over?: boolean;
   totalRuns: number;
   totalWickets: number;
