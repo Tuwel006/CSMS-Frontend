@@ -85,6 +85,8 @@ export interface Meta {
   format: string;
   status: string;
   lastUpdated: string;
+  isMatchCompleted?: boolean;
+  winnerTeamId?: number;
 }
 
 export interface Commentary {

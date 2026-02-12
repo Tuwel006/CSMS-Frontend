@@ -40,8 +40,4 @@ export const applyBallEvent = (state: ScoreType, event: BallEvent) => {
     if (event.is_innings_over) {
         innings.is_innings_over = event.is_innings_over;
     }
-
-    if (event.is_match_completed) {
-        // state?.is_match_completed = event.is_match_completed;
-    }
 }

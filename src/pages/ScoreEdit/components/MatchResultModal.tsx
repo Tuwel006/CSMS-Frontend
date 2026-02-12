@@ -1,6 +1,8 @@
-import React, { useMemo } from 'react';
-import { Trophy, TrendingUp, Target, Award, X } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Trophy, TrendingUp, Target, X, Star, Check } from 'lucide-react';
 import Button from '../../../components/ui/Button';
+import { MatchService } from '../../../services/matchService';
+import { showToast } from '../../../utils/toast';
 
 interface MatchResultModalProps {
     isOpen: boolean;
@@ -8,258 +10,435 @@ interface MatchResultModalProps {
     onClose: () => void;
 }
 
-const MatchResultModal: React.FC<MatchResultModalProps> = ({ isOpen, matchData, onClose }) => {
-    if (!isOpen || !matchData) return null;
+export const MatchResultModal: React.FC<MatchResultModalProps> = ({ isOpen, matchData, onClose }) => {
+    const [selectedMOM, setSelectedMOM] = useState<number | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [fullMatchData, setFullMatchData] = useState<any>(null);
 
-    const innings = matchData.innings || [];
-    const teams = matchData.teams || {};
-    const meta = matchData.meta || {};
+    // Hooks must be called unconditionally
+    const innings = matchData?.innings || [];
+    const teams = matchData?.teams || {};
+    const meta = matchData?.meta || {};
+
+    const teamA = teams.A || teams.teamA;
+    const teamB = teams.B || teams.teamB;
+
+    // Fetch full match data to get player rosters if missing
+    useEffect(() => {
+        if (isOpen && meta.matchId) {
+            const fetchFullDetails = async () => {
+                try {
+                    const response = await MatchService.getCurrentMatch(meta.matchId);
+                    if (response.data) {
+                        setFullMatchData(response.data);
+                    }
+                } catch (error) {
+                    // Fail silently, fallback to existing data
+                }
+            };
+            fetchFullDetails();
+        }
+    }, [isOpen, meta.matchId]);
 
     // Determine winner
     const winnerInfo = useMemo(() => {
-        if (!meta.winner) return null;
+        if (!matchData) return null;
 
-        const winnerTeam = teams[meta.winner];
-        const loserTeam = teams[meta.winner === 'teamA' ? 'teamB' : 'teamA'];
+        const winnerId = meta.winnerTeamId || (meta as any).winnerTeamId;
+        if (!winnerId) return null;
+
+        let winnerTeam, loserTeam;
+        if (teamA?.id === winnerId) {
+            winnerTeam = teamA;
+            loserTeam = teamB;
+        } else if (teamB?.id === winnerId) {
+            winnerTeam = teamB;
+            loserTeam = teamA;
+        }
+
+        if (!winnerTeam) return null;
 
         return {
-            team: winnerTeam?.name || 'Unknown',
-            margin: meta.winMargin || '',
-            type: meta.winType || 'runs',
-            loser: loserTeam?.name || 'Unknown'
+            teamId: winnerTeam.id,
+            teamName: winnerTeam.name,
+            margin: meta.winMargin || (meta as any).winMargin || '',
+            type: meta.winType || (meta as any).winType || '',
+            loserName: loserTeam?.name || 'Opposition'
         };
-    }, [meta, teams]);
+    }, [matchData, meta, teamA, teamB]);
 
-    // Get highest scorer from all innings
-    const highestScorer = useMemo(() => {
-        let highest = { name: '', runs: 0, balls: 0, team: '', sr: 0 };
+    // Process stats per innings
+    const inningsPerformance = useMemo(() => {
+        if (!matchData || !innings.length) return [];
 
+        const getTeamName = (idOrName: string | number) => {
+            if (teamA && (teamA.id === idOrName || teamA.name === idOrName)) return teamA.name;
+            if (teamB && (teamB.id === idOrName || teamB.name === idOrName)) return teamB.name;
+            return idOrName; // Fallback
+        };
+
+        return innings.map((inn: any, index: number) => {
+            // BATSMEN: Combine striker, nonStriker, and dismissed
+            const activeBatsmen = [
+                inn.batting?.striker,
+                inn.batting?.nonStriker
+            ].filter(Boolean); // Remove nulls
+
+            const dismissedBatsmen = inn.dismissed || [];
+
+            // Merge and deduplicate by ID (just in case)
+            const allBatsmenMap = new Map();
+            [...activeBatsmen, ...dismissedBatsmen].forEach((b: any) => {
+                if (b && b.id) {
+                    allBatsmenMap.set(b.id, b);
+                }
+            });
+
+            const allBatsmen = Array.from(allBatsmenMap.values());
+
+            // Sort by Runs DESC, then Balls ASC (efficiency)
+            const topBatsmen = allBatsmen.sort((a: any, b: any) => {
+                if (b.r !== a.r) return b.r - a.r;
+                return a.b - b.b;
+            }).slice(0, 3);
+
+            // BOWLERS: From bowling array
+            const allBowlers = inn.bowling || [];
+
+            // Sort by Wickets DESC, then Runs Conceded ASC (efficiency)
+            const topBowlers = [...allBowlers].sort((a: any, b: any) => {
+                if (b.w !== a.w) return b.w - a.w;
+                return a.r - b.r;
+            }).slice(0, 3);
+
+            return {
+                id: index,
+                number: inn.innings_number || index + 1,
+                battingTeam: getTeamName(inn.battingTeam),
+                bowlingTeam: getTeamName(inn.bowlingTeam),
+                score: inn.score,
+                topBatsmen,
+                topBowlers
+            };
+        });
+    }, [matchData, innings, teamA, teamB]);
+
+    // All Players flat list with aggregate stats for dropdown
+    const allPlayersList = useMemo(() => {
+        const statsMap = new Map<number, {
+            id: number;
+            name: string;
+            teamId: number | string;
+            runs: number;
+            balls: number;
+            wickets: number;
+            runsConceded: number;
+            ballsBowled: number; // Correctly track balls bowled
+            inningsCount: number;
+        }>();
+
+        // Helper to init or get player stats
+        const getPlayerStat = (p: any, teamId: number | string) => {
+            if (!p || !p.id) return null;
+            if (!statsMap.has(p.id)) {
+                statsMap.set(p.id, {
+                    id: p.id,
+                    name: p.name || p.n || 'Unknown',
+                    teamId, // Important: keep the team ID provided during init
+                    runs: 0,
+                    balls: 0,
+                    wickets: 0,
+                    runsConceded: 0,
+                    ballsBowled: 0,
+                    inningsCount: 0
+                });
+            }
+            return statsMap.get(p.id)!;
+        };
+
+        // 1. Populate from Full Match Data (Rosters) - BEST SOURCE
+        if (fullMatchData) {
+            const fTeamA = fullMatchData.teamA || fullMatchData.teams?.A;
+            const fTeamB = fullMatchData.teamB || fullMatchData.teams?.B;
+
+            // Prefer using raw Team IDs from metadata if available
+            const idA = fTeamA?.id || teamA?.id;
+            const idB = fTeamB?.id || teamB?.id;
+
+            if (fTeamA && fTeamA.players) {
+                fTeamA.players.forEach((p: any) => getPlayerStat(p, idA));
+            }
+            if (fTeamB && fTeamB.players) {
+                fTeamB.players.forEach((p: any) => getPlayerStat(p, idB));
+            }
+        }
+        else {
+            // Fallback
+            if (teamA?.players) teamA.players.forEach((p: any) => getPlayerStat(p, teamA.id));
+            if (teamB?.players) teamB.players.forEach((p: any) => getPlayerStat(p, teamB.id));
+        }
+
+        // 2. Iterate all innings to sum up stats
         innings.forEach((inn: any) => {
-            const batsmen = [
-                ...(inn.batting?.striker ? [inn.batting.striker] : []),
-                ...(inn.batting?.nonStriker ? [inn.batting.nonStriker] : []),
+            // Determine team IDs for this innings
+            const isBattingTeamA = inn.battingTeam === teamA?.name || inn.battingTeam === teamA?.id;
+            const battingTeamId = isBattingTeamA ? teamA?.id : teamB?.id;
+            const bowlingTeamId = isBattingTeamA ? teamB?.id : teamA?.id;
+
+            // Batting Stats
+            const uniqueBatsmenInInnings = new Map();
+            [
+                inn.batting?.striker,
+                inn.batting?.nonStriker,
                 ...(inn.dismissed || [])
-            ];
+            ].forEach((b: any) => {
+                if (b && b.id) uniqueBatsmenInInnings.set(b.id, b);
+            });
 
-            batsmen.forEach((bat: any) => {
-                if (bat && bat.r > highest.runs) {
-                    highest = {
-                        name: bat.n || '',
-                        runs: bat.r || 0,
-                        balls: bat.b || 0,
-                        team: inn.battingTeam || '',
-                        sr: bat.b ? parseFloat(((bat.r / bat.b) * 100).toFixed(2)) : 0
-                    };
+            uniqueBatsmenInInnings.forEach((b: any) => {
+                const p = getPlayerStat(b, battingTeamId); // Use resolved ID
+                if (p) {
+                    p.runs += (b.r || 0);
+                    p.balls += (b.b || 0);
+                    p.inningsCount++;
                 }
             });
+
+            // Bowling Stats
+            if (inn.bowling) {
+                inn.bowling.forEach((b: any) => {
+                    const p = getPlayerStat(b, bowlingTeamId); // Use resolved ID
+                    if (p) {
+                        p.wickets += (b.w || 0);
+                        p.runsConceded += (b.r || 0);
+                        // Assuming 'b.b' is balls delivered if available, or calc from overs
+                        // Standard score object has 'b' for balls bowled usually? 
+                        // Let's check typical structure. Usually `b` is balls. `o` is overs string.
+                        // If `b` is missing but `o` is there (e.g. "3.2"), parse it.
+                        let balls = b.b || 0;
+                        if (!balls && b.o) {
+                            const oStr = String(b.o);
+                            const parts = oStr.split('.');
+                            const overs = parseInt(parts[0] || '0', 10);
+                            const extraBalls = parseInt(parts[1] || '0', 10);
+                            balls = (overs * 6) + extraBalls;
+                        }
+                        p.ballsBowled += balls;
+                    }
+                });
+            }
         });
 
-        return highest.runs > 0 ? highest : null;
-    }, [innings]);
+        // Split lists
+        const listA: any[] = [];
+        const listB: any[] = [];
 
-    // Get best bowler from all innings
-    const bestBowler = useMemo(() => {
-        let best = { name: '', wickets: 0, runs: 0, overs: 0, team: '', economy: 0 };
+        // Final team check
+        const idA = fullMatchData?.teamA?.id || teamA?.id;
 
-        innings.forEach((inn: any) => {
-            const bowlers = inn.bowling || [];
-
-            bowlers.forEach((bowl: any) => {
-                if (bowl && bowl.w > best.wickets) {
-                    best = {
-                        name: bowl.n || '',
-                        wickets: bowl.w || 0,
-                        runs: bowl.r || 0,
-                        overs: bowl.o || 0,
-                        team: inn.bowlingTeam || '',
-                        economy: bowl.o ? parseFloat((bowl.r / bowl.o).toFixed(2)) : 0
-                    };
-                }
-            });
+        statsMap.forEach(p => {
+            if (p.teamId === idA) listA.push(p);
+            else listB.push(p);
         });
 
-        return best.wickets > 0 ? best : null;
-    }, [innings]);
+        return { listA, listB };
+    }, [teamA, teamB, innings, fullMatchData]);
 
-    // Get innings summaries
-    const inningsSummaries = useMemo(() => {
-        return innings.map((inn: any) => ({
-            team: inn.battingTeam || teams[inn.battingTeam]?.name || 'Unknown',
-            runs: inn.score?.r || 0,
-            wickets: inn.score?.w || 0,
-            overs: inn.score?.o || 0,
-            runRate: inn.runRate || '0.00',
-            extras: inn.extras || 0
-        }));
-    }, [innings, teams]);
+    if (!isOpen || !matchData) return null;
+
+    const handleSubmitResult = async () => {
+        if (!selectedMOM) {
+            showToast.error('Please choose Man of the Match');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            if ((MatchService as any).updateMatch) {
+                await (MatchService as any).updateMatch(meta.matchId, { man_of_the_match: String(selectedMOM) });
+            } else {
+                const { apiClient } = await import('../../../utils/api');
+                await apiClient.patch(`matches/${meta.matchId}`, { man_of_the_match: String(selectedMOM) });
+            }
+            showToast.success('Match result submitted successfully');
+            onClose();
+        } catch (error) {
+            console.error('Error submitting result:', error);
+            showToast.error('Failed to submit result');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Helper formatting function for minimal text
+    const formatPlayerOption = (p: any) => {
+        const parts = [];
+        // Batting: 45(23)
+        if (p.runs > 0 || p.balls > 0) {
+            parts.push(`${p.runs}(${p.balls})`); // e.g. 45(23)
+        }
+
+        // Bowling: 2-24 (4.0)
+        // Wickets-Runs (Overs)
+        if (p.ballsBowled > 0 || p.wickets > 0) {
+            const overs = Math.floor(p.ballsBowled / 6);
+            const extraBalls = p.ballsBowled % 6;
+            const ovStr = extraBalls > 0 ? `${overs}.${extraBalls}` : `${overs}`;
+            parts.push(`${p.wickets}-${p.runsConceded} (${ovStr})`);
+        }
+
+        if (parts.length === 0) return p.name;
+        return `${p.name}  •  ${parts.join('  •  ')}`;
+    };
 
     return (
         <>
-            {/* Backdrop */}
-            <div
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-in fade-in duration-300"
-                onClick={onClose}
-            />
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-in fade-in duration-300" onClick={onClose} />
 
-            {/* Modal */}
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
                 <div
-                    className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 w-full max-w-2xl rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 pointer-events-auto animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto"
+                    className="bg-[var(--card-bg)] w-full max-w-4xl rounded-xl shadow-2xl border border-[var(--card-border)] pointer-events-auto animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh] overflow-hidden"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    {/* Header with Trophy */}
-                    <div className="relative bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 p-6 rounded-t-3xl">
-                        <button
-                            onClick={onClose}
-                            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
-                        >
-                            <X size={18} className="text-white" />
-                        </button>
-
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3 animate-bounce">
-                                <Trophy size={32} className="text-white" />
+                    {/* Compact Header */}
+                    <div className="bg-gray-100 dark:bg-gray-800/50 border-b border-[var(--card-border)] px-4 py-3 flex items-center justify-between shrink-0">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                                <Trophy size={16} className="text-amber-600 dark:text-amber-500" />
                             </div>
-                            <h2 className="text-2xl font-black text-white uppercase tracking-wider mb-1">
-                                Match Complete
-                            </h2>
-                            {winnerInfo && (
-                                <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                                    <p className="text-sm font-bold text-white">
-                                        {winnerInfo.team} won by {winnerInfo.margin} {winnerInfo.type}
-                                    </p>
-                                </div>
-                            )}
+                            <div>
+                                <h1 className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-1">Match Summary</h1>
+                                <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">
+                                    {winnerInfo ? `${winnerInfo.teamName} Won by ${winnerInfo.margin} ${winnerInfo.type}` : 'Match Concluded'}
+                                </p>
+                            </div>
                         </div>
+                        <button onClick={onClose} className="w-6 h-6 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors">
+                            <X size={14} className="text-gray-500" />
+                        </button>
                     </div>
 
-                    {/* Content */}
-                    <div className="p-6 space-y-6">
-                        {/* Innings Comparison */}
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2 mb-3">
-                                <Target size={18} className="text-blue-600" />
-                                <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
-                                    Innings Summary
-                                </h3>
-                            </div>
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
 
-                            {inningsSummaries.map((inn: any, idx: number) => (
-                                <div
-                                    key={idx}
-                                    className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-2xl border border-blue-200 dark:border-blue-800"
-                                >
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                                                <span className="text-xs font-black text-white">{idx + 1}</span>
-                                            </div>
-                                            <span className="text-sm font-black text-gray-900 dark:text-white uppercase">
-                                                {inn.team}
-                                            </span>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="flex items-baseline gap-1">
-                                                <span className="text-3xl font-black text-gray-900 dark:text-white">
-                                                    {inn.runs}
-                                                </span>
-                                                <span className="text-xl font-black text-blue-600">/{inn.wickets}</span>
-                                            </div>
-                                            <p className="text-xs font-bold text-gray-500">
-                                                {inn.overs} Ov • RR: {inn.runRate}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between text-xs">
-                                        <span className="text-gray-600 dark:text-gray-400 font-semibold">
-                                            Extras: {inn.extras}
+                        {/* Innings Rows */}
+                        {inningsPerformance.map((inn: any, idx: number) => (
+                            <div key={idx} className="border border-[var(--card-border)] rounded-lg overflow-hidden bg-gray-50/30 dark:bg-gray-800/20">
+                                {/* Innings Header */}
+                                <div className="px-3 py-2 bg-gray-100/50 dark:bg-gray-700/30 border-b border-[var(--card-border)] flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-black bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                            {inn.number === 1 ? '1st' : '2nd'} Innings
                                         </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Player of the Match Section */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Highest Scorer */}
-                            {highestScorer && (
-                                <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center">
-                                            <TrendingUp size={16} className="text-white" />
-                                        </div>
-                                        <h4 className="text-xs font-black text-emerald-600 uppercase tracking-wider">
-                                            Highest Scorer
-                                        </h4>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <p className="text-lg font-black text-gray-900 dark:text-white truncate">
-                                            {highestScorer.name}
+                                        <p className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                                            {inn.battingTeam}
+                                            <span className="text-[10px] font-normal text-gray-400">vs</span>
+                                            {inn.bowlingTeam}
                                         </p>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-3xl font-black text-emerald-600">
-                                                {highestScorer.runs}
-                                            </span>
-                                            <span className="text-sm text-gray-500 font-semibold">
-                                                ({highestScorer.balls})
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="text-gray-600 dark:text-gray-400 font-semibold">
-                                                SR: {highestScorer.sr}
-                                            </span>
-                                            <span className="text-emerald-600 font-bold uppercase text-[10px]">
-                                                {highestScorer.team}
-                                            </span>
-                                        </div>
+                                    </div>
+                                    <div className="text-xs font-bold font-mono text-gray-900 dark:text-white bg-white dark:bg-gray-800 px-2 py-0.5 rounded border border-[var(--card-border)]">
+                                        {inn.score?.r}/{inn.score?.w} <span className="text-[10px] text-gray-400">({inn.score?.o})</span>
                                     </div>
                                 </div>
-                            )}
 
-                            {/* Best Bowler */}
-                            {bestBowler && (
-                                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-4 rounded-2xl border border-purple-200 dark:border-purple-800">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
-                                            <Award size={16} className="text-white" />
+                                {/* Comparison Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[var(--card-border)]">
+
+                                    {/* Batting Column (Left) */}
+                                    <div className="p-3">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1.5">
+                                                <TrendingUp size={10} /> Batsmen
+                                            </h4>
                                         </div>
-                                        <h4 className="text-xs font-black text-purple-600 uppercase tracking-wider">
-                                            Best Bowler
-                                        </h4>
+                                        <table className="w-full text-[10px]">
+                                            <tbody className="divide-y divide-[var(--card-border)]">
+                                                {inn.topBatsmen.length > 0 ? (
+                                                    inn.topBatsmen.map((p: any, i: number) => (
+                                                        <tr key={i} className="hover:bg-gray-50 dark:hover:bg-white/5">
+                                                            <td className="py-1.5 pr-2 font-semibold text-gray-800 dark:text-gray-200 w-full truncate">{p.n}</td>
+                                                            <td className="py-1.5 px-2 text-right font-bold text-gray-900 dark:text-white whitespace-nowrap">{p.r} <span className="text-[9px] font-normal text-gray-400">({p.b})</span></td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr><td className="py-2 text-center text-gray-400 italic text-[10px]">No batting data</td></tr>
+                                                )}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <div className="space-y-2">
-                                        <p className="text-lg font-black text-gray-900 dark:text-white truncate">
-                                            {bestBowler.name}
-                                        </p>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-3xl font-black text-purple-600">
-                                                {bestBowler.wickets}
-                                            </span>
-                                            <span className="text-sm text-gray-500 font-semibold">
-                                                /{bestBowler.runs}
-                                            </span>
+
+                                    {/* Bowling Column (Right) */}
+                                    <div className="p-3">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest flex items-center gap-1.5">
+                                                <Target size={10} /> Bowlers
+                                            </h4>
                                         </div>
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="text-gray-600 dark:text-gray-400 font-semibold">
-                                                Econ: {bestBowler.economy}
-                                            </span>
-                                            <span className="text-purple-600 font-bold uppercase text-[10px]">
-                                                {bestBowler.team}
-                                            </span>
-                                        </div>
+                                        <table className="w-full text-[10px]">
+                                            <tbody className="divide-y divide-[var(--card-border)]">
+                                                {inn.topBowlers.length > 0 ? (
+                                                    inn.topBowlers.map((p: any, i: number) => (
+                                                        <tr key={i} className="hover:bg-gray-50 dark:hover:bg-white/5">
+                                                            <td className="py-1.5 pr-2 font-semibold text-gray-800 dark:text-gray-200 w-full truncate">{p.n}</td>
+                                                            <td className="py-1.5 px-2 text-right font-bold text-gray-900 dark:text-white whitespace-nowrap">{p.w} <span className="text-[9px] font-normal text-gray-400">-{p.r}</span></td>
+                                                            <td className="py-1.5 pl-2 text-right text-gray-500 whitespace-nowrap w-12 text-[9px]">{p.o} ov</td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr><td className="py-2 text-center text-gray-400 italic text-[10px]">No bowling data</td></tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Man of the Match Row */}
+                        <div className="pt-2">
+                            <div className="bg-[#0f172a] rounded-lg p-3 flex flex-col md:flex-row items-center gap-4 shadow-lg border border-gray-800">
+                                <div className="flex-1 w-full">
+                                    <label className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                        <Star size={10} className="fill-amber-500" /> Man of the Match
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={selectedMOM || ''}
+                                            onChange={(e) => setSelectedMOM(Number(e.target.value))}
+                                            className="w-full bg-gray-900 text-white text-[11px] font-bold focus:outline-none appearance-none cursor-pointer border border-gray-700 rounded-md py-2 px-3 hover:border-gray-600 transition-colors"
+                                        >
+                                            <option value="" className="text-gray-400">Select Player</option>
+                                            <optgroup label={teamA?.name || 'Team A'} className="bg-gray-800 text-gray-400 font-extrabold uppercase tracking-wider">
+                                                {allPlayersList.listA.map(p => (
+                                                    <option key={p.id} value={p.id} className="text-white font-medium py-1">
+                                                        {formatPlayerOption(p)}
+                                                    </option>
+                                                ))}
+                                            </optgroup>
+                                            <optgroup label={teamB?.name || 'Team B'} className="bg-gray-800 text-gray-400 font-extrabold uppercase tracking-wider">
+                                                {allPlayersList.listB.map(p => (
+                                                    <option key={p.id} value={p.id} className="text-white font-medium py-1">
+                                                        {formatPlayerOption(p)}
+                                                    </option>
+                                                ))}
+                                            </optgroup>
+                                        </select>
                                     </div>
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Close Button */}
-                        <div className="pt-4">
-                            <Button
-                                onClick={onClose}
-                                className="w-full h-12 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-black text-sm rounded-2xl uppercase tracking-wider shadow-lg"
-                            >
-                                Close Result
-                            </Button>
+                                <Button
+                                    onClick={handleSubmitResult}
+                                    disabled={!selectedMOM || isSubmitting}
+                                    className="h-9 w-full md:w-auto px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm whitespace-nowrap min-w-[140px]"
+                                >
+                                    {isSubmitting ? 'Saving...' : (
+                                        <>
+                                            <Check size={14} /> Submit Result
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -268,4 +447,5 @@ const MatchResultModal: React.FC<MatchResultModalProps> = ({ isOpen, matchData, 
     );
 };
 
-export default MatchResultModal;
+
+

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { Eye, ChevronDown } from 'lucide-react';
@@ -10,7 +10,7 @@ import PlayerSelectionModal from '../../components/ui/PlayerSelectionModal';
 import WicketModal from '../../components/ui/WicketModal';
 import { MatchService } from '../../services/matchService';
 import { showToast } from '../../utils/toast';
-import { Innings, MatchScoreResponse } from '../../types/scoreService';
+import { Innings } from '../../types/scoreService';
 import MatchHeader from './components/MatchHeader';
 import CurrentScoreCard from './components/CurrentScoreCard';
 import RecentOversCard from './components/RecentOversCard';
@@ -18,7 +18,7 @@ import BallOutcomes from './components/BallOutcomes';
 import BallConfirmModal from './components/BallConfirmModal';
 import ExtrasWarningModal from './components/ExtrasWarningModal';
 import InningsCompleteModal from './components/InningsCompleteModal';
-import MatchResultModal from './components/MatchResultModal';
+import { MatchResultModal } from './components/MatchResultModal';
 import { recordBall } from '@/store/score/scoreThunks';
 import { setScore } from '@/store/score/scoreSlice';
 import { PageLoader, ErrorDisplay } from '@/components/ui/loading';
@@ -28,8 +28,8 @@ const ScoreEdit = () => {
   const { matchId } = useParams<{ matchId: string }>();
   const dispatch = useAppDispatch();
   const scoreData = useAppSelector(state => state.score.data);
+  const matchData = scoreData;
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [matchData, setMatchData] = useState<MatchScoreResponse | null>(null);
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +53,7 @@ const ScoreEdit = () => {
   const [pendingExtrasValue, setPendingExtrasValue] = useState(false);
   const [_isByeRun, setIsByeRun] = useState(false);
   const [showMatchResult, setShowMatchResult] = useState(false);
+  const lastFetchedInningsRef = useRef<number | null>(null);
 
   const toggleExtras = useCallback(() => {
     const newValue = !extrasEnabled;
@@ -77,7 +78,6 @@ const ScoreEdit = () => {
     try {
       const response = await MatchService.getMatchScore(matchId);
       if (response?.data) {
-        setMatchData(response.data);
         dispatch(setScore(response.data));
         setError(null);
       } else {
@@ -90,12 +90,6 @@ const ScoreEdit = () => {
       setLoading(false);
     }
   }, [matchId, dispatch]);
-
-  useEffect(() => {
-    if (scoreData) {
-      setMatchData(scoreData);
-    }
-  }, [scoreData]);
 
   useEffect(() => {
     fetchMatchScore();
@@ -135,7 +129,7 @@ const ScoreEdit = () => {
 
   // Check if match is completed
   const isMatchCompleted = useMemo(() => {
-    return (matchData?.meta as any)?.is_completed || (matchData as any)?.is_completed || false;
+    return matchData?.meta?.isMatchCompleted || false;
   }, [matchData]);
 
   const handleBallUpdate = useCallback(async (ballType: string, runs?: string) => {
@@ -191,9 +185,6 @@ const ScoreEdit = () => {
 
       const result = await dispatch(recordBall(payload)).unwrap();
       showToast.success(result.message);
-
-      // Fetch updated score to check if match is completed
-      await fetchMatchScore();
     } catch (error: any) {
       console.error('Error recording ball:', error);
       showToast.error(error || 'Failed to record ball');
@@ -237,14 +228,8 @@ const ScoreEdit = () => {
       setShowWicketModal(false);
       showToast.success(response.message || 'Wicket recorded successfully');
 
-      // Fetch updated score to check if match is completed
-      await fetchMatchScore();
-
-      // Only show batsman modal if match is not completed
-      const updatedData = await MatchService.getMatchScore(matchId!);
-      const isCompleted = (updatedData?.data?.meta as any)?.is_completed || (updatedData?.data as any)?.is_completed;
-
-      if (!isCompleted) {
+      // Only show batsman modal if innings is not over
+      if (!response.data?.is_innings_over) {
         fetchAvailableBatsmen();
         setShowBatsmanModal(true);
       }
@@ -316,10 +301,18 @@ const ScoreEdit = () => {
   console.log("is innings over", isInningsOver);
 
   useEffect(() => {
-    if (currentInnings?.is_innings_over) {
-      fetchMatchScore();
+    const inningsId = currentInnings?.i;
+    if (currentInnings?.is_innings_over && !isMatchCompleted && lastFetchedInningsRef.current !== inningsId) {
+      // Mark as fetched immediately to prevent double-trigger
+      lastFetchedInningsRef.current = inningsId || null;
+
+      // Small delay to ensure state is settled before refetching for clarity
+      const timer = setTimeout(() => {
+        fetchMatchScore();
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [currentInnings?.is_innings_over, fetchMatchScore]);
+  }, [currentInnings?.is_innings_over, currentInnings?.i, isMatchCompleted, fetchMatchScore]);
 
   // Auto-open Match Result modal when match is completed
   useEffect(() => {

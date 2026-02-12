@@ -93,6 +93,11 @@ export const MatchService = {
         return apiClient.post(`matches/${matchId}/next-innings`, { isFollowOn });
     },
 
+    // Update Match
+    updateMatch: async (matchId: string, data: any): Promise<ApiResponse<any>> => {
+        return apiClient.patch(`matches/${matchId}`, data);
+    },
+
     create: async (data: MatchData) => {
         // TODO: Replace with actual API endpoint
         // return apiClient.post('matches', data);
