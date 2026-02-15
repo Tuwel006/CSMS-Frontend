@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import Toggle from '../../../components/ui/Toggle';
 import { Box, Stack } from '../../../components/ui/lib';
+import { RotateCcw } from 'lucide-react';
 
 interface BallOutcomesProps {
   onBallUpdate: (ballType: string, runs?: string) => void;
+  onUndoLastBall?: () => void;
   extrasEnabled: boolean;
   onToggleExtras: () => void;
   disabled?: boolean;
 }
 
-const BallOutcomes = React.memo(({ onBallUpdate, extrasEnabled, onToggleExtras, disabled }: BallOutcomesProps) => {
+const BallOutcomes = React.memo(({ onBallUpdate, onUndoLastBall, extrasEnabled, onToggleExtras, disabled }: BallOutcomesProps) => {
   const [nbRuns, setNbRuns] = useState('0');
 
   const btnClass = (gradient: string, border: string, text: string, shadow: string) => `
@@ -31,9 +33,19 @@ const BallOutcomes = React.memo(({ onBallUpdate, extrasEnabled, onToggleExtras, 
           </span>
           Live Controls
         </h3>
-        <Stack direction="row" align="center" gap="sm" className="bg-black/5 dark:bg-white/5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-[var(--card-border)]">
-          <span className="text-[9px] sm:text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-tight">Extras</span>
-          <Toggle size="sm" checked={extrasEnabled} onChange={onToggleExtras} disabled={disabled} />
+        <Stack direction="row" align="center" gap="sm">
+          <button
+            disabled={disabled}
+            onClick={onUndoLastBall}
+            className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors text-[var(--text-secondary)] disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Undo Last Ball"
+          >
+            <RotateCcw size={14} />
+          </button>
+          <Stack direction="row" align="center" gap="sm" className="bg-black/5 dark:bg-white/5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-[var(--card-border)]">
+            <span className="text-[9px] sm:text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-tight">Extras</span>
+            <Toggle size="sm" checked={extrasEnabled} onChange={onToggleExtras} disabled={disabled} />
+          </Stack>
         </Stack>
       </Stack>
 

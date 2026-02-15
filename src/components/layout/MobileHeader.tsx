@@ -23,19 +23,25 @@ const Header = ({ onMenuToggle, isMobileMenuOpen }: MobileHeaderProps) => {
   const { user } = useAuthContexxt();
 
   return (
-    <header className="h-12 md:h-14 bg-[var(--header-bg)] border-b border-[var(--card-border)] sticky top-0 z-40">
-      <Stack direction="row" justify="between" align="center" className="h-full px-2 md:px-4">
-        <Stack direction="row" align="center" gap="xs" className="min-w-0 flex-1">
+    <header className="h-12 bg-[var(--header-bg)] border-b border-[var(--card-border)] sticky top-0 z-50 relative">
+      {/* Premium accent line */}
+      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+
+      <Stack direction="row" justify="between" align="center" className="h-full px-4 md:px-6">
+        <Stack direction="row" align="center" gap="sm" className="min-w-0 flex-1">
           <IconButton
-            icon={isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            icon={isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             onClick={onMenuToggle}
             tooltip={isMobileMenuOpen ? "Close menu" : "Open menu"}
             className="lg:hidden"
             size="sm"
           />
-          <h1 className="text-sm md:text-base font-bold text-[var(--header-text)] truncate min-w-0 uppercase tracking-widest">
-            Cricket <span className="text-cyan-600">Score</span>
-          </h1>
+          <div className="flex items-baseline gap-1.5">
+            <h1 className="text-sm md:text-base font-black text-[var(--header-text)] truncate min-w-0 uppercase tracking-tighter font-outfit leading-none">
+              CSMS <span className="text-cyan-600">Portal</span>
+            </h1>
+            <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-[0.2em] text-slate-500 opacity-70">Mgmt</span>
+          </div>
         </Stack>
 
         <Stack direction="row" align="center" gap="xs" className="flex-shrink-0">
@@ -83,7 +89,7 @@ const Header = ({ onMenuToggle, isMobileMenuOpen }: MobileHeaderProps) => {
 
       {/* Mobile Search Overlay */}
       {isSearchOpen && (
-        <div className="md:hidden absolute top-14 left-0 right-0 bg-[var(--header-bg)] border-b border-[var(--card-border)] p-3">
+        <div className="md:hidden absolute top-14 left-0 right-0 bg-[var(--header-bg)] border-b border-[var(--card-border)] p-3 shadow-2xl">
           <SearchBar
             isOpen={true}
             onToggle={toggleSearch}

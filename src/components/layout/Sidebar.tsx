@@ -11,8 +11,8 @@ const Sidebar = ({ links }: { links: { to: string; icon: React.ReactNode; label:
 
   return (
     <aside
-      className={`fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] overflow-y-auto transition-all duration-500 z-50 flex flex-col
-        ${open ? "w-60" : "w-16"} bg-[var(--header-bg)] border-r border-[var(--card-border)] shadow-xl lg:shadow-none`}
+      className={`fixed lg:sticky top-12 left-0 h-[calc(100vh-3.5rem)] overflow-y-auto transition-all duration-500 z-50 flex flex-col
+        ${open ? "w-60" : "w-14"} bg-[var(--header-bg)] border-r border-[var(--card-border)] shadow-xl lg:shadow-none`}
     >
       <nav className="flex-1 mt-4 px-3 space-y-1">
         {links.map((link) => {

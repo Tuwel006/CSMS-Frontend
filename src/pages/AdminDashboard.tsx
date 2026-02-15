@@ -7,7 +7,7 @@ import { Stack } from "../components/ui/lib/Stack";
 import { Box } from "../components/ui/lib/Box";
 import Card from "../components/ui/lib/Card";
 import type { MatchDetails } from "../types/scorecard";
-import { Trophy, Calendar, TrendingUp, Users } from "lucide-react";
+import { Trophy, Calendar, TrendingUp, Users, RotateCcw, ExternalLink } from "lucide-react";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 
 const MatchesPage: React.FC = () => {
@@ -80,7 +80,7 @@ const MatchesPage: React.FC = () => {
     <Box p="sm" className="max-w-7xl mx-auto">
       <Stack gap="md">
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5">
           {stats.map((stat, idx) => (
             <Card key={idx} className="p-3 sm:p-4">
               <Stack gap="xs">
@@ -119,12 +119,23 @@ const MatchesPage: React.FC = () => {
                   {matches.length} matches found
                 </p>
               </div>
-              <button
-                onClick={() => navigate('/admin/match-setup')}
-                className="px-3 py-1.5 text-xs sm:text-sm bg-cyan-600 hover:bg-cyan-700 text-white rounded-sm font-medium transition-colors"
-              >
-                New Match
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={fetchMatches}
+                  className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-sm transition-colors text-slate-400 hover:text-cyan-600 border border-transparent hover:border-[var(--card-border)]"
+                  title="Refresh"
+                >
+                  <RotateCcw size={14} />
+                </button>
+                <button
+                  onClick={() => navigate('/admin/match-setup')}
+                  className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text)] border border-[var(--card-border)] rounded-sm transition-all flex items-center gap-2 group shadow-sm hover:shadow-md"
+                  title="Manage Matches"
+                >
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] group-hover:text-cyan-600 transition-colors">Manage</span>
+                  <ExternalLink size={12} className="text-slate-400 group-hover:text-cyan-600 transition-colors" />
+                </button>
+              </div>
             </Stack>
 
             {matchesLoading ? (
@@ -144,19 +155,20 @@ const MatchesPage: React.FC = () => {
                 </p>
                 <button
                   onClick={() => navigate('/admin/match-setup')}
-                  className="px-4 py-2 text-xs sm:text-sm bg-cyan-600 hover:bg-cyan-700 text-white rounded-sm font-medium transition-colors"
+                  className="px-4 py-2 text-[10px] font-black uppercase tracking-widest bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text)] border border-[var(--card-border)] rounded-sm transition-all"
                 >
-                  Create Match
+                  Enter Management
                 </button>
               </Box>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+              <div className="flex overflow-x-auto pb-4 gap-1.5 scrollbar-none snap-x snap-mandatory">
                 {matches.map((match) => (
-                  <MatchCard
-                    key={match.meta.matchId}
-                    match={match}
-                    onClick={() => handleMatchClick(match.meta.matchId)}
-                  />
+                  <div key={match.meta.matchId} className="snap-start flex-shrink-0">
+                    <MatchCard
+                      match={match}
+                      onClick={() => handleMatchClick(match.meta.matchId)}
+                    />
+                  </div>
                 ))}
               </div>
             )}
@@ -175,9 +187,12 @@ const MatchesPage: React.FC = () => {
                 </p>
               </div>
               <button
-                className="px-3 py-1.5 text-xs sm:text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-sm font-medium transition-colors"
+                onClick={() => navigate('/admin/tournaments')}
+                className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text)] border border-[var(--card-border)] rounded-sm transition-all flex items-center gap-2 group shadow-sm hover:shadow-md"
+                title="Manage Tournaments"
               >
-                New Tournament
+                <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] group-hover:text-purple-600 transition-colors">Manage</span>
+                <ExternalLink size={12} className="text-slate-400 group-hover:text-purple-600 transition-colors" />
               </button>
             </Stack>
 
@@ -197,9 +212,10 @@ const MatchesPage: React.FC = () => {
                   Create your first tournament
                 </p>
                 <button
-                  className="px-4 py-2 text-xs sm:text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-sm font-medium transition-colors"
+                  onClick={() => navigate('/admin/tournaments')}
+                  className="px-4 py-2 text-[10px] font-black uppercase tracking-widest bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text)] border border-[var(--card-border)] rounded-sm transition-all"
                 >
-                  Create Tournament
+                  Enter Management
                 </button>
               </Box>
             ) : (

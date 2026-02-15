@@ -44,20 +44,27 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
     <Stack direction="row" justify="between" align="center">
       <Stack direction="row" gap="sm" align="center" className="min-w-0 flex-1">
         {team.logo ? (
-          <img 
-            src={team.logo} 
+          <img
+            src={team.logo}
             alt={team.name}
-            className={cn('rounded-xs object-cover flex-shrink-0', isCompact ? 'w-3 h-3' : 'w-4 h-4')}
+            className={cn(
+              'rounded-xs object-cover flex-shrink-0 border transition-transform group-hover:scale-110',
+              isCompact ? 'w-5 h-5' : 'w-6 h-6',
+              isDark ? 'border-white/10' : 'border-slate-200'
+            )}
           />
         ) : (
-          <Box 
-            rounded="sm" 
+          <Box
+            rounded="sm"
             className={cn(
-              'bg-gray-300 dark:bg-gray-600 flex items-center justify-center font-bold flex-shrink-0',
-              isCompact ? 'w-3 h-3 text-[7px]' : 'w-4 h-4 text-[8px]'
+              'flex items-center justify-center font-black flex-shrink-0 border uppercase tracking-tighter',
+              isCompact ? 'w-5 h-5 text-[8px]' : 'w-6 h-6 text-[10px]',
+              isDark
+                ? 'bg-slate-800/50 border-white/10 text-cyan-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
+                : 'bg-slate-100 border-slate-200 text-slate-600'
             )}
           >
-            {team.short.charAt(0)}
+            {team.short.slice(0, 2)}
           </Box>
         )}
         <Stack gap="none" className="min-w-0">
@@ -80,34 +87,55 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
     <Card
       onClick={onClick}
       className={cn(
-        'transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1',
-        isDark 
-          ? 'bg-gradient-to-br from-gray-700 to-gray-800 border-gray-600 shadow-lg shadow-gray-900/50' 
-          : 'bg-gradient-to-br from-white via-cyan-50/50 to-blue-50/60 border-cyan-200/70 shadow-lg shadow-cyan-300/40',
+        'transition-all duration-300 cursor-pointer hover:-translate-y-1 active:scale-[0.98] group overflow-hidden relative',
+        isDark
+          ? 'bg-[#05070a] border-[#1a1c1e] shadow-none'
+          : 'bg-white border-slate-200 shadow-none',
         isCompact && 'w-64 flex-shrink-0',
         className
       )}
     >
+      {/* Ultra-Thin Top status indicator */}
+      <div className={cn(
+        'absolute top-0 left-0 w-full h-[2px] z-20',
+        status.toLowerCase().includes('live') ? 'bg-red-600' : 'bg-cyan-600'
+      )} />
+
+      <div className={cn(
+        'absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none',
+        isDark ? 'bg-white' : 'bg-black'
+      )} />
+
       {/* Header */}
-      <Box 
-        p="sm" 
+      <Box
+        p="sm"
         className={cn(
-          'border-b flex justify-between items-center',
-          isDark ? 'border-gray-600 bg-gray-700/60' : 'border-cyan-200/50 bg-gradient-to-r from-cyan-50/60 to-blue-50/60'
+          'border-b flex justify-between items-center relative z-10',
+          isDark ? 'border-[#1a1c1e] bg-[#0c0e10]' : 'border-slate-50 bg-slate-50/50'
         )}
       >
-        <span className={cn(
-          'px-1.5 py-0.5 rounded-xs text-[9px] font-semibold',
-          isDark ? 'bg-cyan-800/70 text-cyan-200 border border-cyan-600/50' : 'bg-cyan-600 text-white shadow-sm'
-        )}>
-          {matchType}
-        </span>
-        <span className={cn(
-          'text-[9px] font-medium',
-          status.toLowerCase().includes('live') ? 'text-red-500' : 'text-gray-500'
-        )}>
-          {status}
-        </span>
+        <div className="flex items-center gap-2">
+          <div className={cn('w-1 h-3 rounded-full', isDark ? 'bg-cyan-500' : 'bg-cyan-600')} />
+          <span className={cn(
+            'px-1.5 py-0.5 rounded-xs text-[8px] font-black uppercase tracking-widest',
+            isDark ? 'text-cyan-400' : 'text-cyan-700'
+          )}>
+            {matchType}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {status.toLowerCase().includes('live') && (
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+          )}
+          <span className={cn(
+            'text-[9px] font-black uppercase tracking-tighter transition-colors',
+            status.toLowerCase().includes('live')
+              ? 'text-red-500'
+              : isDark ? 'text-slate-500' : 'text-slate-400'
+          )}>
+            {status}
+          </span>
+        </div>
       </Box>
 
       {/* Teams */}
@@ -120,8 +148,8 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
 
       {/* Footer */}
       {(venue || result) && !isCompact && (
-        <Box 
-          p="sm" 
+        <Box
+          p="sm"
           className={cn(
             'border-t text-[9px] truncate',
             isDark ? 'border-gray-600 bg-gray-700/60' : 'border-cyan-200/50 bg-gradient-to-r from-cyan-50/60 to-blue-50/60'

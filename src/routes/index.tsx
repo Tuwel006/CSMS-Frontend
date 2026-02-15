@@ -19,15 +19,17 @@ const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 // const MatchDetail = lazy(() => import("@/pages/MatchDetails"));
 const TeamManagement = lazy(() => import("@/pages/TeamManagement"));
-const TeamManagementRefactored = lazy(() => import("@/pages/TeamManagement/TeamManagementRefactored"));
+const TeamManagementRefactored = lazy(() => import("../pages/TeamManagement/TeamManagementRefactored"));
 const ScoreEditor = lazy(() => import("@/pages/ScoreEditor"));
 const ScoreEditorNew = lazy(() => import("@/pages/ScoreEditorNew"));
 const Game = lazy(() => import("@/pages/Game"));
 const LiveScore = lazy(() => import("@/pages/LiveScore"));
 const SearchableFormExample = lazy(() => import("@/components/ui/SearchableFormExample"));
-const ScoreEditNew = lazy(() => import("@/pages/ScoreEdit/ScoreEditRefactored"));
+const ScoreEditNew = lazy(() => import("../pages/ScoreEdit/ScoreEditRefactored"));
 const MatchSetup = lazy(() => import("@/pages/MatchSetup"));
 
+const TournamentManagement = lazy(() => import("@/pages/TournamentManagement"));
+const Profile = lazy(() => import("@/pages/Profile"));
 
 export default function AppRoute() {
   const { isAuth, role } = useAuthContexxt();
@@ -55,6 +57,7 @@ export default function AppRoute() {
                 <Route index element={<AdminDashboard />} />
                 <Route path="match-setup" element={<MatchSetup />} />
                 <Route path="match-setup/:matchId" element={<TeamManagement />} />
+                <Route path="tournament-management" element={<TournamentManagement />} />
                 <Route path="team-management" element={<TeamManagement />} />
                 <Route path="team-management-new" element={<TeamManagementRefactored />} />
                 <Route path="player-management" element={<div>Player Management Page</div>} />
@@ -63,6 +66,7 @@ export default function AppRoute() {
                 <Route path="score-edit/:matchId" element={<ScoreEdit />} />
                 <Route path="statistics" element={<div>Statistics Page</div>} />
                 <Route path="settings" element={<div>Settings Page</div>} />
+                <Route path="profile" element={<Profile />} />
                 <Route path="score-edit-new/:matchId" element={<ScoreEditNew />} />
               </Route>
             </Route>

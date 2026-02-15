@@ -29,7 +29,7 @@ const AdminLayout = () => {
             <Sidebar links={links} />
             <main
               key={theme}
-              className="flex-1 ml-16 lg:ml-0 transition-all duration-300 overflow-x-hidden"
+              className="flex-1 ml-14 lg:ml-0 transition-all duration-300 overflow-x-hidden"
               style={{
                 backgroundColor: "var(--bg)",
                 color: "var(--text)",

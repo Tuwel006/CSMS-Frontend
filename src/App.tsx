@@ -20,17 +20,17 @@ function AppContent() {
         <CurrentMatchProvider>
           <GlobalLoader />
           <ToastContainer
-            position="bottom-right"
-            autoClose={3000}
+            position="bottom-center"
+            autoClose={false}
             hideProgressBar={true}
             closeButton={false}
             newestOnTop
-            closeOnClick
+            closeOnClick={false}
             pauseOnFocusLoss={false}
-            draggable={false}
+            draggable={true}
+            draggablePercent={60}
             pauseOnHover={false}
             theme={theme === 'dark' ? 'dark' : 'light'}
-            limit={3}
           />
           <Routes>
             <Route path="/test" element={<TestCricketGround />} />

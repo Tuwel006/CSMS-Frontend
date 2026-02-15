@@ -63,24 +63,20 @@ export const showToast = {
 
     // Direct helpers if needed
     success: (message: string) => {
-        const id = toast.success(message || 'Success', {
+        toast.success(message || 'Success', {
             ...defaultToastOptions,
-            autoClose: 3000,
+            autoClose: false,
             icon: "✅" as any,
             style: { ...defaultToastOptions.style, borderLeft: "2px solid #10b981" }
         });
-        // Manual fallback to ensure it closes
-        setTimeout(() => toast.dismiss(id), 3000);
     },
     error: (msg: string | any) => {
         const message = typeof msg === 'string' ? msg : (msg?.message || 'Error occurred');
-        const id = toast.error(message, {
+        toast.error(message, {
             ...defaultToastOptions,
-            autoClose: 3000,
+            autoClose: false,
             icon: "❌" as any,
             style: { ...defaultToastOptions.style, borderLeft: "2px solid #ef4444" }
         });
-        // Manual fallback to ensure it closes
-        setTimeout(() => toast.dismiss(id), 3000);
     }
 };

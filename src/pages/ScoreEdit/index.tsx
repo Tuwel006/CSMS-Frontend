@@ -414,6 +414,7 @@ const ScoreEdit = () => {
         <div className="relative">
           <BallOutcomes
             onBallUpdate={handleBallUpdate}
+            onUndoLastBall={() => showToast.success("Undo requested (Coming Soon)")}
             extrasEnabled={extrasEnabled}
             onToggleExtras={toggleExtras}
             disabled={isInningsOver || scoreUpdating || isMatchCompleted}
