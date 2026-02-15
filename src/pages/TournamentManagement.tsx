@@ -10,17 +10,16 @@ import {
     Plus,
     Users,
     Link,
-    Share2,
     ClipboardList,
     UserPlus,
     Calendar,
     MapPin,
     ChevronDown,
-    ChevronUp,
     ShieldCheck,
     Settings
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { showToast } from '../utils/toast';
 
 // Types
 interface Player {
@@ -85,7 +84,8 @@ const TournamentManagement = () => {
         endDate: '',
         location: '',
         format: 'T20',
-        maxTeams: 8
+        maxTeams: 8,
+        autoGenerateTeams: true
     });
 
     const [teamForm, setTeamForm] = useState({
@@ -109,12 +109,29 @@ const TournamentManagement = () => {
 
     // Handlers
     const handleCreateTournament = () => {
+        const teams: Team[] = [];
+
+        if (tournamentForm.autoGenerateTeams) {
+            for (let i = 1; i <= tournamentForm.maxTeams; i++) {
+                teams.push({
+                    id: Math.random().toString(36).substr(2, 9),
+                    name: `Team ${i}`,
+                    captain: 'TBD',
+                    captainEmail: '',
+                    captainLink: `https://csms.app/join/team/${Math.random().toString(36).substr(2, 9)}`,
+                    players: [],
+                    status: 'draft'
+                });
+            }
+        }
+
         const newTournament: Tournament = {
             id: Math.random().toString(36).substr(2, 9),
             ...tournamentForm,
-            teams: [],
+            teams: teams,
             status: 'draft'
         };
+
         setTournaments([...tournaments, newTournament]);
         setShowCreateModal(false);
         setTournamentForm({
@@ -124,7 +141,8 @@ const TournamentManagement = () => {
             endDate: '',
             location: '',
             format: 'T20',
-            maxTeams: 8
+            maxTeams: 8,
+            autoGenerateTeams: true
         });
     };
 
@@ -228,107 +246,134 @@ const TournamentManagement = () => {
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        // You can add a toast notification here
+        showToast.success("Link copied to clipboard!");
     };
 
     return (
-        <main className={`min-h-screen ${isDark ? 'bg-[var(--bg)]' : 'bg-[var(--bg)]'} transition-colors duration-200`}>
+        <main className={`min-h-screen bg-[var(--bg)] transition-colors duration-200`}>
             {/* Header */}
-            <header className={`sticky top-0 z-40 backdrop-blur-md ${isDark ? 'bg-[var(--header-bg)]/90 border-b border-[var(--card-border)]' : 'bg-[var(--header-bg)]/90 border-b border-[var(--card-border)]'}`}>
-                <Stack direction="row" align="center" justify="between" className="px-3 sm:px-4 py-2 sm:py-2.5 max-w-7xl mx-auto">
-                    <Stack direction="row" align="center" gap="xs">
-                        <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
-                        <h1 className="text-xs sm:text-sm sm:text-base font-bold text-[var(--text)]">Tournament Management</h1>
+            <header className={`sticky top-0 z-40 backdrop-blur-md bg-[var(--header-bg)]/80 border-b border-[var(--card-border)]`}>
+                <Stack direction="row" align="center" justify="between" className="px-3 sm:px-4 py-2.5 max-w-7xl mx-auto">
+                    <Stack direction="row" align="center" gap="sm">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-sm bg-cyan-600/10 flex items-center justify-center border border-cyan-600/20">
+                            <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-600" />
+                        </div>
+                        <Stack gap="none">
+                            <h1 className="text-[11px] sm:text-sm font-black text-[var(--text)] uppercase tracking-wider">Tournament Management</h1>
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                <span className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-[var(--text-secondary)]">Live Portal</span>
+                            </div>
+                        </Stack>
                     </Stack>
 
-                    {activeView === 'list' && (
-                        <Button
-                            variant="primary"
-                            size="sm"
-                            leftIcon={<Plus className="w-3 h-3" />}
+                    <Stack direction="row" gap="xs">
+                        {activeView === 'details' && (
+                            <button
+                                onClick={() => {
+                                    setActiveView('list');
+                                    setSelectedTournament(null);
+                                }}
+                                className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] hover:text-cyan-600 border border-[var(--card-border)] rounded-sm transition-all"
+                            >
+                                <ChevronDown size={14} className="rotate-90" />
+                                Back to List
+                            </button>
+                        )}
+                        <button
                             onClick={() => setShowCreateModal(true)}
+                            className="px-3 py-1.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] rounded-sm transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-1.5"
                         >
-                            <span className="hidden sm:inline">Create Tournament</span>
-                            <span className="sm:hidden">Create</span>
-                        </Button>
-                    )}
-
-                    {activeView === 'details' && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                                setActiveView('list');
-                                setSelectedTournament(null);
-                            }}
-                        >
-                            <span className="hidden sm:inline">Back to Tournaments</span>
-                            <span className="sm:hidden">Back</span>
-                        </Button>
-                    )}
+                            <Plus size={14} strokeWidth={3} />
+                            <span className="hidden sm:inline">New Tournament</span>
+                            <span className="sm:hidden">New</span>
+                        </button>
+                    </Stack>
                 </Stack>
             </header>
 
             {/* Main Content */}
             <section className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
                 {activeView === 'list' ? (
-                    <Stack gap="sm">
+                    <Stack gap="md">
                         {/* Tournament Statistics */}
-                        <Stack direction="row" gap="sm" className="grid grid-cols-2 lg:grid-cols-4">
-                            <Card p="sm" className="hover:shadow-lg transition-shadow duration-200">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                            <Box className="p-4 border border-[var(--card-border)] bg-[var(--card-bg)] rounded-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
+                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <ClipboardList size={32} className="text-cyan-600" />
+                                </div>
                                 <Stack gap="xs">
-                                    <Stack direction="row" align="center" justify="between">
-                                        <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Total</span>
-                                        <ClipboardList className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
-                                    </Stack>
-                                    <p className="text-sm sm:text-base font-bold text-[var(--text)]">{tournaments.length}</p>
-                                    <span className="text-[9px] sm:text-[10px] text-[var(--text-secondary)]">Active &amp; Upcoming</span>
+                                    <span className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em]">Total Events</span>
+                                    <p className="text-2xl font-black text-[var(--text)] tracking-tight">{tournaments.length}</p>
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-1 h-1 rounded-full bg-cyan-600" />
+                                        <span className="text-[8px] font-bold text-[var(--text-secondary)] uppercase">System Records</span>
+                                    </div>
                                 </Stack>
-                            </Card>
+                            </Box>
 
-                            <Card p="sm" className="hover:shadow-lg transition-shadow duration-200">
+                            <Box className="p-4 border border-[var(--card-border)] bg-[var(--card-bg)] rounded-sm relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <UserPlus size={16} className="text-emerald-600" />
+                                </div>
                                 <Stack gap="xs">
-                                    <Stack direction="row" align="center" justify="between">
-                                        <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Teams</span>
-                                        <UserPlus className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-500" />
-                                    </Stack>
-                                    <p className="text-sm sm:text-base font-bold text-[var(--text)]">
+                                    <span className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em]">Active Teams</span>
+                                    <p className="text-2xl font-black text-[var(--text)] tracking-tight">
                                         {tournaments.reduce((sum, t) => sum + t.teams.length, 0)}
                                     </p>
-                                    <span className="text-[9px] sm:text-[10px] text-[var(--text-secondary)]">All tournaments</span>
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-1 h-1 rounded-full bg-emerald-600" />
+                                        <span className="text-[8px] font-bold text-[var(--text-secondary)] uppercase">Verified Rosters</span>
+                                    </div>
                                 </Stack>
-                            </Card>
+                            </Box>
 
-                            <Card p="sm" className="hover:shadow-lg transition-shadow duration-200">
+                            <Box className="p-4 border border-[var(--card-border)] bg-[var(--card-bg)] rounded-sm relative overflow-hidden group hover:border-purple-500/30 transition-all">
+                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <Users size={32} className="text-purple-600" />
+                                </div>
                                 <Stack gap="xs">
-                                    <Stack direction="row" align="center" justify="between">
-                                        <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Players</span>
-                                        <Users className="w-3 h-3 sm:w-4 sm:h-4 text-purple-500" />
-                                    </Stack>
-                                    <p className="text-sm sm:text-base font-bold text-[var(--text)]">
+                                    <span className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em]">Total Players</span>
+                                    <p className="text-2xl font-black text-[var(--text)] tracking-tight">
                                         {tournaments.reduce((sum, t) => sum + t.teams.reduce((tSum, team) => tSum + team.players.length, 0), 0)}
                                     </p>
-                                    <span className="text-[9px] sm:text-[10px] text-[var(--text-secondary)]">Registered</span>
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-1 h-1 rounded-full bg-purple-600" />
+                                        <span className="text-[8px] font-bold text-[var(--text-secondary)] uppercase">Registered</span>
+                                    </div>
                                 </Stack>
-                            </Card>
+                            </Box>
 
-                            <Card p="sm" className="hover:shadow-lg transition-shadow duration-200">
+                            <Box className="p-4 border border-[var(--card-border)] bg-[var(--card-bg)] rounded-sm relative overflow-hidden group hover:border-amber-500/30 transition-all">
+                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <Trophy size={32} className="text-amber-600" />
+                                </div>
                                 <Stack gap="xs">
-                                    <Stack direction="row" align="center" justify="between">
-                                        <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Active</span>
-                                        <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" />
-                                    </Stack>
-                                    <p className="text-sm sm:text-base font-bold text-[var(--text)]">
+                                    <span className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em]">Live Events</span>
+                                    <p className="text-2xl font-black text-[var(--text)] tracking-tight">
                                         {tournaments.filter(t => t.status === 'active').length}
                                     </p>
-                                    <span className="text-[9px] sm:text-[10px] text-[var(--text-secondary)]">Ongoing now</span>
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-1 h-1 rounded-full bg-amber-600 shadow-[0_0_8px_rgba(245,158,11,0.5)] animate-pulse" />
+                                        <span className="text-[8px] font-bold text-[var(--text-secondary)] uppercase tracking-widest leading-none">Scoring Now</span>
+                                    </div>
                                 </Stack>
-                            </Card>
-                        </Stack>
+                            </Box>
+                        </div>
 
-                        {/* Tournaments List */}
+                        {/* Tournaments List Content */}
                         <Stack gap="sm">
-                            <h2 className="text-xs sm:text-sm font-bold text-[var(--text)] uppercase tracking-wide">All Tournaments</h2>
+                            <Stack direction="row" align="center" justify="between">
+                                <Stack gap="none">
+                                    <h2 className="text-[11px] sm:text-xs font-black text-[var(--text)] uppercase tracking-widest">Tournament Registry</h2>
+                                    <span className="text-[8px] sm:text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-tighter opacity-60">Master Record of all events</span>
+                                </Stack>
+                                <div className="flex gap-1.5 backdrop-blur-sm bg-slate-500/5 p-1 rounded-sm border border-[var(--card-border)]">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800" />
+                                </div>
+                            </Stack>
 
                             {tournaments.length === 0 ? (
                                 <Card p="md">
@@ -361,69 +406,85 @@ const TournamentManagement = () => {
                                             }}
                                         >
                                             <Stack gap="none">
-                                                {/* Tournament Header with Gradient */}
+                                                {/* Tournament Header with Premium Look */}
                                                 <Box
-                                                    className={`px-3 sm:px-4 py-2 sm:py-3 ${isDark ? 'bg-gradient-to-r from-blue-900/40 to-purple-900/40' : 'bg-gradient-to-r from-blue-50 to-purple-50'} border-b border-[var(--card-border)]`}
+                                                    className={`px-3 sm:px-4 py-3 sm:py-4 ${isDark ? 'bg-gradient-to-br from-slate-900 via-slate-900 to-blue-900/20' : 'bg-gradient-to-br from-white via-white to-blue-50/30'} border-b border-[var(--card-border)] relative overflow-hidden`}
                                                 >
+                                                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
                                                     <Stack direction="row" align="center" justify="between">
                                                         <Stack gap="xs">
-                                                            <Stack direction="row" align="center" gap="xs">
-                                                                <h3 className="text-xs sm:text-sm sm:text-base font-bold text-[var(--text)] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                                                    {tournament.name}
-                                                                </h3>
-                                                                <span className={`px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold rounded-full ${tournament.status === 'active'
-                                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                                                    : tournament.status === 'draft'
-                                                                        ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                                                                        : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                                                                    }`}>
-                                                                    {tournament.status.charAt(0).toUpperCase() + tournament.status.slice(1)}
-                                                                </span>
+                                                            <Stack direction="row" align="center" gap="sm">
+                                                                <div className={`p-2 rounded-sm ${tournament.status === 'active' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'} border border-current/10 shadow-sm`}>
+                                                                    <Trophy size={14} className={tournament.status === 'active' ? 'animate-pulse' : ''} />
+                                                                </div>
+                                                                <Stack gap="none">
+                                                                    <h3 className="text-[13px] sm:text-sm font-black text-[var(--text)] tracking-tight group-hover:text-cyan-600 transition-colors uppercase">
+                                                                        {tournament.name}
+                                                                    </h3>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className={`px-1.5 py-0.5 text-[7px] font-black rounded uppercase tracking-[0.2em] border ${tournament.status === 'active'
+                                                                            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
+                                                                            : 'bg-slate-500/10 text-slate-500 border-slate-500/20 shadow-none'
+                                                                            }`}>
+                                                                            {tournament.status}
+                                                                        </span>
+                                                                        <span className="text-[8px] font-bold text-[var(--text-secondary)] uppercase tracking-tighter opacity-40">ID: {tournament.id.toUpperCase()}</span>
+                                                                    </div>
+                                                                </Stack>
                                                             </Stack>
-                                                            <p className="text-[10px] sm:text-xs text-[var(--text-secondary)] line-clamp-2">{tournament.description}</p>
                                                         </Stack>
-                                                        <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="hidden sm:flex flex-col items-end mr-2">
+                                                                <span className="text-[7px] font-black uppercase tracking-widest text-[var(--text-secondary)] opacity-60">Series Progress</span>
+                                                                <div className="flex gap-1 mt-1">
+                                                                    <div className="w-4 h-1 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.4)]" />
+                                                                    <div className="w-4 h-1 rounded-full bg-slate-200 dark:bg-slate-800" />
+                                                                    <div className="w-4 h-1 rounded-full bg-slate-200 dark:bg-slate-800" />
+                                                                </div>
+                                                            </div>
+                                                            <ChevronDown size={16} className="-rotate-90 text-slate-400 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                                                        </div>
                                                     </Stack>
                                                 </Box>
 
                                                 {/* Tournament Details */}
-                                                <Stack direction="row" gap="sm" className="px-3 sm:px-4 py-2 sm:py-3 grid grid-cols-2 lg:grid-cols-4">
+                                                <div className="px-3 sm:px-4 py-2.5 sm:py-3 grid grid-cols-2 lg:grid-cols-4 gap-y-3 gap-x-2">
                                                     <Stack gap="xs">
                                                         <Stack direction="row" align="center" gap="xs">
-                                                            <Calendar className="w-3 h-3 text-[var(--text-secondary)]" />
-                                                            <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase">Date</span>
+                                                            <Calendar className="w-2.5 h-2.5 text-[var(--text-secondary)] opacity-50" />
+                                                            <span className="text-[8px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Date Range</span>
                                                         </Stack>
-                                                        <p className="text-[10px] sm:text-xs font-medium text-[var(--text)]">
-                                                            {new Date(tournament.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(tournament.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        <p className="text-[10px] font-bold text-[var(--text)] truncate">
+                                                            {new Date(tournament.startDate).toLocaleDateString()} - {new Date(tournament.endDate).toLocaleDateString()}
                                                         </p>
                                                     </Stack>
 
                                                     <Stack gap="xs">
                                                         <Stack direction="row" align="center" gap="xs">
-                                                            <MapPin className="w-3 h-3 text-[var(--text-secondary)]" />
-                                                            <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase">Location</span>
+                                                            <MapPin className="w-2.5 h-2.5 text-[var(--text-secondary)] opacity-50" />
+                                                            <span className="text-[8px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Arena</span>
                                                         </Stack>
-                                                        <p className="text-[10px] sm:text-xs font-medium text-[var(--text)]">{tournament.location}</p>
+                                                        <p className="text-[10px] font-bold text-[var(--text)] truncate">{tournament.location}</p>
                                                     </Stack>
 
                                                     <Stack gap="xs">
                                                         <Stack direction="row" align="center" gap="xs">
-                                                            <UserPlus className="w-3 h-3 text-[var(--text-secondary)]" />
-                                                            <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase">Teams</span>
+                                                            <UserPlus className="w-2.5 h-2.5 text-[var(--text-secondary)] opacity-50" />
+                                                            <span className="text-[8px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Squads</span>
                                                         </Stack>
-                                                        <p className="text-[10px] sm:text-xs font-medium text-[var(--text)]">
-                                                            {tournament.teams.length} / {tournament.maxTeams}
+                                                        <p className="text-[10px] font-bold text-[var(--text)]">
+                                                            {tournament.teams.length} / {tournament.maxTeams} Active
                                                         </p>
                                                     </Stack>
 
                                                     <Stack gap="xs">
                                                         <Stack direction="row" align="center" gap="xs">
-                                                            <Trophy className="w-3 h-3 text-[var(--text-secondary)]" />
-                                                            <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase">Format</span>
+                                                            <Trophy className="w-2.5 h-2.5 text-[var(--text-secondary)] opacity-50" />
+                                                            <span className="text-[8px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Mode</span>
                                                         </Stack>
-                                                        <p className="text-[10px] sm:text-xs font-medium text-[var(--text)]">{tournament.format}</p>
+                                                        <p className="text-[10px] font-bold text-[var(--text)]">{tournament.format}</p>
                                                     </Stack>
-                                                </Stack>
+                                                </div>
                                             </Stack>
                                         </Card>
                                     ))}
@@ -435,53 +496,59 @@ const TournamentManagement = () => {
                     // Tournament Details View
                     selectedTournament && (
                         <Stack gap="md">
-                            {/* Tournament Header */}
-                            <Card p="none" className="overflow-hidden">
-                                <Box className={`px-3 sm:px-4 py-2 sm:py-3 ${isDark ? 'bg-gradient-to-r from-blue-900/40 to-purple-900/40' : 'bg-gradient-to-r from-blue-50 to-purple-50'}`}>
-                                    <Stack gap="md">
-                                        <Stack direction="row" align="center" justify="between">
-                                            <Stack gap="xs">
-                                                <h2 className="text-sm sm:text-base font-bold text-[var(--text)]">{selectedTournament.name}</h2>
-                                                <p className="text-[9px] sm:text-[10px] text-[var(--text-secondary)]">{selectedTournament.description}</p>
-                                            </Stack>
-                                            <Button
-                                                variant="primary"
-                                                size="sm"
-                                                leftIcon={<Plus className="w-3 h-3" />}
-                                                onClick={() => {
-                                                    setTeamModalMode('add');
-                                                    setTeamForm({ name: '', captain: '', captainEmail: '' });
-                                                    setShowTeamModal(true);
-                                                }}
-                                                disabled={selectedTournament.teams.length >= selectedTournament.maxTeams}
-                                            >
-                                                Add Team
-                                            </Button>
+                            {/* Tournament Detail Header */}
+                            <Box className="p-3 sm:p-4 border border-[var(--card-border)] bg-[var(--card-bg)] rounded-sm relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[0.02] to-transparent pointer-events-none" />
+                                <Stack gap="md">
+                                    <Stack direction="row" align="center" justify="between">
+                                        <Stack gap="none">
+                                            <h2 className="text-[14px] sm:text-base font-black text-[var(--text)] uppercase tracking-tight">{selectedTournament.name}</h2>
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                                                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-cyan-600/80">Active Management Console</span>
+                                            </div>
                                         </Stack>
-
-                                        <Stack direction="row" gap="md" className="grid grid-cols-2 sm:grid-cols-4">
-                                            <Stack gap="xs">
-                                                <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase">Format</span>
-                                                <p className="text-[10px] sm:text-xs font-medium text-[var(--text)]">{selectedTournament.format}</p>
-                                            </Stack>
-                                            <Stack gap="xs">
-                                                <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase">Teams</span>
-                                                <p className="text-[10px] sm:text-xs font-medium text-[var(--text)]">{selectedTournament.teams.length}/{selectedTournament.maxTeams}</p>
-                                            </Stack>
-                                            <Stack gap="xs">
-                                                <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase">Start Date</span>
-                                                <p className="text-[10px] sm:text-xs font-medium text-[var(--text)]">
-                                                    {new Date(selectedTournament.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                </p>
-                                            </Stack>
-                                            <Stack gap="xs">
-                                                <span className="text-[9px] sm:text-[10px] font-semibold text-[var(--text-secondary)] uppercase">Location</span>
-                                                <p className="text-[10px] sm:text-xs font-medium text-[var(--text)]">{selectedTournament.location}</p>
-                                            </Stack>
-                                        </Stack>
+                                        <button
+                                            onClick={() => {
+                                                setTeamModalMode('add');
+                                                setTeamForm({ name: '', captain: '', captainEmail: '' });
+                                                setShowTeamModal(true);
+                                            }}
+                                            disabled={selectedTournament.teams.length >= selectedTournament.maxTeams}
+                                            className="px-3.5 py-1.5 sm:py-2 bg-cyan-600 hover:bg-cyan-700 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] rounded-sm transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-2 group disabled:opacity-50 active:scale-95"
+                                        >
+                                            <Plus size={14} strokeWidth={3} />
+                                            <span>New Team</span>
+                                        </button>
                                     </Stack>
-                                </Box>
-                            </Card>
+
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 p-2.5 sm:p-3 bg-slate-500/5 rounded-sm border border-[var(--card-border)]">
+                                        <Stack gap="none">
+                                            <span className="text-[7px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-1">Format</span>
+                                            <p className="text-[10px] font-bold text-[var(--text)]">{selectedTournament.format}</p>
+                                        </Stack>
+                                        <Stack gap="none">
+                                            <span className="text-[7px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-1">Squad Slots</span>
+                                            <div className="flex items-end gap-1.5 text-[10px]">
+                                                <p className="font-bold text-[var(--text)] leading-none">{selectedTournament.teams.length}/{selectedTournament.maxTeams}</p>
+                                                <div className="w-12 sm:w-16 h-1 bg-slate-200 dark:bg-slate-800 rounded-full mb-0.5">
+                                                    <div className="h-full bg-cyan-600 rounded-full" style={{ width: `${(selectedTournament.teams.length / selectedTournament.maxTeams) * 100}%` }} />
+                                                </div>
+                                            </div>
+                                        </Stack>
+                                        <Stack gap="none">
+                                            <span className="text-[7px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-1">Date</span>
+                                            <p className="text-[10px] font-bold text-[var(--text)]">
+                                                {new Date(selectedTournament.startDate).toLocaleDateString()}
+                                            </p>
+                                        </Stack>
+                                        <Stack gap="none">
+                                            <span className="text-[7px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-1">Arena</span>
+                                            <p className="text-[10px] font-bold text-[var(--text)] uppercase tracking-tight truncate">{selectedTournament.location}</p>
+                                        </Stack>
+                                    </div>
+                                </Stack>
+                            </Box>
 
                             {/* Teams Section */}
                             <Stack gap="sm">
@@ -536,67 +603,60 @@ const TournamentManagement = () => {
                                         {selectedTournament.teams.map((team) => (
                                             <Card key={team.id} p="none" className="overflow-hidden hover:shadow-lg transition-shadow">
                                                 <Stack gap="none">
-                                                    {/* Team Header */}
+                                                    {/* Team Header - Refined Premium */}
                                                     <Box
-                                                        className={`px-3 sm:px-4 py-2.5 cursor-pointer select-none ${isDark ? 'bg-gradient-to-r from-emerald-900/20 to-teal-900/20' : 'bg-gradient-to-r from-emerald-50/50 to-teal-50/50'} border-b border-[var(--card-border)] hover:${isDark ? 'bg-emerald-900/30' : 'bg-emerald-100/50'} transition-all`}
+                                                        className={`px-3 sm:px-4 py-3 sm:py-3.5 cursor-pointer select-none bg-[var(--card-bg)] border-b border-[var(--card-border)] hover:bg-slate-500/5 transition-all outline-none relative overflow-hidden`}
                                                         onClick={() => toggleTeamExpansion(team.id)}
                                                     >
+                                                        <div className={`absolute top-0 left-0 w-1 h-full ${team.status === 'draft' ? 'bg-amber-500/30' : 'bg-emerald-500/30'}`} />
                                                         <Stack direction="row" align="center" justify="between">
-                                                            <Stack direction="row" align="center" gap="sm">
-                                                                <div className={`p-1.5 rounded-lg ${isDark ? (team.status === 'draft' ? 'bg-amber-500/10' : 'bg-emerald-500/10') : (team.status === 'draft' ? 'bg-amber-50' : 'bg-emerald-50')} border ${team.status === 'draft' ? 'border-amber-500/20' : 'border-emerald-500/20'}`}>
-                                                                    <UserPlus className={`w-3.5 h-3.5 ${team.status === 'draft' ? 'text-amber-500' : 'text-emerald-500'}`} />
+                                                            <Stack direction="row" align="center" gap="sm" className="sm:gap-4">
+                                                                <div className={`p-2 rounded-sm ${team.status === 'draft' ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500'} border border-current/10 shadow-sm transition-transform group-hover:scale-105`}>
+                                                                    {team.status === 'draft' ? <ClipboardList size={14} /> : <ShieldCheck size={14} className="animate-in zoom-in-50" />}
                                                                 </div>
                                                                 <Stack gap="none">
-                                                                    <Stack direction="row" align="center" gap="sm">
-                                                                        <h4 className={`text-[11px] sm:text-xs font-bold tracking-tight ${team.status === 'draft' ? 'text-[var(--text-secondary)] italic' : 'text-[var(--text)]'}`}>
+                                                                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                                                        <h4 className={`text-[12px] sm:text-[13px] font-black uppercase tracking-tight ${team.status === 'draft' ? 'text-[var(--text-secondary)] opacity-40' : 'text-[var(--text)]'}`}>
                                                                             {team.name}
                                                                         </h4>
-                                                                        <span className={`px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold rounded uppercase tracking-wider ${team.status === 'active'
-                                                                            ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
-                                                                            : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
-                                                                            }`}>
-                                                                            {team.status === 'draft' ? 'Pending' : 'Active'}
-                                                                        </span>
-                                                                    </Stack>
-                                                                    <Stack direction="row" align="center" gap="xs">
-                                                                        <ShieldCheck className={`w-2.5 h-2.5 ${team.captain === 'TBD' ? 'text-[var(--text-secondary)] opacity-30' : 'text-blue-500'}`} />
-                                                                        <span className="text-[9px] sm:text-[10px] text-[var(--text-secondary)]">
-                                                                            Captain: <span className={`font-bold ${team.captain === 'TBD' ? 'italic' : 'text-[var(--text)]'}`}>{team.captain}</span>
-                                                                        </span>
-                                                                    </Stack>
+                                                                        <div className="flex items-center gap-1.5">
+                                                                            <span className={`px-1.5 py-0.5 text-[6px] sm:text-[7px] font-black rounded uppercase tracking-[0.2em] border ${team.status === 'active'
+                                                                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.1)]'
+                                                                                : 'bg-amber-500/10 text-amber-600 border-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.15)]'
+                                                                                }`}>
+                                                                                {team.status === 'draft' ? 'Reserved' : 'Certified'}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                                                        <span className="text-[7px] font-black uppercase tracking-widest text-[var(--text-secondary)] opacity-50">Captain:</span>
+                                                                        <span className="text-[9px] font-black text-[var(--text)] uppercase tracking-tight">{team.captain}</span>
+                                                                    </div>
                                                                 </Stack>
                                                             </Stack>
 
                                                             <Stack direction="row" align="center" gap="md">
-                                                                <Stack gap="xs" align="end" className="hidden sm:flex">
-                                                                    <div className="w-20 h-1 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                                                                        <div
-                                                                            className="h-full bg-emerald-500 transition-all duration-500"
-                                                                            style={{ width: `${(team.players.length / 16) * 100}%` }}
-                                                                        />
+                                                                <div className="hidden sm:flex flex-col items-end gap-1 mr-2">
+                                                                    <span className="text-[7px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Roster Strength</span>
+                                                                    <div className="flex items-center gap-1">
+                                                                        {[1, 2, 3, 4, 5].map((i) => (
+                                                                            <div key={i} className={`w-3 h-1 rounded-full ${i <= (team.players.length / 3) ? 'bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.4)]' : 'bg-slate-200 dark:bg-slate-800'}`} />
+                                                                        ))}
                                                                     </div>
-                                                                    <span className="text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-tighter">
-                                                                        {team.players.length} / 16 Players
-                                                                    </span>
-                                                                </Stack>
+                                                                </div>
 
-                                                                <Stack direction="row" gap="xs">
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="sm"
-                                                                        className="h-7 w-7 p-0"
+                                                                <div className="flex items-center gap-1">
+                                                                    <button
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
                                                                             handleShareLink('team', team.captainLink);
                                                                         }}
-                                                                        title="Share Team Link"
+                                                                        className="p-1.5 text-slate-400 hover:text-cyan-600 hover:bg-cyan-500/10 rounded-sm transition-all"
+                                                                        title="Share Link"
                                                                     >
-                                                                        <Share2 className="w-3 h-3" />
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="sm"
-                                                                        className="h-7 w-7 p-0"
+                                                                        <Link size={12} />
+                                                                    </button>
+                                                                    <button
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
                                                                             setSelectedTeam(team);
@@ -608,27 +668,27 @@ const TournamentManagement = () => {
                                                                             setTeamModalMode('edit');
                                                                             setShowTeamModal(true);
                                                                         }}
-                                                                        title="Edit Team Details"
+                                                                        className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-sm transition-all"
+                                                                        title="Settings"
                                                                     >
-                                                                        <Settings className="w-3.5 h-3.5 text-blue-500" />
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="sm"
-                                                                        className="h-7 w-7 p-0"
+                                                                        <Settings size={12} />
+                                                                    </button>
+                                                                    <button
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
                                                                             setSelectedTeam(team);
                                                                             setShowPlayerModal(true);
                                                                         }}
-                                                                        title="Add Player"
+                                                                        className="p-1.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-sm transition-all"
+                                                                        title="Add Member"
                                                                     >
-                                                                        <Plus className="w-3.5 h-3.5" />
-                                                                    </Button>
-                                                                    <div className={`p-1 rounded-md transition-colors ${expandedTeams[team.id] ? (isDark ? 'bg-gray-800' : 'bg-gray-100') : ''}`}>
-                                                                        {expandedTeams[team.id] ? <ChevronUp className="w-3.5 h-3.5 text-[var(--text-secondary)]" /> : <ChevronDown className="w-3.5 h-3.5 text-[var(--text-secondary)]" />}
+                                                                        <Plus size={14} />
+                                                                    </button>
+                                                                    <div className="w-[1px] h-4 bg-[var(--card-border)] mx-1" />
+                                                                    <div className={`p-1 transition-transform duration-300 ${expandedTeams[team.id] ? 'rotate-180 text-cyan-500' : 'text-slate-400'}`}>
+                                                                        <ChevronDown size={14} />
                                                                     </div>
-                                                                </Stack>
+                                                                </div>
                                                             </Stack>
                                                         </Stack>
                                                     </Box>
@@ -749,7 +809,7 @@ const TournamentManagement = () => {
                             rows={3}
                         />
 
-                        <Stack direction="row" gap="md" className="grid grid-cols-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <Input
                                 label="Start Date"
                                 type="date"
@@ -765,7 +825,7 @@ const TournamentManagement = () => {
                                 onChange={(value: string) => setTournamentForm({ ...tournamentForm, endDate: value })}
                                 required
                             />
-                        </Stack>
+                        </div>
 
                         <Input
                             label="Location"
@@ -775,7 +835,7 @@ const TournamentManagement = () => {
                             required
                         />
 
-                        <Stack direction="row" gap="md" className="grid grid-cols-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <Input
                                 label="Format"
                                 type="select"
@@ -795,7 +855,20 @@ const TournamentManagement = () => {
                                 onChange={(value: string) => setTournamentForm({ ...tournamentForm, maxTeams: parseInt(value) })}
                                 required
                             />
-                        </Stack>
+                        </div>
+
+                        <label className="flex items-center gap-3 p-3 border border-[var(--card-border)] bg-cyan-600/5 rounded-sm cursor-pointer group hover:bg-cyan-600/10 transition-colors">
+                            <input
+                                type="checkbox"
+                                className="w-4 h-4 rounded border-[var(--card-border)] text-cyan-600 focus:ring-cyan-600"
+                                checked={tournamentForm.autoGenerateTeams}
+                                onChange={(e) => setTournamentForm({ ...tournamentForm, autoGenerateTeams: e.target.checked })}
+                            />
+                            <Stack gap="none">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text)]">Auto-generate Default Teams</span>
+                                <span className="text-[8px] font-bold uppercase tracking-tighter text-[var(--text-secondary)] opacity-60">Creates Team 1 to Team {tournamentForm.maxTeams} automatically</span>
+                            </Stack>
+                        </label>
 
                         <Stack direction="row" gap="sm" justify="end" className="pt-4">
                             <Button
@@ -934,66 +1007,76 @@ const TournamentManagement = () => {
                 <Modal
                     isOpen={showLinkShareModal}
                     onClose={() => setShowLinkShareModal(false)}
-                    title={linkType === 'team' ? 'Team Captain Registration Link' : 'Player Registration Link'}
+                    title="Share Access Link"
+                    maxWidth="md"
                 >
-                    <Stack gap="md">
-                        <Box p="md" className={`rounded ${isDark ? 'bg-blue-900/20 border border-blue-700/30' : 'bg-blue-50 border border-blue-200'}`}>
-                            <Stack gap="sm">
-                                <span className="text-xs sm:text-sm font-semibold text-[var(--text)]">
-                                    {linkType === 'team' ? 'Share this link with the team captain:' : 'Share this link with the player:'}
-                                </span>
-                                <Stack direction="row" gap="sm" align="center">
-                                    <input
-                                        type="text"
-                                        value={shareLink}
-                                        readOnly
-                                        className={`flex-1 px-3 py-2 rounded text-sm font-mono ${isDark ? 'bg-gray-800 text-gray-300 border border-gray-600' : 'bg-white text-gray-700 border border-gray-300'}`}
-                                    />
-                                    <Button
-                                        variant="primary"
-                                        size="sm"
-                                        leftIcon={<ClipboardList className="w-4 h-4" />}
+                    <Stack gap="xl">
+                        <div className="flex flex-col items-center text-center py-6 border-b border-[var(--card-border)] bg-slate-500/5 rounded-sm">
+                            <div className="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mb-4 border border-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.15)] relative">
+                                <Link className="w-8 h-8 text-cyan-600 animate-pulse" />
+                                <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center">
+                                    <ShieldCheck className="w-3 h-3 text-white" />
+                                </div>
+                            </div>
+                            <h3 className="text-sm font-black text-[var(--text)] uppercase tracking-[0.2em]">Secure Access Token</h3>
+                            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest mt-1 opacity-60">
+                                {linkType === 'team' ? 'Captain Registration & Management' : 'Individual Player Enrollment'}
+                            </p>
+                        </div>
+
+                        <Stack gap="md">
+                            <Stack gap="xs">
+                                <span className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-widest ml-1">Universal Portal Link</span>
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                    <div className="flex-1 px-4 py-3 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-sm text-[11px] font-mono text-cyan-600 truncate focus-within:border-cyan-500/50 transition-all select-all">
+                                        {shareLink}
+                                    </div>
+                                    <button
                                         onClick={() => copyToClipboard(shareLink)}
+                                        className="sm:px-6 py-3 sm:py-0 bg-cyan-600 hover:bg-cyan-700 text-white text-[9px] font-black uppercase tracking-widest rounded-sm transition-all shadow-lg shadow-cyan-500/20 active:scale-95 flex items-center justify-center gap-2"
                                     >
-                                        Copy
-                                    </Button>
-                                </Stack>
+                                        <ClipboardList size={14} />
+                                        Copy Link
+                                    </button>
+                                </div>
                             </Stack>
-                        </Box>
 
-                        <Box p="md" className={`rounded ${isDark ? 'bg-gray-800/40' : 'bg-gray-50'}`}>
-                            <Stack gap="sm">
-                                <h5 className="text-xs sm:text-sm font-semibold text-[var(--text)]">
-                                    {linkType === 'team' ? 'Captain Instructions:' : 'Player Instructions:'}
-                                </h5>
-                                <ul className="text-[10px] sm:text-xs text-[var(--text-secondary)] space-y-1 list-disc list-inside">
-                                    {linkType === 'team' ? (
-                                        <>
-                                            <li>Captain can use this link to access team management</li>
-                                            <li>Captain can add players directly or share individual player links</li>
-                                            <li>Each player link allows registration and auto-addition to the team</li>
-                                            <li>Link is valid until the tournament starts</li>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <li>Player can use this link to register for the team</li>
-                                            <li>Player will be automatically added after registration</li>
-                                            <li>Link is single-use and expires after registration</li>
-                                            <li>Player can update their profile after registration</li>
-                                        </>
-                                    )}
-                                </ul>
-                            </Stack>
-                        </Box>
-
-                        <Stack direction="row" gap="sm" justify="end">
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowLinkShareModal(false)}
-                            >
-                                Close
-                            </Button>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div className="p-3 sm:p-4 bg-slate-500/5 border border-[var(--card-border)] rounded-sm">
+                                    <Stack gap="sm">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                                            <span className="text-[8px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Protocol</span>
+                                        </div>
+                                        <p className="text-[10px] font-bold text-[var(--text)] leading-relaxed">
+                                            {linkType === 'team'
+                                                ? 'Allows full team management including roster editing and match readiness status.'
+                                                : 'Single-use registration token for verified player identity verification.'}
+                                        </p>
+                                    </Stack>
+                                </div>
+                                <div className="p-3 sm:p-4 bg-slate-500/5 border border-[var(--card-border)] rounded-sm">
+                                    <Stack gap="sm">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                            <span className="text-[8px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Security</span>
+                                        </div>
+                                        <p className="text-[10px] font-bold text-[var(--text)] leading-relaxed text-amber-600/80">
+                                            This link grants sensitive access. Do not share in public forums or unsecured channels.
+                                        </p>
+                                    </Stack>
+                                </div>
+                            </div>
                         </Stack>
+
+                        <div className="flex justify-center pb-2">
+                            <button
+                                onClick={() => setShowLinkShareModal(false)}
+                                className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] hover:text-cyan-600 transition-colors"
+                            >
+                                [ Close Console ]
+                            </button>
+                        </div>
                     </Stack>
                 </Modal>
             )}

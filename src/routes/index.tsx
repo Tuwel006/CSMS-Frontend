@@ -57,7 +57,7 @@ export default function AppRoute() {
                 <Route index element={<AdminDashboard />} />
                 <Route path="match-setup" element={<MatchSetup />} />
                 <Route path="match-setup/:matchId" element={<TeamManagement />} />
-                <Route path="tournament-management" element={<TournamentManagement />} />
+                <Route path="tournaments" element={<TournamentManagement />} />
                 <Route path="team-management" element={<TeamManagement />} />
                 <Route path="team-management-new" element={<TeamManagementRefactored />} />
                 <Route path="player-management" element={<div>Player Management Page</div>} />
