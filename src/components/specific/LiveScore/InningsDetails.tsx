@@ -66,12 +66,12 @@ export const InningsDetails: React.FC<InningsDetailsProps> = ({ inn }) => {
             cellRender: (row: any) => (
                 <Stack direction="col" gap="none">
                     <Stack direction="row" align="center" gap="xs">
-                        <Text weight="medium" size="sm" className={isDark ? "text-cyan-400" : "text-cyan-600"}>
+                        <Text weight="medium" size="xs" className={isDark ? "text-cyan-400" : "text-cyan-600"}>
                             {row.n}
                         </Text>
-                        {row.isStriker && <Text className="text-yellow-500 text-sm">★</Text>}
+                        {row.isStriker && <Text className="text-yellow-500 text-xs">★</Text>}
                     </Stack>
-                    <Text size="xs" className={isDark ? "text-gray-400" : "text-gray-500"}>
+                    <Text size="xs" className={`${isDark ? "text-gray-400" : "text-gray-500"} text-[10px]`}>
                         {getDismissalText(row)}
                     </Text>
                 </Stack>
@@ -90,7 +90,7 @@ export const InningsDetails: React.FC<InningsDetailsProps> = ({ inn }) => {
             key: 'n',
             label: 'Bowler',
             cellRender: (row: any) => (
-                <Text weight="medium" size="sm" className={isDark ? "text-cyan-400" : "text-cyan-600"}>
+                <Text weight="medium" size="xs" className={isDark ? "text-cyan-400" : "text-cyan-600"}>
                     {row.n}
                 </Text>
             )
@@ -107,26 +107,26 @@ export const InningsDetails: React.FC<InningsDetailsProps> = ({ inn }) => {
     ];
 
     return (
-        <Box className="mb-3">
+        <Box className="mb-1.5">
             <Box className={`border-x border-b ${isDark ? "border-[var(--card-border)] bg-[var(--card-bg)]" : "border-gray-200 bg-white shadow-sm"} rounded-b-sm overflow-hidden`}>
-                <Box className="p-2 sm:p-3">
+                <Box className="p-1.5 sm:p-2">
                     {/* Batting Table */}
-                    <Box className="mb-3">
-                        <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-3 sm:px-4 py-1.5 sm:py-2 rounded-t-sm`}>
-                            <Text weight="semibold" size="xs" className={isDark ? "text-gray-200" : "text-gray-700"}>Batter</Text>
+                    <Box className="mb-2">
+                        <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-2 sm:px-3 py-1 sm:py-1.5 rounded-t-sm`}>
+                            <Text weight="semibold" size="xs" className={`${isDark ? "text-gray-200" : "text-gray-700"} text-[10px]`}>Batter</Text>
                         </Box>
                         <Table columns={battingColumns} data={allBatsmen} />
 
                         {/* Extras & Total */}
-                        <Box className={`border-t ${isDark ? "border-gray-700 bg-gray-750" : "border-gray-200 bg-gray-50"} px-4 py-2`}>
-                            <Text size="xs" className={isDark ? "text-gray-300" : "text-gray-700"}>
+                        <Box className={`border-t ${isDark ? "border-gray-700 bg-gray-750" : "border-gray-200 bg-gray-50"} px-3 py-1.5`}>
+                            <Text size="xs" className={`${isDark ? "text-gray-300" : "text-gray-700"} text-[10px]`}>
                                 <Text weight="semibold">Extras</Text>
                                 <Text className="ml-2">{inn?.extras || "0 (b 0, lb 0, w 0, nb 0, p 0)"}</Text>
                             </Text>
                         </Box>
 
-                        <Box className={`border-t ${isDark ? "border-gray-700 bg-cyan-900" : "border-gray-200 bg-cyan-50"} px-4 py-2`}>
-                            <Text size="xs" weight="bold" className={isDark ? "text-cyan-200" : "text-cyan-900"}>
+                        <Box className={`border-t ${isDark ? "border-gray-700 bg-cyan-900" : "border-gray-200 bg-cyan-50"} px-3 py-1.5`}>
+                            <Text size="xs" weight="bold" className={`${isDark ? "text-cyan-200" : "text-cyan-900"} text-[10px]`}>
                                 <Text>Total</Text>
                                 <Text className="ml-4">{inn?.score.r}-{inn?.score.w} ({inn?.score.o} Overs, RR: {inn?.runRate || "0.00"})</Text>
                             </Text>
@@ -134,9 +134,9 @@ export const InningsDetails: React.FC<InningsDetailsProps> = ({ inn }) => {
 
                         {/* Did not Bat */}
                         {inn?.didNotBat && inn.didNotBat.length > 0 && (
-                            <Box className={`border-t ${isDark ? "border-gray-700" : "border-gray-200"} px-4 py-2`}>
-                                <Text size="xs" weight="semibold" className={isDark ? "text-gray-300" : "text-gray-700"}>Did not Bat</Text>
-                                <Text size="xs" className={`ml-2 ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
+                            <Box className={`border-t ${isDark ? "border-gray-700" : "border-gray-200"} px-3 py-1.5`}>
+                                <Text size="xs" weight="semibold" className={`${isDark ? "text-gray-300" : "text-gray-700"} text-[10px]`}>Did not Bat</Text>
+                                <Text size="xs" className={`ml-2 ${isDark ? "text-cyan-400" : "text-cyan-600"} text-[10px]`}>
                                     {inn.didNotBat.join(", ")}
                                 </Text>
                             </Box>
@@ -144,21 +144,21 @@ export const InningsDetails: React.FC<InningsDetailsProps> = ({ inn }) => {
                     </Box>
 
                     {/* Bowling Table */}
-                    <Box className="mb-3">
-                        <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-3 sm:px-4 py-1.5 sm:py-2 rounded-t-sm`}>
-                            <Text weight="semibold" size="xs" className={isDark ? "text-gray-200" : "text-gray-700"}>Bowler</Text>
+                    <Box className="mb-2">
+                        <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-2 sm:px-3 py-1 sm:py-1.5 rounded-t-sm`}>
+                            <Text weight="semibold" size="xs" className={`${isDark ? "text-gray-200" : "text-gray-700"} text-[10px]`}>Bowler</Text>
                         </Box>
                         <Table columns={bowlingColumns} data={inn?.bowling || []} />
                     </Box>
 
                     {/* Current Over */}
                     {inn?.currentOver && inn.currentOver.balls && inn.currentOver.balls.length > 0 && (
-                        <Box className="mt-3">
-                            <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-3 sm:px-4 py-1.5 sm:py-2 rounded-t-sm`}>
-                                <Text weight="semibold" size="xs" className={isDark ? "text-gray-200" : "text-gray-700"}>Current Over</Text>
+                        <Box className="mt-2">
+                            <Box className={`${isDark ? "bg-gray-750" : "bg-gray-100"} px-2 sm:px-3 py-1 sm:py-1.5 rounded-t-sm`}>
+                                <Text weight="semibold" size="xs" className={`${isDark ? "text-gray-200" : "text-gray-700"} text-[10px]`}>Current Over</Text>
                             </Box>
-                            <Box p="md" className={isDark ? "bg-gray-800" : "bg-white"}>
-                                <Stack direction="row" gap="sm" wrap>
+                            <Box p="sm" className={isDark ? "bg-gray-800" : "bg-white"}>
+                                <Stack direction="row" gap="xs" wrap>
                                     {inn.currentOver.balls.map((ball: any, idx: number) => (
                                         <BallCircle key={idx} ball={ball} />
                                     ))}

@@ -16,8 +16,9 @@ interface UserType {
 
 interface MatchTokenItem {
   id: string;
-  status: string;
   match_date: string | null;
+  is_completed?: boolean;
+  status: "LIVE" | "COMPLETED" | "INITIATED" | "SCHEDULED";
   venue: string | null;
   teamA?: { name: string };
   teamB?: { name: string };
@@ -47,15 +48,7 @@ const MatchSetupPage: React.FC = () => {
     try {
       const response = await MatchService.getTenantMatches(1, 100);
       if (response.data && response.data.data) {
-        const sortedMatches = response.data.data.map((m: any) => ({
-          id: m.id,
-          status: m.status || 'INITIATED',
-          match_date: m.match_date,
-          venue: m.venue,
-          teamA: m.teamA,
-          teamB: m.teamB,
-          user: m.user
-        }));
+        const sortedMatches = response.data.data;
         setMatches(sortedMatches);
       }
     } catch (error: any) {
@@ -161,26 +154,29 @@ const MatchSetupPage: React.FC = () => {
           {matches.map((match) => (
             <LibCard
               key={match.id}
-              onClick={() => navigate(`/admin/match-setup/${match.id}`)}
+              onClick={() => {
+                console.log("Is match completed: ", match, match?.is_completed)
+                match?.is_completed ? navigate(`/admin/score-edit/${match.id}`) : navigate(`/admin/match-setup/${match.id}`)
+              }}
               className="group cursor-pointer border border-[var(--card-border)] hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/5 transition-all duration-300 relative overflow-hidden"
               p="sm"
             >
               {/* Subtle top indicator based on status */}
-              <div className={`absolute top-0 left-0 right-0 h-[3px] opacity-70 ${match.status.toUpperCase() === 'LIVE' ? 'bg-red-500' :
-                match.status.toUpperCase() === 'SCHEDULED' ? 'bg-green-500' : 'bg-cyan-500'
+              <div className={`absolute top-0 left-0 right-0 h-[3px] opacity-70 ${match?.status && match.status.toUpperCase() === 'LIVE' ? 'bg-red-500' :
+                match?.status && match.status.toUpperCase() === 'SCHEDULED' ? 'bg-green-500' : 'bg-cyan-500'
                 }`} />
 
               <Stack gap="xs">
                 {/* Header: Status & Delete */}
                 <div className="flex items-center justify-between gap-2">
-                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${match.status.toUpperCase() === 'LIVE'
+                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${match?.status && match.status.toUpperCase() === 'LIVE'
                     ? 'bg-red-500/10 text-red-500'
-                    : match.status.toUpperCase() === 'SCHEDULED'
+                    : match?.status && match.status.toUpperCase() === 'SCHEDULED'
                       ? 'bg-green-500/10 text-green-500'
                       : 'bg-cyan-500/10 text-cyan-500'
                     }`}>
-                    <span className={`w-1 h-1 rounded-full ${match.status.toUpperCase() === 'LIVE' ? 'bg-red-500 animate-pulse' :
-                      match.status.toUpperCase() === 'SCHEDULED' ? 'bg-green-500' : 'bg-cyan-500'
+                    <span className={`w-1 h-1 rounded-full ${match?.status && match.status.toUpperCase() === 'LIVE' ? 'bg-red-500 animate-pulse' :
+                      match?.status && match.status.toUpperCase() === 'SCHEDULED' ? 'bg-green-500' : 'bg-cyan-500'
                       }`} />
                     {match.status}
                   </div>

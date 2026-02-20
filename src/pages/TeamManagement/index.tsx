@@ -83,6 +83,10 @@ const TeamManagement = () => {
     try {
       const response = await MatchService.getCurrentMatch(matchId);
       if (response.data) {
+        if (response.data?.status && response.data.status === 'COMPLETED') {
+          navigate(`/admin/score-edit/${matchId}`);
+          return;
+        }
         dispatch(setCurrentMatch(response.data));
         const { teamA, teamB, match_date, venue, format, umpire_1, umpire_2, status } = response.data;
 

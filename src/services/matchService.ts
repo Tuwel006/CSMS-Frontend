@@ -1,7 +1,7 @@
 import apiClient from '../utils/api';
 import { ApiResponse } from '../types/api';
 import { ScheduleMatchPayload, ScheduleMatchResponse } from '../types/matchSchedule';
-import { MatchData, MatchTokenResponse, TeamSetupPayload, TeamSetupResponse, CurrentMatchResponse, DeleteTokenResponse, UpdateTeamPayload, StartMatchPayload, StartMatchResponse } from '../types/matchService';
+import { MatchData, MatchTokenResponse, TeamSetupPayload, TeamSetupResponse, CurrentMatchResponse, DeleteTokenResponse, UpdateTeamPayload, StartMatchPayload, StartMatchResponse, CompleteMatchPayload } from '../types/matchService';
 import { MatchScoreResponse, RecordBallPayload } from '../types/scoreService';
 import { MatchDetails } from '../types/scorecard';
 import { PaginatedData } from '../types/pagination';
@@ -91,6 +91,11 @@ export const MatchService = {
     // Switch to Next Innings
     nextInnings: async (matchId: string, isFollowOn: boolean = false): Promise<ApiResponse<any>> => {
         return apiClient.post(`matches/${matchId}/next-innings`, { isFollowOn });
+    },
+
+    // Complete Match
+    completeMatch: async (matchId: string, payload: CompleteMatchPayload): Promise<ApiResponse<any>> => {
+        return apiClient.patch(`matches/${matchId}/complete`, payload);
     },
 
     // Update Match

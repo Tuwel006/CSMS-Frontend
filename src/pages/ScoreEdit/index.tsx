@@ -19,6 +19,7 @@ import BallConfirmModal from './components/BallConfirmModal';
 import ExtrasWarningModal from './components/ExtrasWarningModal';
 import InningsCompleteModal from './components/InningsCompleteModal';
 import { MatchResultModal } from './components/MatchResultModal';
+import MatchResultView from './components/MatchResultView';
 import { recordBall } from '@/store/score/scoreThunks';
 import { setScore } from '@/store/score/scoreSlice';
 import { PageLoader, ErrorDisplay } from '@/components/ui/loading';
@@ -340,6 +341,23 @@ const ScoreEdit = () => {
     }
   }, [matchId, fetchMatchScore]);
 
+  const handleCompleteMatch = useCallback(async (payload: any) => {
+    if (!matchId) return;
+    try {
+      setLoading(true);
+      const response = await MatchService.completeMatch(matchId, payload);
+      if (response.data) {
+        await fetchMatchScore();
+        showToast.success('Match Completed Successfully');
+      }
+    } catch (error: any) {
+      console.error('Error completing match:', error);
+      showToast.error(error?.response?.data?.message || 'Failed to complete match');
+    } finally {
+      setLoading(false);
+    }
+  }, [matchId, fetchMatchScore]);
+
   if (loading) return <PageLoader />;
 
   if (error) {
@@ -357,6 +375,11 @@ const ScoreEdit = () => {
       </div>
     );
   }
+
+  if (matchData?.is_active === false && isMatchCompleted) {
+    return <MatchResultView matchData={matchData} />;
+  }
+
 
   return (
     <div className="h-[calc(100vh-4rem)] relative flex flex-col overflow-hidden bg-[var(--page-bg)]">
@@ -489,6 +512,8 @@ const ScoreEdit = () => {
         </button>
       )}
 
+
+
       {/* InningsCompleteModal stays fixed relative to THIS div, which doesn't cover sidebar */}
       <InningsCompleteModal
         isOpen={isInningsOver && !isMatchCompleted}
@@ -496,6 +521,7 @@ const ScoreEdit = () => {
         teams={matchData?.teams}
         matchData={matchData}
         onStartNext={handleStartNextInnings}
+        onCompleteMatch={handleCompleteMatch}
         onViewScorecard={() => setIsPreviewOpen(true)}
       />
 

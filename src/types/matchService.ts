@@ -113,3 +113,10 @@ export interface StartMatchPayload {
 }
 
 export type StartMatchResponse = StartMatchPayload;
+
+export interface CompleteMatchPayload {
+    default: boolean;
+    man_of_the_match_player_id?: number | null;
+    winner_team_id?: number | null;
+    result_description?: string;
+}

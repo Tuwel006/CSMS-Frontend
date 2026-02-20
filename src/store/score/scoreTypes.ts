@@ -9,6 +9,7 @@ export interface ScoreType {
     B: Team;
   };
   innings: Innings[];
+  is_active?: boolean;
 }
 
 export interface BallEvent {

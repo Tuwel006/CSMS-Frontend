@@ -112,23 +112,23 @@ const LiveScore: React.FC = () => {
   );
 
   return (
-    <Box className={`min-h-screen ${isDark ? "dark:bg-gray-900 bg-gray-900" : "bg-gray-50"} py-2 sm:py-4`}>
-      <Container className="px-2 sm:px-3">
+    <Box className={`min-h-screen ${isDark ? "dark:bg-gray-900 bg-gray-900" : "bg-gray-50"} lg:mx-20 `}>
+      <Container className="px-2 max-w-5xl">
         {/* Header with Live Indicator */}
-        <Stack direction="row" align="center" justify="between" className="mb-4">
-          <Text weight="bold" size="lg" className={isDark ? "text-white" : "text-gray-900"}>
+        <Stack direction="row" align="center" justify="between" className="mb-2">
+          <Text weight="bold" size="sm" className={isDark ? "text-white" : "text-gray-900"}>
             Live Scorecard
           </Text>
           <Stack direction="row" align="center" gap="xs">
             {isConnected ? (
-              <Stack direction="row" align="center" gap="xs" className="bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
-                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <Text size="xs" weight="bold" className="text-red-500 uppercase tracking-wider text-[10px]">Live</Text>
+              <Stack direction="row" align="center" gap="xs" className="bg-red-500/10 px-1.5 py-0.5 rounded-full border border-red-500/20">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                <Text size="xs" weight="bold" className="text-red-500 uppercase tracking-wider text-[9px]">Live</Text>
               </Stack>
             ) : (
-              <Stack direction="row" align="center" gap="xs" className="bg-gray-500/10 px-2 py-0.5 rounded-full border border-gray-500/20">
-                <div className="w-2 h-2 rounded-full bg-gray-400" />
-                <Text size="xs" weight="medium" className="text-gray-400 uppercase tracking-wider text-[10px]">Offline</Text>
+              <Stack direction="row" align="center" gap="xs" className="bg-gray-500/10 px-1.5 py-0.5 rounded-full border border-gray-500/20">
+                <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                <Text size="xs" weight="medium" className="text-gray-400 uppercase tracking-wider text-[9px]">Offline</Text>
               </Stack>
             )}
           </Stack>
